@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Physician in the Loop: AI in medicine, for physicians</title>
+<meta name="description" content="How artificial intelligence changes medicine for the people who actually practice it. Daily posts, a Friday letter, a watch list, and a calendar of the dates that matter.">
+<meta name="author" content="Ryan Gillum, MD">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="canonical" href="https://physicianintheloop.org/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Physician in the Loop">
+<meta property="og:title" content="Physician in the Loop: AI in medicine, for physicians">
+<meta property="og:description" content="How artificial intelligence changes medicine for the people who actually practice it. Daily posts, a Friday letter, a watch list, and a calendar of the dates that matter.">
+<meta property="og:url" content="https://physicianintheloop.org/">
+<meta property="og:image" content="https://physicianintheloop.org/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Physician in the Loop: AI in medicine, for physicians">
+<meta name="twitter:description" content="How artificial intelligence changes medicine for the people who actually practice it. Daily posts, a Friday letter, a watch list, and a calendar of the dates that matter.">
+<meta name="twitter:image" content="https://physicianintheloop.org/og-image.png">
+<meta name="theme-color" content="#F5F8FC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1522" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="alternate" type="application/rss+xml" title="Physician in the Loop" href="https://physicianintheloop.org/feed.xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #F5F8FC;
+    --bg-2: #EAF0F8;
+    --surface: #FFFFFF;
+    --surface-2: #F0F4FA;
+    --ink: #172033;
+    --ink-2: #33415A;
+    --muted: #61718A;
+    --rule: #DCE4EF;
+    --rule-2: #C9D5E6;
+    --accent: #2F63A8;
+    --accent-2: #1F4B86;
+    --accent-ink: #FFFFFF;
+    --accent-soft: rgba(47, 99, 168, 0.09);
+    --accent-line: rgba(47, 99, 168, 0.28);
+    --link: #2A5C9E;
+    --warn: #A6660F;
+    --bad: #B23B3B;
+    --good: #2C7A55;
+    --shadow: 0 1px 2px rgba(23, 32, 51, 0.04), 0 8px 24px rgba(23, 32, 51, 0.06);
+    --display: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --body: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1522; --bg-2: #141C2D; --surface: #171F31; --surface-2: #1D2739; --ink: #E7ECF4; --ink-2: #C7D1E1; --muted: #98A6BC; --rule: #283449; --rule-2: #34435C;
+      --accent: #7FA9E9; --accent-2: #A9C6F2; --accent-ink: #0F1522; --accent-soft: rgba(127, 169, 233, 0.14); --accent-line: rgba(127, 169, 233, 0.35); --link: #93B8F0;
+      --warn: #E2A94F; --bad: #EA8C8C; --good: #7FCB9F; --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1522; --bg-2: #141C2D; --surface: #171F31; --surface-2: #1D2739; --ink: #E7ECF4; --ink-2: #C7D1E1; --muted: #98A6BC; --rule: #283449; --rule-2: #34435C;
+    --accent: #7FA9E9; --accent-2: #A9C6F2; --accent-ink: #0F1522; --accent-soft: rgba(127, 169, 233, 0.14); --accent-line: rgba(127, 169, 233, 0.35); --link: #93B8F0;
+    --warn: #E2A94F; --bad: #EA8C8C; --good: #7FCB9F; --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 112px; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.65; margin: 0; padding-inline: 16px; padding-block: 0 72px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--accent-line); transition: color .15s ease, text-decoration-color .15s ease; }
+  a:hover { color: var(--accent-2); text-decoration-color: currentColor; }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+  h1, h2, h3, h4 { font-family: var(--display); font-weight: 600; line-height: 1.15; text-wrap: balance; margin: 0; letter-spacing: -0.01em; color: var(--ink); }
+  h1 { font-size: clamp(2.1rem, 6vw, 3.1rem); line-height: 1.05; letter-spacing: -0.02em; }
+  h2 { font-size: 1.8rem; }
+  h3 { font-size: 1.32rem; }
+  h4 { font-size: 1.08rem; }
+  p { margin: 0 0 1.1em; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 600; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  .eyebrow { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); }
+  .mono { font-family: var(--mono); font-size: 0.78rem; }
+  .muted { color: var(--muted); }
+  .btn { display: inline-block; font-family: var(--body); font-weight: 600; font-size: 0.95rem; background: var(--accent); color: var(--accent-ink); padding: 10px 18px; border-radius: 999px; text-decoration: none; line-height: 1.2; white-space: nowrap; border: 0; cursor: pointer; box-shadow: 0 1px 2px rgba(23, 32, 51, 0.12); transition: background .15s ease, transform .15s ease; }
+  .btn:hover { background: var(--accent-2); color: var(--accent-ink); transform: translateY(-1px); }
+  .btn.small { font-size: 0.85rem; padding: 7px 14px; }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent-line); box-shadow: none; }
+  .btn.ghost:hover { background: var(--accent-soft); color: var(--accent-2); }
+
+  /* sticky header: brand row + tab row */
+  .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: saturate(1.2) blur(10px); -webkit-backdrop-filter: saturate(1.2) blur(10px); border-bottom: 1px solid var(--rule); margin-inline: -16px; padding-inline: 16px; }
+  .topbar::before { content: ""; display: block; height: 3px; margin-inline: -16px; background: linear-gradient(90deg, var(--accent-2), var(--accent) 55%, var(--bg-2)); }
+  .topbar-inner { max-width: 740px; margin: 0 auto; }
+  .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 11px 6px; }
+  .brand { font-family: var(--display); font-weight: 600; font-size: 1.22rem; color: var(--ink); text-decoration: none; white-space: nowrap; letter-spacing: -0.01em; }
+  .brand:hover { color: var(--accent-2); }
+  .tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin-inline: -4px; padding: 2px 4px 8px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { appearance: none; background: none; border: 0; font-family: var(--body); font-weight: 600; font-size: 0.9rem; color: var(--muted); padding: 7px 12px; border-radius: 999px; white-space: nowrap; cursor: pointer; line-height: 1.2; transition: background .15s ease, color .15s ease; }
+  .tab:hover { color: var(--accent-2); background: var(--accent-soft); }
+  .tab[aria-selected="true"] { color: var(--accent-ink); background: var(--accent); }
+  .tab .n { display: inline-block; min-width: 1.4em; margin-left: 6px; padding: 1px 6px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-family: var(--mono); font-size: 0.66rem; vertical-align: 1px; }
+  .tab[aria-selected="true"] .n { background: rgba(255,255,255,0.22); color: var(--accent-ink); }
+
+  /* masthead panel (Today tab) */
+  .masthead { margin: 22px 0 28px; padding: 30px 26px 26px; border-radius: 16px; background: linear-gradient(160deg, var(--bg-2) 0%, var(--surface) 70%); border: 1px solid var(--rule); box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .masthead::after { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(closest-side, var(--accent-soft), transparent); pointer-events: none; }
+  .masthead .dek { font-family: var(--display); font-size: 1.22rem; line-height: 1.45; color: var(--ink-2); max-width: 600px; margin-top: 12px; font-weight: 400; }
+  .byline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-top: 16px; font-size: 0.92rem; color: var(--muted); }
+  .byline .who { color: var(--ink); font-weight: 600; }
+  .subscribe { margin-top: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .subscribe .note { font-size: 0.9rem; color: var(--muted); max-width: 420px; }
+  @media (max-width: 480px) { .masthead { padding: 24px 18px 22px; } }
+
+  .panel { padding-block: 8px 24px; }
+  .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin: 20px 0 18px; }
+  .panel-head h2 { font-size: 1.6rem; position: relative; padding-left: 14px; }
+  .panel-head h2::before { content: ""; position: absolute; left: 0; top: 0.18em; width: 4px; height: 0.95em; border-radius: 2px; background: var(--accent); }
+  .panel-head .sub { font-size: 0.92rem; color: var(--muted); }
+  .lead { color: var(--ink-2); max-width: 640px; margin-bottom: 20px; font-size: 1.05rem; }
+
+  /* post card */
+  .post { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 26px 26px 22px; box-shadow: var(--shadow); }
+  @media (max-width: 480px) { .post { padding: 20px 18px 18px; } }
+  .post-date { font-family: var(--mono); font-size: 0.74rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+  .post h2.headline { font-size: clamp(1.55rem, 4.6vw, 2.15rem); margin-top: 8px; line-height: 1.15; }
+  .post .dek { font-family: var(--display); font-size: 1.15rem; color: var(--ink-2); margin-top: 10px; line-height: 1.45; }
+  .section-label { font-family: var(--display); font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-2); margin: 26px 0 0; padding-left: 12px; position: relative; line-height: 1.3; }
+  .section-label::before { content: ""; position: absolute; left: 0; top: 0.32em; width: 3px; height: 0.68em; border-radius: 2px; background: var(--accent); }
+  .section-label.details-label { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--rule); }
+  .section-label.details-label::before { top: calc(22px + 0.32em); }
+  .section-label + .items { margin-top: 14px; }
+  .section-label + .items .item:first-child { border-top: 0; padding-top: 4px; }
+  .post .intro { margin-top: 12px; }
+  .post .intro p:first-child::first-letter { font-family: var(--display); font-size: 3.1em; line-height: 0.82; float: left; padding-right: 9px; padding-top: 5px; color: var(--accent); font-weight: 600; }
+  .items { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 20px; }
+  .item { padding-top: 18px; border-top: 1px solid var(--rule); }
+  .item .cat { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); }
+  .item .cat .when { color: var(--muted); }
+  .item-title { font-family: var(--display); font-weight: 600; font-size: 1.22rem; line-height: 1.28; margin-top: 5px; }
+  .item-title a { color: var(--ink); text-decoration: none; }
+  .item-title a:hover { color: var(--accent-2); text-decoration: underline; text-decoration-color: var(--accent-line); }
+  .item-body { margin-top: 7px; color: var(--ink-2); }
+  .item-src { font-size: 0.86rem; color: var(--muted); margin-top: 7px; }
+  .item-src a { color: var(--muted); }
+  .takeaway { margin-top: 28px; padding: 18px 20px 18px 22px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; }
+  .takeaway h4 { color: var(--accent-2); margin-bottom: 8px; font-family: var(--mono); font-weight: 500; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; }
+  .more-row { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; }
+
+  /* recent list on Today */
+  .recent { list-style: none; margin: 8px 0 0; padding: 0; }
+  .recent li { padding-block: 12px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 96px 1fr; gap: 4px 14px; }
+  .recent li:last-child { border-bottom: 1px solid var(--rule); }
+  .recent .when { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); padding-top: 5px; }
+  .recent a { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; color: var(--ink); text-decoration: none; }
+  .recent a:hover { color: var(--accent-2); }
+  @media (max-width: 480px) { .recent li { grid-template-columns: 1fr; } }
+
+  /* expandable lists (posts, letters) */
+  details { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; margin-bottom: 10px; transition: box-shadow .15s ease; }
+  details:hover { box-shadow: var(--shadow); }
+  details[open] { box-shadow: var(--shadow); border-color: var(--rule-2); }
+  summary { cursor: pointer; list-style: none; padding: 16px 18px; display: grid; grid-template-columns: 96px 1fr; gap: 6px 14px; align-items: baseline; }
+  summary::-webkit-details-marker { display: none; }
+  summary .when { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); letter-spacing: 0.05em; padding-top: 5px; }
+  summary .t { font-family: var(--display); font-weight: 600; font-size: 1.16rem; line-height: 1.28; color: var(--ink); }
+  summary:hover .t { color: var(--accent-2); }
+  summary .d { grid-column: 2; font-size: 0.95rem; color: var(--muted); }
+  details[open] > summary { border-bottom: 1px solid var(--rule); }
+  @media (max-width: 480px) { summary { grid-template-columns: 1fr; padding: 14px 16px; } summary .d { grid-column: 1; } }
+  .details-body { padding: 6px 18px 22px; }
+  @media (max-width: 480px) { .details-body { padding: 6px 16px 18px; } }
+  .empty { color: var(--muted); font-style: italic; padding: 14px 18px; background: var(--surface); border: 1px dashed var(--rule-2); border-radius: 12px; }
+
+  /* letters */
+  .letter .body-copy { margin-top: 14px; }
+  .letter .section-label:first-child { margin-top: 20px; }
+  .letter .section-label + .body-copy { margin-top: 12px; }
+  .letter .outlook .section-label + div { margin-top: 12px; }
+  .special-body { max-width: 720px; }
+  .special-body p { margin: 0 0 14px; font-size: 1.04rem; line-height: 1.68; }
+  .special-body h3 { font-family: var(--display); font-size: 1.32rem; font-weight: 600; margin: 30px 0 10px; color: var(--ink); }
+  .special-body .pull { margin: 22px 0; }
+  .special-body p.step strong { color: var(--accent-2); }
+  .letter .outlook { margin-top: 0; }
+
+  /* watch list */
+  .watch { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .watch li { display: grid; grid-template-columns: 110px 1fr; gap: 8px 16px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; align-items: start; }
+  .status { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 5px 9px; border-radius: 999px; text-align: center; line-height: 1.3; font-weight: 500; }
+  .status.rising { color: var(--bad); background: rgba(178, 59, 59, 0.10); }
+  .status.active { color: var(--warn); background: rgba(166, 102, 15, 0.11); }
+  .status.quiet { color: var(--muted); background: var(--surface-2); }
+  .status.favorable { color: var(--good); background: rgba(44, 122, 85, 0.11); }
+  .watch .name { font-family: var(--display); font-weight: 600; font-size: 1.12rem; line-height: 1.28; }
+  .watch .note { font-size: 0.97rem; margin-top: 5px; color: var(--ink-2); }
+  .watch .last { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); margin-top: 7px; }
+  .watch .src { font-size: 0.84rem; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .watch .src a { color: var(--muted); }
+  @media (max-width: 480px) { .watch li { grid-template-columns: 1fr; } .status { justify-self: start; } }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 16px; font-size: 0.88rem; color: var(--muted); align-items: center; }
+
+  /* dates: timeline */
+  .cal-month { font-family: var(--display); font-weight: 600; font-size: 1.15rem; color: var(--accent-2); margin: 24px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--rule-2); }
+  .cal-month:first-child { margin-top: 0; }
+  .cal { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--rule-2); }
+  .cal li { display: grid; grid-template-columns: 92px 1fr; gap: 12px; padding: 10px 0 12px 14px; position: relative; }
+  .cal li::before { content: ""; position: absolute; left: -20px; top: 20px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--accent-line); }
+  .cal li.past::before { background: var(--rule-2); box-shadow: none; }
+  .cal .d { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); font-variant-numeric: tabular-nums; padding-top: 4px; }
+  .cal .t { font-weight: 600; color: var(--ink); }
+  .cal .n { font-size: 0.93rem; color: var(--muted); }
+  .cal li.past { opacity: 0.55; }
+  @media (max-width: 480px) { .cal li { grid-template-columns: 1fr; gap: 2px; } }
+
+  /* long-form */
+  .doc h2 { margin-top: 46px; padding-top: 26px; border-top: 1px solid var(--rule); font-size: 1.65rem; }
+  .doc h2.first { border-top: 0; padding-top: 0; margin-top: 8px; }
+  .doc h3 { margin-top: 28px; margin-bottom: 10px; color: var(--accent-2); }
+  .doc p, .doc li { max-width: 680px; color: var(--ink-2); }
+  .doc p strong { color: var(--ink); }
+  .doc ul, .doc ol { padding-left: 1.2em; margin: 0 0 1.05em; }
+  .doc li + li { margin-top: 8px; }
+  .doc .lede { font-family: var(--display); font-size: 1.18rem; color: var(--ink-2); line-height: 1.5; }
+  .toc { font-size: 0.96rem; list-style: none; padding: 16px 18px; margin: 18px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; box-shadow: var(--shadow); }
+  .toc a { text-decoration: none; font-weight: 600; }
+  .toc a:hover { text-decoration: underline; }
+  @media (max-width: 520px) { .toc { grid-template-columns: 1fr; } }
+  .pull { border-left: 3px solid var(--accent); padding: 12px 20px; margin: 26px 0; font-family: var(--display); font-size: 1.28rem; line-height: 1.4; color: var(--accent-2); max-width: 640px; background: var(--accent-soft); border-radius: 0 12px 12px 0; }
+  .tablewrap { overflow-x: auto; margin: 16px 0 24px; -webkit-overflow-scrolling: touch; border: 1px solid var(--rule); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; min-width: 600px; font-size: 0.93rem; background: var(--surface); }
+  th, td { text-align: left; vertical-align: top; padding: 11px 12px; border-bottom: 1px solid var(--rule); }
+  tr:last-child td { border-bottom: 0; }
+  th { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-2); font-weight: 500; background: var(--surface-2); }
+  .t-high { color: var(--bad); font-weight: 600; }
+  .t-mod { color: var(--warn); font-weight: 600; }
+  .t-low { color: var(--good); font-weight: 600; }
+  .totop { margin-top: 30px; }
+
+  .about { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 24px 24px; box-shadow: var(--shadow); }
+  .about h3 { margin-bottom: 8px; color: var(--accent-2); }
+  .about p { color: var(--ink-2); }
+  .about-head { display: flex; gap: 22px; align-items: flex-start; }
+  .about-photo { width: 176px; height: auto; flex: 0 0 auto; border-radius: 14px; border: 1px solid var(--rule); box-shadow: var(--shadow); }
+  .about-intro { min-width: 0; }
+  @media (max-width: 560px) { .about-head { flex-direction: column; } .about-photo { width: 150px; } }
+  .foot { padding-block: 30px; font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--rule); margin-top: 24px; }
+  .foot a { color: var(--muted); }
+  .foot .tablinks a { margin-right: 12px; font-weight: 600; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  @media (prefers-reduced-motion: reduce) { .btn, .tab, details, a { transition: none; } }
+
+  .tab { text-decoration: none; }
+  .tab[aria-current="page"] { color: var(--accent-ink); background: var(--accent); }
+  .tab[aria-current="page"] .n { background: rgba(255,255,255,0.22); color: var(--accent-ink); }
+  main { display: block; }
+  .post h1.headline { font-size: clamp(1.55rem, 4.6vw, 2.15rem); margin-top: 8px; line-height: 1.15; letter-spacing: -0.01em; }
+  .post .standfirst { font-family: var(--display); font-size: 1.15rem; color: var(--ink-2); margin-top: 10px; line-height: 1.45; }
+  .post .body-copy { margin-top: 14px; }
+  .post .section-label + .body-copy { margin-top: 12px; }
+  .post .outlook .section-label + div { margin-top: 12px; }
+  .post .special-body { margin-top: 6px; }
+  .crumbs { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 18px 0 12px; }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--accent-2); }
+  .archive { list-style: none; margin: 8px 0 0; padding: 0; }
+  .archive li { padding-block: 12px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 96px 1fr; gap: 4px 14px; }
+  .archive li:last-child { border-bottom: 1px solid var(--rule); }
+  .archive .when { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); padding-top: 5px; }
+  .archive a { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; color: var(--ink); text-decoration: none; }
+  .archive a:hover { color: var(--accent-2); }
+  .archive .d { grid-column: 2; font-size: 0.95rem; color: var(--muted); }
+  @media (max-width: 480px) { .archive li { grid-template-columns: 1fr; } .archive .d { grid-column: 1; } }
+  .pager { display: flex; justify-content: space-between; gap: 16px; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 0.95rem; }
+  .pager a { font-weight: 600; text-decoration: none; max-width: 48%; }
+  .pager a:hover { text-decoration: underline; }
+  .pager .lbl { display: block; font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 3px; }
+  .subscribe-box { margin-top: 28px; padding: 20px 22px; background: var(--accent-soft); border-radius: 12px; }
+  .subscribe-box p { margin: 0 0 12px; color: var(--ink-2); }
+  .doc .doc-title { font-size: clamp(1.6rem, 4.6vw, 2rem); margin: 4px 0 14px; line-height: 1.15; }
+  .foot .tablinks { display: flex; flex-wrap: wrap; gap: 4px 0; }
+</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Physician in the Loop", "url": "https://physicianintheloop.org/", "description": "How artificial intelligence changes medicine for the people who actually practice it. Daily posts, a Friday letter, a watch list, and a calendar of the dates that matter.", "inLanguage": "en-US", "author": {"@type": "Person", "name": "Ryan Gillum, MD", "url": "https://physicianintheloop.org/about/", "jobTitle": "Physician", "sameAs": ["https://physicianintheloop.substack.com"]}, "publisher": {"@type": "Organization", "name": "Physician in the Loop", "url": "https://physicianintheloop.org/", "logo": {"@type": "ImageObject", "url": "https://physicianintheloop.org/logo.png", "width": 512, "height": 512}}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Person", "name": "Ryan Gillum, MD", "url": "https://physicianintheloop.org/about/", "jobTitle": "Physician", "sameAs": ["https://physicianintheloop.substack.com"], "image": "https://physicianintheloop.org/images/ryan-gillum.jpg"}</script>
+<script>(function(){var h=location.hash.replace(/^#/,"");if(!h)return;var map={"today": "/", "posts": "/posts/", "letters": "/letters/", "specials": "/specials/", "watch": "/watch/", "dates": "/dates/", "landscape": "/where-things-stand/", "about": "/about/"};if(map[h]){location.replace(map[h]);return;}var m=/^post-(\d{4}-\d{2}-\d{2})-\d+$/.exec(h);if(m){location.replace("/posts/"+m[1]+"/");return;}if(h.indexOf("letter-")===0){location.replace("/letters/"+h.slice(7)+"/");return;}if(h.indexOf("special-")===0){location.replace("/specials/"+h.slice(8)+"/");}})();</script>
+</head>
+<body>
+<div class="topbar" id="topbar"><div class="topbar-inner"><div class="brand-row"><a class="brand" href="/">Physician in the Loop</a><a class="btn small" href="https://physicianintheloop.substack.com/subscribe" target="_blank" rel="noopener">Subscribe</a></div><nav class="tabs" aria-label="Sections"><a class="tab" href="/" aria-current="page">Today</a><a class="tab" href="/posts/">Daily posts<span class="n">11</span></a><a class="tab" href="/letters/">Friday letter</a><a class="tab" href="/specials/">Special topics</a><a class="tab" href="/watch/">Watch list</a><a class="tab" href="/dates/">Dates</a><a class="tab" href="/where-things-stand/">Where things stand</a><a class="tab" href="/about/">About</a></nav></div></div>
+<div class="wrap">
+<main>
+<section class="panel"><header class="masthead">
+      <div class="eyebrow">AI in medicine, for physicians</div>
+      <h1>Physician in the Loop</h1>
+      <p class="dek">How artificial intelligence changes medicine for the people who actually practice it.</p>
+      <div class="byline">
+        <span>By <span class="who">Ryan Gillum, MD</span></span>
+        <span>Updated <span class="who" id="last-updated">Sept 24, 2026</span></span>
+      </div>
+      <div class="subscribe">
+        <a class="btn" id="subscribe-main" href="https://physicianintheloop.substack.com/subscribe" target="_blank" rel="noopener">Get the Friday letter, free</a>
+        <span class="note">The site updates every morning. On Fridays I send a weekly recap with the stuff that really matters.</span>
+      </div>
+    </header><div class="eyebrow">Today's post</div><article class="post"><div class="post-date"><time datetime="2026-09-24">Sept 24, 2026</time></div><h2 class="headline"><a href="/posts/2026-09-24/" style="color:inherit;text-decoration:none">OpenAI agent breaches Australia&#x27;s Medicare portal; Epic pauses development for security; nurses report AI surveillance; OpenEvidence goes free in 100 countries</a></h2><div class="section-label">THE SHORT READ</div><div class="intro"><p>Australian Prime Minister Anthony Albanese <a href="https://www.pm.gov.au/media/press-conference-new-york" target="_blank" rel="noopener">told reporters</a> in New York that an OpenAI research agent bypassed access controls on a Medicare statistics portal in June and read files it was not meant to read. His government learned of the intrusion from an email sent to a public mailbox on Sept. 10, he said. No patient chart was touched; the portal held aggregate Medicare and pharmaceutical data. OpenAI identified the behavior on Aug. 11 and took about a month to send the email. Autonomous agents of the same type are now being marketed for use inside electronic health records.</p><p>Epic on Wednesday responded to a report that it had paused most development for six weeks to work on security; its statement confirmed the security push and denied any change to its roadmap. In Boston, Mass General Brigham closed its World Medical Innovation Forum with <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/10-ai-takeaways-from-mass-general-brighams-world-medical-innovation-forum/" target="_blank" rel="noopener">figures on its AI intake agent</a>: 77% of patients who arrive through the agent see a physician the same day, and 36,000 patients came through it in its first year. The Senate Health, Education, Labor and Pensions Committee <a href="https://www.help.senate.gov/hearings/nomination-of-heidi-overton-to-be-commissioner-of-food-and-drugs" target="_blank" rel="noopener">questions Heidi Overton</a>, the nominee for commissioner of the Food and Drug Administration, at 10:30 a.m. Eastern time Thursday. About 4,000 Brigham nurses <a href="https://www.bostonglobe.com/2026/09/24/business/brigham-nurses-strike-again/" target="_blank" rel="noopener">vote Thursday</a> on an open-ended strike; The Boston Globe&#x27;s account of the dispute centers on wages and health insurance, not AI.</p><p>In other developments, Black Book Research released a survey of 202 hospital nurses on being monitored by AI systems, OpenEvidence is to become free in about 100 low- and middle-income countries on Anthropic&#x27;s models, Oracle Health announced five revenue-cycle AI tools, and UnitedHealth Group, CVS Health and Kaiser Permanente asked the Centers for Medicare &amp; Medicaid Services (CMS) not to bar vendor-run remote patient monitoring. Colorado&#x27;s <a href="https://coag.gov/ai/" target="_blank" rel="noopener">rulemaking page</a> for the state&#x27;s automated-decision rules showed no revised draft as of Thursday.</p></div><div class="section-label details-label">THE DETAILS</div><ul class="items"><li class="item"><div class="cat">Incident  <span class="when">Sept 24, 2026</span></div><div class="item-title"><a href="https://www.pm.gov.au/media/press-conference-new-york" target="_blank" rel="noopener">OpenAI agent bypasses access controls on Australia&#x27;s Medicare portal June 18; government&#x27;s first notice is a Sept. 10 email to a public mailbox</a></div><div class="item-body">Albanese <a href="https://www.pm.gov.au/media/press-conference-new-york" target="_blank" rel="noopener">told reporters in New York</a> that OpenAI&#x27;s research team had used an internal model to look up public medicine spending, that on June 18 the model hit the portal&#x27;s blocks and &quot;found a way around those blocks,&quot; and that it &quot;accessed public and non-public information within the portal.&quot; The portal belongs to Services Australia and holds aggregate Medicare and pharmaceutical statistics; no patient record was involved. The agent read summary data and internal file names and <a href="https://www.healthcareitnews.com/news/anz/openai-agent-breaches-australian-medicare-portal" target="_blank" rel="noopener">also wrote files to an internal server</a>, Healthcare IT News reported. OpenAI found the episode on Aug. 11 during a review of misaligned model behavior, and its Sept. 10 notification was <a href="https://www.abc.net.au/news/2026-09-24/federal-politics-live-blog-openai-medicare-breach/107186578" target="_blank" rel="noopener">an email to a public feedback address that is checked once a day</a>, according to ABC News. The Australian Signals Directorate was informed Sept. 15, and the incident was made public Sept. 24. OpenAI said in a statement that its models &quot;took actions we did not intend,&quot; and Albanese <a href="https://www.abc.net.au/news/2026-09-24/ai-agent-accessed-australian-government-site-pm-says/107189078" target="_blank" rel="noopener">phoned OpenAI&#x27;s Sam Altman</a> to tell him the delay was &quot;way too long,&quot; ABC News reported.</div><div class="item-src">Sources: <a href="https://www.pm.gov.au/media/press-conference-new-york" target="_blank" rel="noopener">Prime Minister of Australia (press conference transcript)</a>, <a href="https://www.abc.net.au/news/2026-09-24/ai-agent-accessed-australian-government-site-pm-says/107189078" target="_blank" rel="noopener">ABC News</a>, <a href="https://www.abc.net.au/news/2026-09-24/federal-politics-live-blog-openai-medicare-breach/107186578" target="_blank" rel="noopener">ABC News live blog</a>, <a href="https://www.healthcareitnews.com/news/anz/openai-agent-breaches-australian-medicare-portal" target="_blank" rel="noopener">Healthcare IT News</a></div></li><li class="item"><div class="cat">Deployment  <span class="when">Sept 23, 2026</span></div><div class="item-title"><a href="https://www.fiercehealthcare.com/health-tech/epic-shifts-focus-cybersecurity-while-ai-and-interoperability-agenda-still-track" target="_blank" rel="noopener">Epic CEO Judy Faulkner says most development is paused for about six weeks of security work; company says AI roadmap is unchanged</a></div><div class="item-body"><a href="https://www.fiercehealthcare.com/health-tech/epic-shifts-focus-cybersecurity-while-ai-and-interoperability-agenda-still-track" target="_blank" rel="noopener">Fierce Healthcare reported</a> that Epic CEO Judy Faulkner told a conference audience this week that the company had paused most technology development, roughly six weeks of work, to concentrate on security, and that a spokesperson then said the roadmap &quot;hasn&#x27;t changed since it was presented at Epic&#x27;s August 2026 Users Group Meeting.&quot; Epic&#x27;s <a href="https://ibmadison.com/epic-releases-clarifying-statement-on-modern-healthcare-story/" target="_blank" rel="noopener">full statement</a> lists what continues, including expanded AI capabilities, Agent Factory, EpicOps and interoperability for prior authorization, and says the company is &quot;participating in Project Glasswing,&quot; the Anthropic program that <a href="https://www.beckershospitalreview.com/healthcare-information-technology/innovation/why-epic-joined-anthropics-project-glasswing/" target="_blank" rel="noopener">lets an unreleased model hunt for vulnerabilities in partners&#x27; code</a>. Epic&#x27;s chief security officer, Stirling Martin, has said the model finds things in a codebase of several hundred million lines that his developers cannot see.</div><div class="item-src">Sources: <a href="https://www.fiercehealthcare.com/health-tech/epic-shifts-focus-cybersecurity-while-ai-and-interoperability-agenda-still-track" target="_blank" rel="noopener">Fierce Healthcare</a>, <a href="https://ibmadison.com/epic-releases-clarifying-statement-on-modern-healthcare-story/" target="_blank" rel="noopener">In Business Madison (Epic&#x27;s statement)</a>, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/innovation/why-epic-joined-anthropics-project-glasswing/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review (Project Glasswing)</a></div></li><li class="item"><div class="cat">Workforce  <span class="when">Sept 23, 2026</span></div><div class="item-title"><a href="https://www.newswire.com/news/65-of-hospital-nurses-polled-feel-watched-by-ai-63-report-added-work-reports" target="_blank" rel="noopener">Survey of 202 hospital nurses: 65% feel watched by AI, 52% changed documentation timing to avoid a flag, 33% less willing to report a near miss</a></div><div class="item-body">Black Book Research <a href="https://www.newswire.com/news/65-of-hospital-nurses-polled-feel-watched-by-ai-63-report-added-work-reports" target="_blank" rel="noopener">surveyed 202 hospital nursing professionals</a> in August who had worked with AI or algorithmic systems in the previous year, including bedside and charge nurses, managers, informaticists, case managers and a few administrators. Of those, 65% said they felt individually watched or behaviorally tracked, 51% said AI-derived data had been used in coaching or performance reviews, 29% could inspect what a system had attributed to them and 30% had a way to correct it. On behavior, 52% said they had changed when they documented or the order in which they delivered care to avoid a negative flag, 49% used workarounds to cut alerts, 38% felt safe overriding a recommendation and 33% were less willing to report a near miss or an uncertainty. Another 63% said AI added tasks without removing any, and 48% said they would probably look for a job with less AI monitoring. Responses were self-reported, and Black Book Research is a commercial survey firm; Becker&#x27;s Hospital Review <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/ai-is-making-hospital-nursing-professionals-feel-watched-survey/" target="_blank" rel="noopener">also reported the figures</a>.</div><div class="item-src">Sources: <a href="https://www.newswire.com/news/65-of-hospital-nurses-polled-feel-watched-by-ai-63-report-added-work-reports" target="_blank" rel="noopener">Black Book Research (release)</a>, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/ai-is-making-hospital-nursing-professionals-feel-watched-survey/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review</a></div></li><li class="item"><div class="cat">Deployment  <span class="when">Sept 22, 2026</span></div><div class="item-title"><a href="https://www.thestar.com.my/tech/tech-news/2026/09/23/exclusive-anthropic-openevidence-partner-to-bring-medical-ai-worldwide" target="_blank" rel="noopener">OpenEvidence, used 42 million times by U.S. clinicians in August, to be free in about 100 low- and middle-income countries on Anthropic&#x27;s models</a></div><div class="item-body"><a href="https://www.thestar.com.my/tech/tech-news/2026/09/23/exclusive-anthropic-openevidence-partner-to-bring-medical-ai-worldwide" target="_blank" rel="noopener">Reuters reported</a> Tuesday that OpenEvidence, already free to clinicians in the United States and Europe, will be free in about 100 countries, among them Uganda, Sudan, Haiti and Mongolia, with Anthropic supplying the models; neither company disclosed terms. U.S. clinicians ran 42 million consultations through the tool in August, according to the report. Daniela Amodei, Anthropic&#x27;s president, said the market alone &quot;would not let it happen,&quot; and <a href="https://thenextweb.com/news/anthropic-openevidence-free-medical-ai" target="_blank" rel="noopener">The Next Web</a> reported that each version is meant to be adapted to local disease patterns and diagnostic resources. On Sept. 16, Memorial Sloan Kettering <a href="https://www.mskcc.org/news-releases/mskcc-msk-and-openevidence-partner-to-advance-precision-oncology-at-point-of-care" target="_blank" rel="noopener">put its OncoKB genomic annotations inside OpenEvidence</a>, in Epic, at the point of care. A <a href="https://www.nature.com/articles/s41591-026-04457-9" target="_blank" rel="noopener">June Nature Medicine paper</a> found two leading clinical AI tools no better than a Google AI overview on physicians&#x27; real questions, and on Sept. 3 it drew <a href="https://www.nature.com/articles/s41591-026-04638-6" target="_blank" rel="noopener">a formal critique</a> for contaminated benchmarks and a narrow real-world test.</div><div class="item-src">Sources: <a href="https://www.thestar.com.my/tech/tech-news/2026/09/23/exclusive-anthropic-openevidence-partner-to-bring-medical-ai-worldwide" target="_blank" rel="noopener">Reuters (via The Star)</a>, <a href="https://thenextweb.com/news/anthropic-openevidence-free-medical-ai" target="_blank" rel="noopener">The Next Web</a>, <a href="https://www.benzinga.com/news/health-care/26/09/61940151/anthropic-openevidence-free-clinical-tool-low-income-countries" target="_blank" rel="noopener">Benzinga</a>, <a href="https://www.mskcc.org/news-releases/mskcc-msk-and-openevidence-partner-to-advance-precision-oncology-at-point-of-care" target="_blank" rel="noopener">Memorial Sloan Kettering</a>, <a href="https://www.nature.com/articles/s41591-026-04457-9" target="_blank" rel="noopener">Nature Medicine (research briefing)</a>, <a href="https://www.nature.com/articles/s41591-026-04638-6" target="_blank" rel="noopener">Nature Medicine (Matters Arising)</a></div></li><li class="item"><div class="cat">Deployment  <span class="when">Sept 23, 2026</span></div><div class="item-title"><a href="https://www.oracle.com/news/announcement/oracle-health-advances-revenue-cycle-management-with-ai-2026-09-23/" target="_blank" rel="noopener">Oracle Health announces five revenue-cycle AI tools, including a pre-claim review of notes for coding gaps; hospital CEO describes &#x27;the bot wars&#x27;</a></div><div class="item-body">Oracle Health <a href="https://www.oracle.com/news/announcement/oracle-health-advances-revenue-cycle-management-with-ai-2026-09-23/" target="_blank" rel="noopener">announced</a> Wednesday five tools, all due in &quot;the coming months&quot;: a prior authorization tool that checks coverage, pulls documentation requirements, prefills the request and works it with the payer; a &quot;clinical document quality integrity&quot; review that looks for gaps in the note and surfaces coding recommendations; charge capture; professional-fee coding recommended from the documentation; and an appeals tool that analyzes payment variances and assembles the packet. The announcement named no customers and gave no figures, and it quoted Seema Verma as saying AI &quot;gives us an opportunity to prevent revenue cycle problems before they lead to denials.&quot; The same day, at Mass General Brigham&#x27;s forum, Colin McHugh, chief executive of Southern New Hampshire Health, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/10-ai-takeaways-from-mass-general-brighams-world-medical-innovation-forum/" target="_blank" rel="noopener">described the current state</a> as &quot;the bot wars,&quot; with payers denying by algorithm and providers answering by algorithm. Abridge already sells a pre-bill coding check, and the Department of Veterans Affairs this week awarded an ambient documentation contract with a $776 million ceiling.</div><div class="item-src">Sources: <a href="https://www.oracle.com/news/announcement/oracle-health-advances-revenue-cycle-management-with-ai-2026-09-23/" target="_blank" rel="noopener">Oracle (announcement)</a>, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/10-ai-takeaways-from-mass-general-brighams-world-medical-innovation-forum/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review</a></div></li><li class="item"><div class="cat">Regulation  <span class="when">Sept 23, 2026</span></div><div class="item-title"><a href="https://www.statnews.com/2026/09/23/unitedhealth-cvs-pushback-medicare-plan-rpm-abuse/" target="_blank" rel="noopener">UnitedHealth, CVS and Kaiser urge CMS not to ban vendor-run remote patient monitoring; UnitedHealthcare earlier tried to stop paying for most of it</a></div><div class="item-body"><a href="https://www.statnews.com/2026/09/23/unitedhealth-cvs-pushback-medicare-plan-rpm-abuse/" target="_blank" rel="noopener">STAT reported</a> that UnitedHealth Group, CVS Health and Kaiser Permanente each sent CMS letters opposing the proposed 2027 fee schedule provision that would allow remote physiologic monitoring only when the clinical staff are employed by the billing practice, a change that would end the vendor-run model most small practices use. All three companies own both an insurer and a care delivery arm, and UnitedHealthcare, the insurance side of UnitedHealth Group, earlier tried to stop paying for most remote monitoring because the evidence was thin, according to STAT. The companies asked for &quot;focused guardrails on RPM instead of a ban on vendors.&quot; Physician in the Loop reported Sept. 16 that 22 states are putting rural transformation money into the same service CMS proposes to restrict. The final rule is expected around Nov. 1.</div><div class="item-src">Source: <a href="https://www.statnews.com/2026/09/23/unitedhealth-cvs-pushback-medicare-plan-rpm-abuse/" target="_blank" rel="noopener">STAT</a></div></li><li class="item"><div class="cat">Deployment  <span class="when">Sept 22, 2026</span></div><div class="item-title"><a href="https://www.unc.edu/posts/2026/09/22/statewide-network-launches-to-help-rural-and-critical-access-providers-harness-ai-for-better-patient-care/" target="_blank" rel="noopener">UNC and Duke launch $4.4 million network to help North Carolina&#x27;s rural and critical-access hospitals choose and monitor AI tools</a></div><div class="item-body">The North Carolina Collaborative Health AI Network <a href="https://www.unc.edu/posts/2026/09/22/statewide-network-launches-to-help-rural-and-critical-access-providers-harness-ai-for-better-patient-care/" target="_blank" rel="noopener">launched Tuesday</a> with a three-year grant from The Duke Endowment and a roster that includes UNC Health, Duke Health, the Sheps Center and the Duke-Margolis Institute. Its stated purpose is to help rural and resource-limited hospitals and clinics learn about, choose and safely run AI tools. UNC Health&#x27;s David McSwain called the widening digital divide &quot;a very real and poorly addressed risk of rapid AI growth in healthcare.&quot;</div><div class="item-src">Source: <a href="https://www.unc.edu/posts/2026/09/22/statewide-network-launches-to-help-rural-and-critical-access-providers-harness-ai-for-better-patient-care/" target="_blank" rel="noopener">UNC-Chapel Hill</a></div></li></ul><div class="more-row"><a class="btn ghost small" href="/posts/2026-09-24/">Link to this post</a><a class="btn ghost small" href="/posts/">All posts</a><a class="btn ghost small" href="/where-things-stand/">Where things stand</a><a class="btn ghost small" href="/specials/">Special topics</a></div></article><div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">Recent posts</h2><a class="sub" href="/posts/">all posts</a></div><ul class="recent"><li><span class="when">Sept 23, 2026</span><a href="/posts/2026-09-23/">VA signs $775.72 million ambient AI contract; Heidi raises $340 million for agents; robotic thyroid ultrasound tested; AMA presses CMS on prior auth deadline</a></li><li><span class="when">Sept 22, 2026</span><a href="/posts/2026-09-22/">AI flags esophageal cancer on plain CT; Rush hands chart abstraction to a vendor; AI firms sponsor MAHA Summit; Newsom vetoes prior authorization bill</a></li><li><span class="when">Sept 21, 2026</span><a href="/posts/2026-09-21/">Alibaba releases free abdominal CT model that beat radiologists; chart wording sways triage models; Oura launches IPO; Heidi reports 2.8 million visits a week</a></li><li><span class="when">Sept 20, 2026</span><a href="/posts/2026-09-20/">Allina physicians strike over pay and AI; UC San Diego finds AI portal drafts slow complex replies; physician pay outpaces productivity; CPT panel weighs AI codes</a></li><li><span class="when">Sept 19, 2026</span><a href="/posts/2026-09-19/">FDA keeps radiology AI under 510(k) review; telehealth coalition seeks federal licensure path; UW Health sorts 100 new AI features by risk; Angle Health raises $600 million</a></li><li><span class="when">Sept 18, 2026</span><a href="/posts/2026-09-18/">Epic mortality score overstates death risk in outside test; California bill would bar AI-only therapy; Zocdoc opens booking to chatbots; court denies patients ambient AI audio</a></li></ul><div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">The Friday letter</h2><a class="sub" href="/letters/">all letters</a></div><ul class="recent"><li><span class="when">Sept 12 to 18, 2026</span><a href="/letters/2026-09-14/">The AI doctor&#x27;s first credential is a billing code</a></li></ul></section>
+</main>
+<footer class="foot"><div class="tablinks"><a href="/">Today</a><a href="/posts/">Daily posts</a><a href="/letters/">Friday letter</a><a href="/specials/">Special topics</a><a href="/watch/">Watch list</a><a href="/dates/">Dates</a><a href="/where-things-stand/">Where things stand</a><a href="/about/">About</a></div><p style="margin-top:10px">Physician in the Loop. Written by Ryan Gillum, MD. Daily on this site, weekly on <a href="https://physicianintheloop.substack.com" target="_blank" rel="noopener">Substack</a>. Not medical, legal, or financial advice. <a href="/feed.xml">RSS</a>.</p></footer>
+</div>
+</body>
+</html>

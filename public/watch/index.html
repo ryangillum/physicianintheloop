@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Watch list | Physician in the Loop</title>
+<meta name="description" content="The signals that would change the picture for physicians: Medicare payment for AI, FDA frameworks, autonomous prescribing, staffing, malpractice. Updated as they move.">
+<meta name="author" content="Ryan Gillum, MD">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="canonical" href="https://physicianintheloop.org/watch/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Physician in the Loop">
+<meta property="og:title" content="Watch list">
+<meta property="og:description" content="The signals that would change the picture for physicians: Medicare payment for AI, FDA frameworks, autonomous prescribing, staffing, malpractice. Updated as they move.">
+<meta property="og:url" content="https://physicianintheloop.org/watch/">
+<meta property="og:image" content="https://physicianintheloop.org/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Watch list">
+<meta name="twitter:description" content="The signals that would change the picture for physicians: Medicare payment for AI, FDA frameworks, autonomous prescribing, staffing, malpractice. Updated as they move.">
+<meta name="twitter:image" content="https://physicianintheloop.org/og-image.png">
+<meta name="theme-color" content="#F5F8FC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1522" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="alternate" type="application/rss+xml" title="Physician in the Loop" href="https://physicianintheloop.org/feed.xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #F5F8FC;
+    --bg-2: #EAF0F8;
+    --surface: #FFFFFF;
+    --surface-2: #F0F4FA;
+    --ink: #172033;
+    --ink-2: #33415A;
+    --muted: #61718A;
+    --rule: #DCE4EF;
+    --rule-2: #C9D5E6;
+    --accent: #2F63A8;
+    --accent-2: #1F4B86;
+    --accent-ink: #FFFFFF;
+    --accent-soft: rgba(47, 99, 168, 0.09);
+    --accent-line: rgba(47, 99, 168, 0.28);
+    --link: #2A5C9E;
+    --warn: #A6660F;
+    --bad: #B23B3B;
+    --good: #2C7A55;
+    --shadow: 0 1px 2px rgba(23, 32, 51, 0.04), 0 8px 24px rgba(23, 32, 51, 0.06);
+    --display: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --body: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1522; --bg-2: #141C2D; --surface: #171F31; --surface-2: #1D2739; --ink: #E7ECF4; --ink-2: #C7D1E1; --muted: #98A6BC; --rule: #283449; --rule-2: #34435C;
+      --accent: #7FA9E9; --accent-2: #A9C6F2; --accent-ink: #0F1522; --accent-soft: rgba(127, 169, 233, 0.14); --accent-line: rgba(127, 169, 233, 0.35); --link: #93B8F0;
+      --warn: #E2A94F; --bad: #EA8C8C; --good: #7FCB9F; --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1522; --bg-2: #141C2D; --surface: #171F31; --surface-2: #1D2739; --ink: #E7ECF4; --ink-2: #C7D1E1; --muted: #98A6BC; --rule: #283449; --rule-2: #34435C;
+    --accent: #7FA9E9; --accent-2: #A9C6F2; --accent-ink: #0F1522; --accent-soft: rgba(127, 169, 233, 0.14); --accent-line: rgba(127, 169, 233, 0.35); --link: #93B8F0;
+    --warn: #E2A94F; --bad: #EA8C8C; --good: #7FCB9F; --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 112px; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.65; margin: 0; padding-inline: 16px; padding-block: 0 72px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--accent-line); transition: color .15s ease, text-decoration-color .15s ease; }
+  a:hover { color: var(--accent-2); text-decoration-color: currentColor; }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+  h1, h2, h3, h4 { font-family: var(--display); font-weight: 600; line-height: 1.15; text-wrap: balance; margin: 0; letter-spacing: -0.01em; color: var(--ink); }
+  h1 { font-size: clamp(2.1rem, 6vw, 3.1rem); line-height: 1.05; letter-spacing: -0.02em; }
+  h2 { font-size: 1.8rem; }
+  h3 { font-size: 1.32rem; }
+  h4 { font-size: 1.08rem; }
+  p { margin: 0 0 1.1em; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 600; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  .eyebrow { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); }
+  .mono { font-family: var(--mono); font-size: 0.78rem; }
+  .muted { color: var(--muted); }
+  .btn { display: inline-block; font-family: var(--body); font-weight: 600; font-size: 0.95rem; background: var(--accent); color: var(--accent-ink); padding: 10px 18px; border-radius: 999px; text-decoration: none; line-height: 1.2; white-space: nowrap; border: 0; cursor: pointer; box-shadow: 0 1px 2px rgba(23, 32, 51, 0.12); transition: background .15s ease, transform .15s ease; }
+  .btn:hover { background: var(--accent-2); color: var(--accent-ink); transform: translateY(-1px); }
+  .btn.small { font-size: 0.85rem; padding: 7px 14px; }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent-line); box-shadow: none; }
+  .btn.ghost:hover { background: var(--accent-soft); color: var(--accent-2); }
+
+  /* sticky header: brand row + tab row */
+  .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: saturate(1.2) blur(10px); -webkit-backdrop-filter: saturate(1.2) blur(10px); border-bottom: 1px solid var(--rule); margin-inline: -16px; padding-inline: 16px; }
+  .topbar::before { content: ""; display: block; height: 3px; margin-inline: -16px; background: linear-gradient(90deg, var(--accent-2), var(--accent) 55%, var(--bg-2)); }
+  .topbar-inner { max-width: 740px; margin: 0 auto; }
+  .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 11px 6px; }
+  .brand { font-family: var(--display); font-weight: 600; font-size: 1.22rem; color: var(--ink); text-decoration: none; white-space: nowrap; letter-spacing: -0.01em; }
+  .brand:hover { color: var(--accent-2); }
+  .tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin-inline: -4px; padding: 2px 4px 8px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { appearance: none; background: none; border: 0; font-family: var(--body); font-weight: 600; font-size: 0.9rem; color: var(--muted); padding: 7px 12px; border-radius: 999px; white-space: nowrap; cursor: pointer; line-height: 1.2; transition: background .15s ease, color .15s ease; }
+  .tab:hover { color: var(--accent-2); background: var(--accent-soft); }
+  .tab[aria-selected="true"] { color: var(--accent-ink); background: var(--accent); }
+  .tab .n { display: inline-block; min-width: 1.4em; margin-left: 6px; padding: 1px 6px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-family: var(--mono); font-size: 0.66rem; vertical-align: 1px; }
+  .tab[aria-selected="true"] .n { background: rgba(255,255,255,0.22); color: var(--accent-ink); }
+
+  /* masthead panel (Today tab) */
+  .masthead { margin: 22px 0 28px; padding: 30px 26px 26px; border-radius: 16px; background: linear-gradient(160deg, var(--bg-2) 0%, var(--surface) 70%); border: 1px solid var(--rule); box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .masthead::after { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(closest-side, var(--accent-soft), transparent); pointer-events: none; }
+  .masthead .dek { font-family: var(--display); font-size: 1.22rem; line-height: 1.45; color: var(--ink-2); max-width: 600px; margin-top: 12px; font-weight: 400; }
+  .byline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-top: 16px; font-size: 0.92rem; color: var(--muted); }
+  .byline .who { color: var(--ink); font-weight: 600; }
+  .subscribe { margin-top: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .subscribe .note { font-size: 0.9rem; color: var(--muted); max-width: 420px; }
+  @media (max-width: 480px) { .masthead { padding: 24px 18px 22px; } }
+
+  .panel { padding-block: 8px 24px; }
+  .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin: 20px 0 18px; }
+  .panel-head h2 { font-size: 1.6rem; position: relative; padding-left: 14px; }
+  .panel-head h2::before { content: ""; position: absolute; left: 0; top: 0.18em; width: 4px; height: 0.95em; border-radius: 2px; background: var(--accent); }
+  .panel-head .sub { font-size: 0.92rem; color: var(--muted); }
+  .lead { color: var(--ink-2); max-width: 640px; margin-bottom: 20px; font-size: 1.05rem; }
+
+  /* post card */
+  .post { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 26px 26px 22px; box-shadow: var(--shadow); }
+  @media (max-width: 480px) { .post { padding: 20px 18px 18px; } }
+  .post-date { font-family: var(--mono); font-size: 0.74rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+  .post h2.headline { font-size: clamp(1.55rem, 4.6vw, 2.15rem); margin-top: 8px; line-height: 1.15; }
+  .post .dek { font-family: var(--display); font-size: 1.15rem; color: var(--ink-2); margin-top: 10px; line-height: 1.45; }
+  .section-label { font-family: var(--display); font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-2); margin: 26px 0 0; padding-left: 12px; position: relative; line-height: 1.3; }
+  .section-label::before { content: ""; position: absolute; left: 0; top: 0.32em; width: 3px; height: 0.68em; border-radius: 2px; background: var(--accent); }
+  .section-label.details-label { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--rule); }
+  .section-label.details-label::before { top: calc(22px + 0.32em); }
+  .section-label + .items { margin-top: 14px; }
+  .section-label + .items .item:first-child { border-top: 0; padding-top: 4px; }
+  .post .intro { margin-top: 12px; }
+  .post .intro p:first-child::first-letter { font-family: var(--display); font-size: 3.1em; line-height: 0.82; float: left; padding-right: 9px; padding-top: 5px; color: var(--accent); font-weight: 600; }
+  .items { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 20px; }
+  .item { padding-top: 18px; border-top: 1px solid var(--rule); }
+  .item .cat { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); }
+  .item .cat .when { color: var(--muted); }
+  .item-title { font-family: var(--display); font-weight: 600; font-size: 1.22rem; line-height: 1.28; margin-top: 5px; }
+  .item-title a { color: var(--ink); text-decoration: none; }
+  .item-title a:hover { color: var(--accent-2); text-decoration: underline; text-decoration-color: var(--accent-line); }
+  .item-body { margin-top: 7px; color: var(--ink-2); }
+  .item-src { font-size: 0.86rem; color: var(--muted); margin-top: 7px; }
+  .item-src a { color: var(--muted); }
+  .takeaway { margin-top: 28px; padding: 18px 20px 18px 22px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; }
+  .takeaway h4 { color: var(--accent-2); margin-bottom: 8px; font-family: var(--mono); font-weight: 500; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; }
+  .more-row { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; }
+
+  /* recent list on Today */
+  .recent { list-style: none; margin: 8px 0 0; padding: 0; }
+  .recent li { padding-block: 12px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 96px 1fr; gap: 4px 14px; }
+  .recent li:last-child { border-bottom: 1px solid var(--rule); }
+  .recent .when { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); padding-top: 5px; }
+  .recent a { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; color: var(--ink); text-decoration: none; }
+  .recent a:hover { color: var(--accent-2); }
+  @media (max-width: 480px) { .recent li { grid-template-columns: 1fr; } }
+
+  /* expandable lists (posts, letters) */
+  details { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; margin-bottom: 10px; transition: box-shadow .15s ease; }
+  details:hover { box-shadow: var(--shadow); }
+  details[open] { box-shadow: var(--shadow); border-color: var(--rule-2); }
+  summary { cursor: pointer; list-style: none; padding: 16px 18px; display: grid; grid-template-columns: 96px 1fr; gap: 6px 14px; align-items: baseline; }
+  summary::-webkit-details-marker { display: none; }
+  summary .when { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); letter-spacing: 0.05em; padding-top: 5px; }
+  summary .t { font-family: var(--display); font-weight: 600; font-size: 1.16rem; line-height: 1.28; color: var(--ink); }
+  summary:hover .t { color: var(--accent-2); }
+  summary .d { grid-column: 2; font-size: 0.95rem; color: var(--muted); }
+  details[open] > summary { border-bottom: 1px solid var(--rule); }
+  @media (max-width: 480px) { summary { grid-template-columns: 1fr; padding: 14px 16px; } summary .d { grid-column: 1; } }
+  .details-body { padding: 6px 18px 22px; }
+  @media (max-width: 480px) { .details-body { padding: 6px 16px 18px; } }
+  .empty { color: var(--muted); font-style: italic; padding: 14px 18px; background: var(--surface); border: 1px dashed var(--rule-2); border-radius: 12px; }
+
+  /* letters */
+  .letter .body-copy { margin-top: 14px; }
+  .letter .section-label:first-child { margin-top: 20px; }
+  .letter .section-label + .body-copy { margin-top: 12px; }
+  .letter .outlook .section-label + div { margin-top: 12px; }
+  .special-body { max-width: 720px; }
+  .special-body p { margin: 0 0 14px; font-size: 1.04rem; line-height: 1.68; }
+  .special-body h3 { font-family: var(--display); font-size: 1.32rem; font-weight: 600; margin: 30px 0 10px; color: var(--ink); }
+  .special-body .pull { margin: 22px 0; }
+  .special-body p.step strong { color: var(--accent-2); }
+  .letter .outlook { margin-top: 0; }
+
+  /* watch list */
+  .watch { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .watch li { display: grid; grid-template-columns: 110px 1fr; gap: 8px 16px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; align-items: start; }
+  .status { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 5px 9px; border-radius: 999px; text-align: center; line-height: 1.3; font-weight: 500; }
+  .status.rising { color: var(--bad); background: rgba(178, 59, 59, 0.10); }
+  .status.active { color: var(--warn); background: rgba(166, 102, 15, 0.11); }
+  .status.quiet { color: var(--muted); background: var(--surface-2); }
+  .status.favorable { color: var(--good); background: rgba(44, 122, 85, 0.11); }
+  .watch .name { font-family: var(--display); font-weight: 600; font-size: 1.12rem; line-height: 1.28; }
+  .watch .note { font-size: 0.97rem; margin-top: 5px; color: var(--ink-2); }
+  .watch .last { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); margin-top: 7px; }
+  .watch .src { font-size: 0.84rem; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .watch .src a { color: var(--muted); }
+  @media (max-width: 480px) { .watch li { grid-template-columns: 1fr; } .status { justify-self: start; } }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 16px; font-size: 0.88rem; color: var(--muted); align-items: center; }
+
+  /* dates: timeline */
+  .cal-month { font-family: var(--display); font-weight: 600; font-size: 1.15rem; color: var(--accent-2); margin: 24px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--rule-2); }
+  .cal-month:first-child { margin-top: 0; }
+  .cal { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--rule-2); }
+  .cal li { display: grid; grid-template-columns: 92px 1fr; gap: 12px; padding: 10px 0 12px 14px; position: relative; }
+  .cal li::before { content: ""; position: absolute; left: -20px; top: 20px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--accent-line); }
+  .cal li.past::before { background: var(--rule-2); box-shadow: none; }
+  .cal .d { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); font-variant-numeric: tabular-nums; padding-top: 4px; }
+  .cal .t { font-weight: 600; color: var(--ink); }
+  .cal .n { font-size: 0.93rem; color: var(--muted); }
+  .cal li.past { opacity: 0.55; }
+  @media (max-width: 480px) { .cal li { grid-template-columns: 1fr; gap: 2px; } }
+
+  /* long-form */
+  .doc h2 { margin-top: 46px; padding-top: 26px; border-top: 1px solid var(--rule); font-size: 1.65rem; }
+  .doc h2.first { border-top: 0; padding-top: 0; margin-top: 8px; }
+  .doc h3 { margin-top: 28px; margin-bottom: 10px; color: var(--accent-2); }
+  .doc p, .doc li { max-width: 680px; color: var(--ink-2); }
+  .doc p strong { color: var(--ink); }
+  .doc ul, .doc ol { padding-left: 1.2em; margin: 0 0 1.05em; }
+  .doc li + li { margin-top: 8px; }
+  .doc .lede { font-family: var(--display); font-size: 1.18rem; color: var(--ink-2); line-height: 1.5; }
+  .toc { font-size: 0.96rem; list-style: none; padding: 16px 18px; margin: 18px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; box-shadow: var(--shadow); }
+  .toc a { text-decoration: none; font-weight: 600; }
+  .toc a:hover { text-decoration: underline; }
+  @media (max-width: 520px) { .toc { grid-template-columns: 1fr; } }
+  .pull { border-left: 3px solid var(--accent); padding: 12px 20px; margin: 26px 0; font-family: var(--display); font-size: 1.28rem; line-height: 1.4; color: var(--accent-2); max-width: 640px; background: var(--accent-soft); border-radius: 0 12px 12px 0; }
+  .tablewrap { overflow-x: auto; margin: 16px 0 24px; -webkit-overflow-scrolling: touch; border: 1px solid var(--rule); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; min-width: 600px; font-size: 0.93rem; background: var(--surface); }
+  th, td { text-align: left; vertical-align: top; padding: 11px 12px; border-bottom: 1px solid var(--rule); }
+  tr:last-child td { border-bottom: 0; }
+  th { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-2); font-weight: 500; background: var(--surface-2); }
+  .t-high { color: var(--bad); font-weight: 600; }
+  .t-mod { color: var(--warn); font-weight: 600; }
+  .t-low { color: var(--good); font-weight: 600; }
+  .totop { margin-top: 30px; }
+
+  .about { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 24px 24px; box-shadow: var(--shadow); }
+  .about h3 { margin-bottom: 8px; color: var(--accent-2); }
+  .about p { color: var(--ink-2); }
+  .about-head { display: flex; gap: 22px; align-items: flex-start; }
+  .about-photo { width: 176px; height: auto; flex: 0 0 auto; border-radius: 14px; border: 1px solid var(--rule); box-shadow: var(--shadow); }
+  .about-intro { min-width: 0; }
+  @media (max-width: 560px) { .about-head { flex-direction: column; } .about-photo { width: 150px; } }
+  .foot { padding-block: 30px; font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--rule); margin-top: 24px; }
+  .foot a { color: var(--muted); }
+  .foot .tablinks a { margin-right: 12px; font-weight: 600; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  @media (prefers-reduced-motion: reduce) { .btn, .tab, details, a { transition: none; } }
+
+  .tab { text-decoration: none; }
+  .tab[aria-current="page"] { color: var(--accent-ink); background: var(--accent); }
+  .tab[aria-current="page"] .n { background: rgba(255,255,255,0.22); color: var(--accent-ink); }
+  main { display: block; }
+  .post h1.headline { font-size: clamp(1.55rem, 4.6vw, 2.15rem); margin-top: 8px; line-height: 1.15; letter-spacing: -0.01em; }
+  .post .standfirst { font-family: var(--display); font-size: 1.15rem; color: var(--ink-2); margin-top: 10px; line-height: 1.45; }
+  .post .body-copy { margin-top: 14px; }
+  .post .section-label + .body-copy { margin-top: 12px; }
+  .post .outlook .section-label + div { margin-top: 12px; }
+  .post .special-body { margin-top: 6px; }
+  .crumbs { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 18px 0 12px; }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--accent-2); }
+  .archive { list-style: none; margin: 8px 0 0; padding: 0; }
+  .archive li { padding-block: 12px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 96px 1fr; gap: 4px 14px; }
+  .archive li:last-child { border-bottom: 1px solid var(--rule); }
+  .archive .when { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); padding-top: 5px; }
+  .archive a { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; color: var(--ink); text-decoration: none; }
+  .archive a:hover { color: var(--accent-2); }
+  .archive .d { grid-column: 2; font-size: 0.95rem; color: var(--muted); }
+  @media (max-width: 480px) { .archive li { grid-template-columns: 1fr; } .archive .d { grid-column: 1; } }
+  .pager { display: flex; justify-content: space-between; gap: 16px; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 0.95rem; }
+  .pager a { font-weight: 600; text-decoration: none; max-width: 48%; }
+  .pager a:hover { text-decoration: underline; }
+  .pager .lbl { display: block; font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 3px; }
+  .subscribe-box { margin-top: 28px; padding: 20px 22px; background: var(--accent-soft); border-radius: 12px; }
+  .subscribe-box p { margin: 0 0 12px; color: var(--ink-2); }
+  .doc .doc-title { font-size: clamp(1.6rem, 4.6vw, 2rem); margin: 4px 0 14px; line-height: 1.15; }
+  .foot .tablinks { display: flex; flex-wrap: wrap; gap: 4px 0; }
+</style>
+</head>
+<body>
+<div class="topbar" id="topbar"><div class="topbar-inner"><div class="brand-row"><a class="brand" href="/">Physician in the Loop</a><a class="btn small" href="https://physicianintheloop.substack.com/subscribe" target="_blank" rel="noopener">Subscribe</a></div><nav class="tabs" aria-label="Sections"><a class="tab" href="/">Today</a><a class="tab" href="/posts/">Daily posts<span class="n">11</span></a><a class="tab" href="/letters/">Friday letter</a><a class="tab" href="/specials/">Special topics</a><a class="tab" href="/watch/" aria-current="page">Watch list</a><a class="tab" href="/dates/">Dates</a><a class="tab" href="/where-things-stand/">Where things stand</a><a class="tab" href="/about/">About</a></nav></div></div>
+<div class="wrap">
+<main>
+<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">Watch list</h1><span class="sub">the signals that would change the picture</span></div><p class="lead">These are the things checked first every morning. A status changes only when something real happens, and the note says what.</p><div class="legend"><span class="status rising">heating up</span><span class="status active">in motion</span><span class="status quiet">quiet</span><span class="status favorable">in our favor</span></div><ul class="watch"><li><span class="status rising">heating up</span><div><div class="name">Medicare payment for AI-delivered services</div><div class="note">The New York Times reported on September 14 that officials have discussed a payment category for AI clinical software and &quot;AI physician&quot; rates at 60 to 80 percent of human rates; nothing proposed. On September 15 CMS said payers covering 165 million people have pledged to adopt ACCESS-style outcomes-based payment, and on September 17 Counsel Health said it will join ACCESS with Oura in early 2027. The CPT Editorial Panel took up seven AI-service code proposals on September 17 to 19 (STEMI identification, a mammography risk score, digitized prostate slides, liver MRI quantification, arrhythmia simulation, LVEDP estimation, skin-lesion impedance), none labeled autonomous; the votes will show up in the panel&#x27;s summary of actions. A proposed rule or a demonstration paying an AI directly would be the trigger.</div><div class="last">Last change <time datetime="2026-09-19">Sept 19, 2026</time></div><div class="src">Sources: <a href="https://www.nytimes.com/2026/09/14/health/ai-doctors-medicare-fda.html" target="_blank" rel="noopener">The New York Times</a>, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/federal-officials-weigh-how-medicare-could-pay-for-ai-doctors/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review</a>, <a href="https://www.cms.gov/newsroom/press-releases/cms-adds-medicare-options-help-people-manage-substance-use-disorder-heart-failure-other-common" target="_blank" rel="noopener">CMS (ACCESS expansion)</a>, <a href="https://www.businesswire.com/news/home/20260917750816/en/Counsel-Health-Joins-ACCESS-Model-to-Bring-AI-Native-Chronic-Care-to-Medicare-Beneficiaries" target="_blank" rel="noopener">Counsel Health release</a>, <a href="https://www.fiercehealthcare.com/health-tech/oura-counsel-health-cms-access-model" target="_blank" rel="noopener">Fierce Healthcare</a>, <a href="https://www.ama-assn.org/system/files/cpt-panel-september-2026-agenda.pdf" target="_blank" rel="noopener">AMA CPT Editorial Panel agenda (September 2026)</a></div></div></li><li><span class="status active">in motion</span><div><div class="name">FDA generative-AI device framework</div><div class="note">Discussion paper August 18; comments due October 19; formal guidance &quot;coming&quot; per FDA, with the caveat that STAT reported September 17 the agency&#x27;s plan to hire more than 2,000 people is stuck in a short-staffed hiring center. The non-generative side held firm: a September 17 final order in the Federal Register denied Harrison.ai&#x27;s petition to exempt experienced makers of radiology detection, diagnosis and triage AI from 510(k) review. The first patient-facing LLM device (UpDoc) was cleared in December 2025. TEMPO lets uncleared tools treat Medicare patients inside ACCESS. Leadership is the new variable: Heidi Overton&#x27;s confirmation hearing for commissioner is September 24, Jared Seehafer was named the first deputy commissioner for technology and AI on September 11, and the AI-enabled device list passed 1,600 with the September 22 update.</div><div class="last">Last change <time datetime="2026-09-22">Sept 22, 2026</time></div><div class="src">Sources: <a href="https://www.fda.gov/news-events/press-announcements/fda-seeks-public-feedback-inform-regulatory-approach-generative-ai-enabled-medical-devices" target="_blank" rel="noopener">FDA (generative-AI discussion paper)</a>, <a href="https://www.federalregister.gov/documents/2026/09/17/2026-19074/medical-devices-exemption-from-premarket-notification-radiology-computer-aided-detection-andor" target="_blank" rel="noopener">Federal Register (radiology AI final order)</a>, <a href="https://www.statnews.com/2026/08/24/fda-rick-abramson-generative-ai-guidances-are-coming/" target="_blank" rel="noopener">STAT (guidance coming)</a>, <a href="https://www.statnews.com/2026/09/17/fda-doge-cuts-new-hires-slowed-centralized-hiring-center-short-staffed/" target="_blank" rel="noopener">STAT (FDA hiring)</a>, <a href="https://www.mcguirewoods.com/client-resources/alerts/2026/7/a-pathway-for-clinical-ai-developers-opens-fda-clears-first-software-as-a-medical-device-with-patient-facing-llm/" target="_blank" rel="noopener">McGuireWoods (UpDoc clearance)</a>, <a href="https://www.fda.gov/medical-devices/digital-health-center-excellence/participants-selected-tempo-digital-health-devices-pilot" target="_blank" rel="noopener">FDA (TEMPO participants)</a>, <a href="https://www.help.senate.gov/hearings/nomination-of-heidi-overton-to-be-commissioner-of-food-and-drugs" target="_blank" rel="noopener">Senate HELP Committee (Overton hearing)</a>, <a href="https://cancerletter.com/cancer-policy/20260911_7a/" target="_blank" rel="noopener">The Cancer Letter (Seehafer)</a>, <a href="https://www.biospace.com/fda/fda-eyes-2-new-deputy-commissioner-posts-report" target="_blank" rel="noopener">BioSpace</a>, <a href="https://www.fda.gov/medical-devices/digital-health-center-excellence/artificial-intelligence-enabled-medical-devices" target="_blank" rel="noopener">FDA (AI-enabled medical devices)</a></div></div></li><li><span class="status active">in motion</span><div><div class="name">Autonomous prescribing</div><div class="note">Doctronic is still in Phase 1 in Utah (a physician signs every renewal) after seven months; the state licensing board&#x27;s request to suspend it was refused; Doctronic has approached Arizona regulators, and Texas and Wyoming run similar sandboxes. The trigger is Phase 2, where the AI sends renewals straight to the pharmacist, or a second state.</div><div class="last">Last change <time datetime="2026-08-10">Aug 10, 2026</time></div><div class="src">Sources: <a href="https://commerce.utah.gov/ai/regulatory-relief/authorized-ai-pilots/doctronic/" target="_blank" rel="noopener">Utah Office of AI Policy</a>, <a href="https://commerce.utah.gov/wp-content/uploads/2026/04/Medical-Board-Doctronic-Response.pdf" target="_blank" rel="noopener">Utah DOPL and Office of AI Policy letter</a>, <a href="https://www.fiercehealthcare.com/ai-and-machine-learning/deep-dive-doctronics-ai-prescription-refill-pilot-program-utah" target="_blank" rel="noopener">Fierce Healthcare</a></div></div></li><li><span class="status active">in motion</span><div><div class="name">ARPA-H ADVOCATE autonomous heart-failure agents</div><div class="note">$62.7 million launched September 9; FDA authorization packages due within two years; a Kaiser trial of about 2,500 patients.</div><div class="last">Last change <time datetime="2026-09-09">Sept 9, 2026</time></div><div class="src">Sources: <a href="https://www.statnews.com/2026/09/09/arpa-h-advocate-program-autonomous-ai-bots-for-heart-failure/" target="_blank" rel="noopener">STAT</a>, <a href="https://www.fiercehealthcare.com/ai-and-machine-learning/arpa-h-launches-63m-cardiovascular-ai-initiative-naming-updoc-tempus-ai" target="_blank" rel="noopener">Fierce Healthcare</a></div></div></li><li><span class="status active">in motion</span><div><div class="name">CY2027 fee schedule and OPPS final rules</div><div class="note">The House Health Subcommittee heard the Patients First Act (H.R. 9693: MEI-based updates, a $57.64 million budget-neutrality trigger, MIPS replaced) on September 15; no markup is scheduled. Twenty-two states have put about $240 million of rural money into remote monitoring while the proposed rule would bar vendor-staffed RPM on January 1, and CMS got nearly 40,000 comments. Final rules expected around November 1.</div><div class="last">Last change <time datetime="2026-09-15">Sept 15, 2026</time></div><div class="src">Sources: <a href="https://energycommerce.house.gov/posts/chairmen-guthrie-and-griffith-announce-legislative-hearing-to-address-medicare-provider-payment-challenges-and-bolster-cybersecurity-in-american-health-care" target="_blank" rel="noopener">House Energy and Commerce Committee</a>, <a href="https://www.ama-assn.org/press-center/ama-press-releases/ama-state-societies-back-patients-first-act" target="_blank" rel="noopener">AMA</a>, <a href="https://www.cms.gov/newsroom/fact-sheets/calendar-year-cy-2027-medicare-physician-fee-schedule-proposed-rule" target="_blank" rel="noopener">CMS (CY2027 fee schedule fact sheet)</a>, <a href="https://www.fiercehealthcare.com/health-tech/states-are-betting-millions-remote-patient-monitoring-providers-tech-groups-say" target="_blank" rel="noopener">Fierce Healthcare</a></div></div></li><li><span class="status active">in motion</span><div><div class="name">Payer AI denials and physician-review laws</div><div class="note">Chris Klomp, the HHS deputy nominee, told the Senate HELP Committee on September 16 that WISeR &quot;must be done appropriately, or it should not expand,&quot; and Patty Murray vowed to block its expansion into oncology; the EFF records show one vendor under a corrective action plan and pay per denial. Connecticut&#x27;s comptroller barred AI-only adverse determinations and AI-only downcoding for 270,000 state-plan members the same day and wants it statewide in 2027. Alabama, Georgia, and Minnesota require human review of payer decisions by statute; California&#x27;s AB 1979 and AB 2575 await signature by September 30; prior-authorization APIs are due January 1, 2027; revenue cycle leaders say payers now review 100 percent of claims with automation.</div><div class="last">Last change <time datetime="2026-09-16">Sept 16, 2026</time></div><div class="src">Sources: <a href="https://www.murray.senate.gov/at-help-hearing-murray-grills-trump-nominees-on-ai-denying-seniors-health-care-abortion-bans-killing-women/" target="_blank" rel="noopener">Senator Patty Murray (HELP hearing)</a>, <a href="https://osc.ct.gov/wp-content/uploads/2026/09/2026.09.16-Comptroller-AI-Healthcare-Policy.pdf" target="_blank" rel="noopener">Connecticut Office of the State Comptroller</a>, <a href="https://ctmirror.org/2026/09/16/ct-artificial-intelligence-regulations-health-insurance/" target="_blank" rel="noopener">CT Mirror</a>, <a href="https://www.eff.org/deeplinks/2026/09/new-records-reveal-problems-medicares-ai-prior-authorization-experiment" target="_blank" rel="noopener">Electronic Frontier Foundation</a>, <a href="https://www.fiercehealthcare.com/regulatory/delays-tech-failures-abound-cms-wiser-ai-prior-auth-pilot-documents-show" target="_blank" rel="noopener">Fierce Healthcare (WISeR records)</a>, <a href="https://www.beckershospitalreview.com/finance/revenue-cycle-management/the-payers-are-winning-revenue-cycle-leaders-big-threats-for-the-future/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review</a>, <a href="https://www.manatt.com/insights/newsletters/health-highlights/manatt-health-health-ai-policy-tracker" target="_blank" rel="noopener">Manatt Health</a>, <a href="https://www.nationalnursesunited.org/press/nurses-celebrate-final-passage-of-landmark-ai-bills-urge-gov-newsom-to-sign" target="_blank" rel="noopener">National Nurses United</a>, <a href="https://www.cms.gov/priorities/key-initiatives/burden-reduction/interoperability/policies-and-regulations/cms-interoperability-and-prior-authorization-final-rule-cms-0057-f" target="_blank" rel="noopener">CMS (prior authorization rule CMS-0057-F)</a></div></div></li><li><span class="status active">in motion</span><div><div class="name">AI malpractice precedent</div><div class="note">Winters v. OpenAI (July 23) pleads unlicensed practice; Lyons v. OpenAI, brought by the Soelberg estate, survived a motion to dismiss in April; Pennsylvania sued Character.AI under its Medical Practice Act. No scribe suit yet. Health system leaders told Becker&#x27;s on September 11 they will not run autonomous agents unless developers carry liability, and California&#x27;s AB 2575 would bar developers from shifting blame to clinicians.</div><div class="last">Last change <time datetime="2026-09-03">Sept 3, 2026</time></div><div class="src">Sources: <a href="https://www.courthousenews.com/wp-content/uploads/2026/07/winters-v-open-ai-complaint.pdf" target="_blank" rel="noopener">Winters v. OpenAI complaint</a>, <a href="https://www.cbsnews.com/news/chatgpt-dangerous-medical-advice-openai-lawsuit/" target="_blank" rel="noopener">CBS News</a>, <a href="https://www.courthousenews.com/openai-cant-duck-federal-claims-over-murder-suicide-tied-to-chatgpt/" target="_blank" rel="noopener">Courthouse News</a>, <a href="https://www.pa.gov/governor/newsroom/2026-press-releases/shapiro-administration-sues-character-ai-over-fake-medical-claim" target="_blank" rel="noopener">Pennsylvania Governor&#x27;s Office</a>, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/who-will-carry-the-liability-6-health-system-leaders-on-autonomous-ais-biggest-question/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review</a>, <a href="https://www.nationalnursesunited.org/press/nurses-celebrate-final-passage-of-landmark-ai-bills-urge-gov-newsom-to-sign" target="_blank" rel="noopener">National Nurses United</a></div></div></li><li><span class="status active">in motion</span><div><div class="name">Consumer longevity platforms adding physician care</div><div class="note">Oura launched its IPO on September 21, 50 million shares at $40 to $44 on the Nasdaq, with an S-1 showing 5.0 million paid members and $240 million of membership revenue in nine months; the filing calls the ring a general wellness product outside FDA device rules and does not mention Counsel Health, ACCESS or Medicare, even though Oura members have been able to reach Counsel&#x27;s physicians inside the app since September 17 and eligible Medicare members get AI-native chronic care under ACCESS from early 2027. Function has $450 million and bought Getlabs and SuppCo; Fountain&#x27;s $595 tier includes clinician review. The trigger, MD care bundled into a consumer subscription under $1,000 a year, is now close, and the prospectus shows where the liability is meant to sit: with the partner.</div><div class="last">Last change <time datetime="2026-09-21">Sept 21, 2026</time></div><div class="src">Sources: <a href="https://www.financialcontent.com/article/bizwire-2026-9-21-ura-announces-launch-of-initial-public-offering" target="_blank" rel="noopener">Oura IPO launch release (Business Wire)</a>, <a href="https://www.sec.gov/Archives/edgar/data/2133022/000119312526381855/d119865ds1.htm" target="_blank" rel="noopener">SEC (Oura S-1)</a>, <a href="https://www.businesswire.com/news/home/20260917750816/en/Counsel-Health-Joins-ACCESS-Model-to-Bring-AI-Native-Chronic-Care-to-Medicare-Beneficiaries" target="_blank" rel="noopener">Counsel Health release</a>, <a href="https://www.fiercehealthcare.com/health-tech/oura-counsel-health-cms-access-model" target="_blank" rel="noopener">Fierce Healthcare</a>, <a href="https://www.prnewswire.com/news-releases/function-secures-450-million-growth-financing-from-general-catalysts-customer-value-fund-cvf-302838766.html" target="_blank" rel="noopener">Function Health release</a>, <a href="https://longevity.technology/news/fountain-life-makes-longevity-accessible-with-595-membership/" target="_blank" rel="noopener">Longevity.Technology</a></div></div></li><li><span class="status active">in motion</span><div><div class="name">Agent-mediated EHR reaching the wards</div><div class="note">Epic&#x27;s Ergo Visit is live at Ochsner (notes and orders drafted for signature); Agent Factory arrives widely in 2027; Oracle&#x27;s clinical agent reached nurses on September 14 and on September 23 Oracle added five revenue-cycle agents for &quot;the coming months&quot;; OpenAI&#x27;s ChatGPT for Healthcare reads Epic charts at UCSF. The scribe vendors are building the same layer from the other side: Heidi raised $340 million on September 22 for agents that prepopulate order sets, and the VA signed a five-year vehicle with a $775.72 million ceiling for Abridge and Knowtex. Two cautions this week. Epic&#x27;s CEO said most development is paused for about six weeks of security work (the company says the roadmap is unchanged), and Australia disclosed on September 24 that an OpenAI research agent went around access controls on a Medicare statistics portal in June and the vendor took a month after finding it to send an email. Mass General Brigham is &quot;not allowing autonomous AI across different platforms,&quot; and a kill switch is a design requirement at Parkview and Brigham. The trigger is unchanged: an agent placing an order in a US hospital without a signature.</div><div class="last">Last change <time datetime="2026-09-24">Sept 24, 2026</time></div><div class="src">Sources: <a href="https://www.epic.com/epic/post/ochsner-health-first-to-use-epics-ergo-visit/" target="_blank" rel="noopener">Epic</a>, <a href="https://www.advisory.com/daily-briefing/2026/08/26/epic-ugm-ab-oi-ec" target="_blank" rel="noopener">Advisory Board</a>, <a href="https://www.healthcaredive.com/news/oracle-targets-nurses-with-latest-ai-tool/830279/" target="_blank" rel="noopener">Healthcare Dive</a>, <a href="https://www.fiercehealthcare.com/ai-and-machine-learning/chatgpt-healthcare-unveils-new-integrations-epic-ehr-public-health-data" target="_blank" rel="noopener">Fierce Healthcare</a>, <a href="https://www.mobihealthnews.com/news/heidi-health-garnered-340m-reaches-900m-valuation" target="_blank" rel="noopener">MobiHealthNews (Heidi)</a>, <a href="https://hitconsultant.net/2026/09/22/heidi-secures-340m-series-c-general-catalyst-ai-care-partner-clinical-agents/" target="_blank" rel="noopener">HIT Consultant (Heidi)</a>, <a href="https://www.financialcontent.com/article/bizwire-2026-9-22-abridge-selected-to-bring-ambient-ai-to-veteran-care-nationwide-through-the-va-enterprise-contract" target="_blank" rel="noopener">Abridge release (Business Wire)</a>, <a href="https://www.nextgov.com/artificial-intelligence/2026/09/va-selects-abridge-ambient-scribe-under-new-enterprise-contract/416140/" target="_blank" rel="noopener">Nextgov</a>, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/mass-general-brigham-isnt-ready-to-let-its-ai-agents-act-on-their-own/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review (Mass General Brigham)</a>, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/the-ai-kill-switch-is-becoming-a-design-requirement-at-health-systems/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review (kill switch)</a>, <a href="https://www.oracle.com/news/announcement/oracle-health-advances-revenue-cycle-management-with-ai-2026-09-23/" target="_blank" rel="noopener">Oracle (revenue cycle AI)</a>, <a href="https://www.fiercehealthcare.com/health-tech/epic-shifts-focus-cybersecurity-while-ai-and-interoperability-agenda-still-track" target="_blank" rel="noopener">Fierce Healthcare (Epic security pause)</a>, <a href="https://ibmadison.com/epic-releases-clarifying-statement-on-modern-healthcare-story/" target="_blank" rel="noopener">In Business Madison (Epic&#x27;s statement)</a>, <a href="https://www.pm.gov.au/media/press-conference-new-york" target="_blank" rel="noopener">Prime Minister of Australia (OpenAI agent)</a></div></div></li><li><span class="status active">in motion</span><div><div class="name">Federal preemption of state AI laws</div><div class="note">The president announced an &quot;AI Force&quot; modeled on Space Force and a coming AI czar on September 19, with a promise not to &quot;hinder or stifle&quot; the industry and a statement that existing criminal and civil courts can handle bad behavior; no structure, budget or health content yet, and the White House has had no AI czar since David Sacks left the role in March. The Justice Department intervened in xAI&#x27;s challenge to Colorado&#x27;s AI Act in April; Colorado narrowed the law and moved it to January 1, 2027; a draft Great American AI Act proposes a three-year preemption; the President rejected calls to pace the frontier on September 14; the Consumer Technology Association asked Congress on September 18 for one federal health-AI framework in place of 240-odd state bills.</div><div class="last">Last change <time datetime="2026-09-19">Sept 19, 2026</time></div><div class="src">Sources: <a href="https://www.axios.com/2026/09/19/trump-ai-czar-space-force-safety" target="_blank" rel="noopener">Axios (AI Force and czar)</a>, <a href="https://fortune.com/2026/09/19/trump-ai-force-czar-law-enforcement-role-slowdown-development/" target="_blank" rel="noopener">Fortune</a>, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/trump-vows-ai-force-ai-czar-as-health-systems-eye-policy-shift/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review</a>, <a href="https://www.justice.gov/opa/pr/justice-department-intervenes-xai-lawsuit-challenging-colorados-algorithmic-discrimination" target="_blank" rel="noopener">U.S. Department of Justice</a>, <a href="https://leg.colorado.gov/bills/sb26-189" target="_blank" rel="noopener">Colorado General Assembly (SB26-189)</a>, <a href="https://rollcall.com/2026/06/04/bipartisan-ai-draft-proposes-three-year-preemption-of-state-laws/" target="_blank" rel="noopener">Roll Call</a>, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/innovation/trump-rejects-anthropic-ceos-call-for-more-ai-guardrails/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review</a>, <a href="https://www.fiercehealthcare.com/ai-and-machine-learning/op-ed-health-ai-moving-fast-america-needs-rules-keep" target="_blank" rel="noopener">Fierce Healthcare (CTA op-ed)</a></div></div></li><li><span class="status favorable">in our favor</span><div><div class="name">Physician labor market</div><div class="note">SullivanCotter&#x27;s September 17 survey of 575 organizations and about 235,000 physicians shows pay rising faster than productivity again: adult medical specialties up 7.2 percent, radiology up 12 to 18 percent since 2024, anesthesiology up 14 to 16 percent, sign-on bonuses for nearly 95 percent of hires, and 65 percent of employers planning to add physicians. Doximity has pay up 2 percent with family medicine at $325,000 and radiology about $610,000; MGMA shows compensation up while work RVUs fell in 16 of 23 specialties. Three datasets, one direction, and no sign the substitution has started.</div><div class="last">Last change <time datetime="2026-09-17">Sept 17, 2026</time></div><div class="src">Sources: <a href="https://sullivancotter.com/resources/pr-2026-physician-compensation-growth" target="_blank" rel="noopener">SullivanCotter</a>, <a href="https://www.beckersphysicianleadership.com/compensation/physician-compensation-growth-outpaces-productivity-9-things-to-know/" target="_blank" rel="noopener">Becker&#x27;s Physician Leadership</a>, <a href="https://www.doximity.com/reports/physician-compensation-report/2026" target="_blank" rel="noopener">Doximity</a>, <a href="https://www.mgma.com/2026-provider-compensation" target="_blank" rel="noopener">MGMA</a></div></div></li><li><span class="status quiet">quiet</span><div><div class="name">State authorization of autonomous AI practice or AI licensure</div><div class="note">None. The Federation of State Medical Boards said in August that AI is not ready to be licensed and formed a workgroup. All 33 laws enacted this year keep a licensed human accountable. California is moving the other way, with four bills on the governor&#x27;s desk until September 30: AB 1979 (no AI directing unlicensed staff), AB 2575 (right to override AI), SB 903 (therapy means a licensed human) and SB 503 (bias monitoring duties on developers and physician offices). As of the September 20 legislative update he had signed 83 bills and vetoed 24, including AB 539, a near-unanimous prior authorization bill, and acted on none of the four. The other thing to watch is licensure reach rather than AI licensure: on September 17 ATA Action and Johns Hopkins launched the Cross-State Care Coalition, with Teladoc and Talkiatry among the founders, to seek a narrow federal pathway for cross-state care including technology-enabled services.</div><div class="last">Last change <time datetime="2026-09-20">Sept 20, 2026</time></div><div class="src">Sources: <a href="https://www.gov.ca.gov/2026/09/20/governor-newsom-issues-legislative-update-9-20-2026/" target="_blank" rel="noopener">Governor of California (legislative update, September 20)</a>, <a href="https://legiscan.com/CA/bill/AB1979/2025" target="_blank" rel="noopener">LegiScan (AB 1979)</a>, <a href="https://legiscan.com/CA/bill/AB539/2025" target="_blank" rel="noopener">LegiScan (AB 539)</a>, <a href="https://www.statnews.com/2026/08/03/ai-doctors-licensing-state-medical-boards/" target="_blank" rel="noopener">STAT (FSMB leadership)</a>, <a href="https://www.manatt.com/insights/newsletters/health-highlights/manatt-health-health-ai-policy-tracker" target="_blank" rel="noopener">Manatt Health</a>, <a href="https://www.nationalnursesunited.org/press/nurses-celebrate-final-passage-of-landmark-ai-bills-urge-gov-newsom-to-sign" target="_blank" rel="noopener">National Nurses United</a>, <a href="https://legiscan.com/CA/bill/SB903/2025" target="_blank" rel="noopener">LegiScan (SB 903)</a>, <a href="https://legiscan.com/CA/bill/SB503/2025" target="_blank" rel="noopener">LegiScan (SB 503)</a>, <a href="https://www.transparencycoalition.ai/news/ai-legislative-update-september18-2026" target="_blank" rel="noopener">Transparency Coalition (legislative update)</a>, <a href="https://ataaction.org/ata-action-launches-cross-state-care-coalition-to-modernize-licensure-and-expand-access-to-care/" target="_blank" rel="noopener">ATA Action (Cross-State Care Coalition)</a></div></div></li><li><span class="status quiet">quiet</span><div><div class="name">Hospital staffing changes attributed to AI</div><div class="note">No verified case of a US health system cutting physician positions because of AI. The first named administrative case is on the record: Rush&#x27;s CIO told Becker&#x27;s on September 21 that a five-person clinical registry abstraction job under a $1 million outsourced contract moved to Layer Health and &quot;that&#x27;s not a job that&#x27;s coming back.&quot; Becker&#x27;s counts ten systems that cut IT and coding roles this year with none naming AI; revenue cycle leaders say payers now review 100 percent of claims with automation; Tenet&#x27;s Conifer will cut 1,037 billing jobs by November 2. The productivity side moved on September 22: Jefferson says ambient AI saved 1 million clinician hours in its first year at 15 to 20 percent physician adoption and has committed to 10 million by 2028, without saying what the hours become; Doximity has 20 percent of physicians already facing higher targets because of AI. Brigham&#x27;s roughly 4,000 nurses vote September 24 on an open-ended strike, with the union framing its rallies against MGB&#x27;s spending on AI; the dispute itself is wages, insurance and staffing.</div><div class="last">Last change <time datetime="2026-09-22">Sept 22, 2026</time></div><div class="src">Sources: <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/epics-ai-flood-is-forcing-health-systems-to-triage-it-themselves/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review (Epic AI features, Rush)</a>, <a href="https://www.beckershospitalreview.com/digital-health/health-systems-cutting-it-jobs-coding-roles/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review (IT and coding cuts)</a>, <a href="https://www.beckershospitalreview.com/finance/revenue-cycle-management/the-payers-are-winning-revenue-cycle-leaders-big-threats-for-the-future/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review (revenue cycle leaders)</a>, <a href="https://www.healthcaredive.com/news/conifer-to-lay-off-over-1000-workers/830287/" target="_blank" rel="noopener">Healthcare Dive (Conifer)</a>, <a href="https://www.healthcaredive.com/news/physicians-say-they-should-benefit-financially-from-ais-time-savings-doximity/829046/" target="_blank" rel="noopener">Healthcare Dive (Doximity)</a>, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/jefferson-healths-ai-saved-providers-1-million-hours-nursing-is-next/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review (Jefferson Health)</a>, <a href="https://www.prnewswire.com/news-releases/mna-mass-general-brigham-nurses-and-clinicians-to-rally-outside-westin-seaport-on-sept-22-and-23-as-mgb-hosts-ai-focused-forum-and-brigham-nurses-prepare-for-open-ended-strike-vote-302884863.html" target="_blank" rel="noopener">Massachusetts Nurses Association (PR Newswire)</a>, <a href="https://www.bostonglobe.com/2026/09/15/business/brigham-nurses-strike-again/" target="_blank" rel="noopener">The Boston Globe</a></div></div></li></ul></section>
+</main>
+<footer class="foot"><div class="tablinks"><a href="/">Today</a><a href="/posts/">Daily posts</a><a href="/letters/">Friday letter</a><a href="/specials/">Special topics</a><a href="/watch/">Watch list</a><a href="/dates/">Dates</a><a href="/where-things-stand/">Where things stand</a><a href="/about/">About</a></div><p style="margin-top:10px">Physician in the Loop. Written by Ryan Gillum, MD. Daily on this site, weekly on <a href="https://physicianintheloop.substack.com" target="_blank" rel="noopener">Substack</a>. Not medical, legal, or financial advice. <a href="/feed.xml">RSS</a>.</p></footer>
+</div>
+</body>
+</html>
