@@ -1,0 +1,17 @@
+# Physician in the Loop
+
+> How artificial intelligence changes medicine for the people who actually practice it. Daily posts, a Friday letter, a watch list, and a calendar of the dates that matter.
+
+Written by Ryan Gillum, MD. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter and the special topics are signed essays.
+
+## Sections
+
+- [Daily posts](https://physicianintheloop.org/posts/): one post every morning, newest first
+- [Friday letter](https://physicianintheloop.org/letters/): the weekly essay with recommendations
+- [Special topics](https://physicianintheloop.org/specials/): long pieces on one question
+- [Watch list](https://physicianintheloop.org/watch/): the signals that would change the picture
+- [Dates](https://physicianintheloop.org/dates/): deadlines, effective dates, hearings
+- [Where things stand](https://physicianintheloop.org/where-things-stand/): the long read
+- [Topics](https://physicianintheloop.org/topics/): the daily items grouped by kind
+- [About](https://physicianintheloop.org/about/)
+- [RSS feed](https://physicianintheloop.org/feed.xml)

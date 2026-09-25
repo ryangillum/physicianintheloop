@@ -11,6 +11,7 @@ rendered from the page's JSON exactly as it is, with one page per piece so each 
 title, description and structured data for search engines.
 
 Version 2 (Sept 24, 2026): multi-page site, RSS feed, sitemap, JSON-LD, analytics from the config file.
+Version 2.1 (Sept 24, 2026): topic hub pages (/topics/<category>/), item anchors, Google News sitemap, llms.txt.
 """
 import sys, re, os, io, json, html as H, base64, shutil, datetime, urllib.parse
 
@@ -144,18 +145,18 @@ def sources_line(cls, srcs, fallback_label=None, fallback_url=None):
             bits.append(esc(s.get("label") or ""))
     return '<div class="%s">%s%s</div>' % (cls, "Sources: " if len(srcs) > 1 else "Source: ", ", ".join(bits))
 
-def render_items(items):
+def render_items(items, anchors=False):
     if not items:
         return ""
     out = ['<ul class="items">']
-    for it in items:
+    for n, it in enumerate(items, 1):
         if isinstance(it, str):
             it = {"title": it}
         cat = esc(it.get("category") or "")
         if it.get("date"):
             cat += '  <span class="when">%s</span>' % esc(fmt(it["date"]))
         title = ext_link(it.get("title") or "", it["url"]) if it.get("url") else esc(it.get("title") or "")
-        out.append('<li class="item"><div class="cat">%s</div><div class="item-title">%s</div>' % (cat, title))
+        out.append('<li class="item"%s><div class="cat">%s</div><div class="item-title">%s</div>' % ((' id="item-%d"' % n) if anchors else "", cat, title))
         if it.get("body"):
             out.append('<div class="item-body">%s</div>' % rich(it["body"]))
         out.append(sources_line("item-src", it.get("sources"), it.get("source"), it.get("url")))
@@ -170,7 +171,7 @@ def paras(arr, cls=""):
         arr = [arr]
     return '<div class="%s">%s</div>' % (cls, "".join("<p>%s</p>" % rich(t) for t in arr if t))
 
-def post_body(p):
+def post_body(p, anchors=False):
     out = []
     intro = p.get("intro") or p.get("summary")
     if intro:
@@ -178,7 +179,7 @@ def post_body(p):
         out.append(paras(intro, "intro"))
     if p.get("items"):
         out.append('<div class="section-label details-label">THE DETAILS</div>')
-        out.append(render_items(p["items"]))
+        out.append(render_items(p["items"], anchors))
     return "".join(out)
 
 # ------------------------------------------------------------------ dates and times
@@ -322,7 +323,7 @@ def nav_html(active):
 
 FOOT = ('<footer class="foot"><div class="tablinks">' + "".join('<a href="%s">%s</a>' % (p, esc(l)) for p, l in NAV) +
         '</div><p style="margin-top:10px">%s. Written by %s. Daily on this site, weekly on <a href="%s" target="_blank" rel="noopener">Substack</a>. '
-        'Not medical, legal, or financial advice. <a href="/feed.xml">RSS</a>.</p></footer>' % (esc(NAME), esc(AUTHOR), esc(SUBSTACK)))
+        'Not medical, legal, or financial advice. <a href="/topics/">Topics</a>. <a href="/feed.xml">RSS</a>.</p></footer>' % (esc(NAME), esc(AUTHOR), esc(SUBSTACK)))
 
 def page(path, title, desc, body, active=None, kind="website", jsonld=None, published=None, modified=None, head_extra=""):
     url = absurl(path)
@@ -475,7 +476,7 @@ for i, (slug, p) in enumerate(post_pages):
     headline = p.get("headline") or "Daily post, " + fmt(p.get("date"))
     desc = describe(p.get("intro") or p.get("summary") or [p.get("dek") or headline])
     art = ['<article class="post"><div class="post-date"><time datetime="%s">%s</time>%s</div><h1 class="headline">%s</h1>' % (esc(p.get("date", "")), esc(fmt(p.get("date"))), " · Pinned" if p.get("baseline") else "", esc(headline))]
-    art.append(post_body(p))
+    art.append(post_body(p, anchors=True))
     art.append("</article>")
     older = (post_pages[i + 1][1].get("headline", ""), post_url(post_pages[i + 1][0])) if i + 1 < len(post_pages) else None
     newer = (post_pages[i - 1][1].get("headline", ""), post_url(post_pages[i - 1][0])) if i > 0 else None
@@ -491,6 +492,7 @@ if post_pages:
     body.append("</ul>")
 else:
     body.append('<p class="empty">No posts yet.</p>')
+body.append('<p class="lead" style="margin-top:22px">The same items sorted by kind: <a href="/topics/regulation/">regulation</a>, <a href="/topics/deployment/">deployment</a>, <a href="/topics/evidence/">evidence</a>, <a href="/topics/money/">money</a>, <a href="/topics/workforce/">workforce</a>, <a href="/topics/incident/">incidents</a>.</p>')
 page("/posts/", "Daily posts", "Every daily post from %s, newest first: AI in medicine as straight news, with the sources linked." % NAME, '<section class="panel">' + "".join(body) + "</section>", active="/posts/",
      jsonld={"@context": "https://schema.org", "@type": "CollectionPage", "name": "Daily posts", "url": absurl("/posts/"), "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}})
 urls.append(("/posts/", LAST_UPDATED, "daily", "0.9"))
@@ -576,6 +578,54 @@ else:
 page("/specials/", "Special topics", "Long pieces from %s on the questions physicians keep asking about AI, with the evidence, the rules and a step-by-step path." % NAME, '<section class="panel">' + "".join(body) + "</section>", active="/specials/",
      jsonld={"@context": "https://schema.org", "@type": "CollectionPage", "name": "Special topics", "url": absurl("/specials/"), "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}})
 urls.append(("/specials/", LAST_UPDATED, "weekly", "0.8"))
+
+# ------------------------------------------------------------------ topics (one hub page per item category)
+CATEGORIES = [("regulation", "Regulation", "Regulators, payers and courts: FDA, CMS and Medicare, HHS, Congress, the states, and who gets sued."),
+              ("deployment", "Deployment", "Where AI is actually being switched on: health systems, record vendors, the model companies, and AI-first care."),
+              ("evidence", "Evidence", "What the studies and the professional societies say, and what nobody has shown yet."),
+              ("money", "Money", "Funding rounds, valuations, acquisitions and the earnings calls that mention physician labor."),
+              ("workforce", "Workforce", "Pay, staffing, productivity targets, scope-of-practice fights and how physicians say they feel about it."),
+              ("incident", "Incidents", "Errors, recalls, lawsuits, breaches and enforcement.")]
+cat_lookup = {}
+for c in CATEGORIES:
+    cat_lookup[c[0]] = c; cat_lookup[c[1].lower()] = c
+topic_items = {c[0]: [] for c in CATEGORIES}
+for slug, p in post_pages:
+    for n, it in enumerate(p.get("items") or [], 1):
+        if isinstance(it, str):
+            continue
+        c = cat_lookup.get((it.get("category") or "").strip().lower())
+        if c:
+            topic_items[c[0]].append((p.get("date") or "", slug, n, it))
+topic_links = []
+for key, label, blurb in CATEGORIES:
+    entries = sorted(topic_items[key], key=lambda x: x[0], reverse=True)
+    if not entries:
+        continue
+    path = "/topics/%s/" % key
+    topic_links.append((path, label, len(entries)))
+    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">%s</h1><span class="sub">%d items from the daily posts</span></div>' % (esc(label), len(entries)),
+            '<p class="lead">%s Each item links to the day it ran and to its original source.</p>' % esc(blurb), '<ul class="items">']
+    for date, slug, n, it in entries:
+        title = ext_link(it.get("title") or "", it["url"]) if it.get("url") else esc(it.get("title") or "")
+        body.append('<li class="item"><div class="cat">%s  <span class="when"><a href="%s#item-%d" style="color:inherit">%s</a></span></div><div class="item-title">%s</div>'
+                    % (esc(it.get("category") or label), post_url(slug), n, esc(fmt(it.get("date") or date)), title))
+        if it.get("body"):
+            body.append('<div class="item-body">%s</div>' % rich(it["body"]))
+        body.append('<div class="item-src"><a href="%s#item-%d">From the %s post</a>%s</div></li>' % (post_url(slug), n, esc(fmt(date)), (" · " + sources_line("", it.get("sources"), it.get("source"), it.get("url")).replace('<div class="">', "").replace("</div>", "")) if (it.get("sources") or it.get("url")) else ""))
+    body.append("</ul>")
+    page(path, "%s: AI in medicine, item by item" % label, "%s Every item, newest first, linked to its source." % blurb,
+         '<section class="panel">' + "".join(body) + "</section>", active="/posts/",
+         jsonld={"@context": "https://schema.org", "@type": "CollectionPage", "name": label, "url": absurl(path), "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}})
+    urls.append((path, LAST_UPDATED, "daily", "0.6"))
+if topic_links:
+    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Topics</h1><span class="sub">the daily items, sorted by kind</span></div>',
+            '<p class="lead">Every item from the daily posts, grouped by what kind of development it is.</p>', '<ul class="archive">']
+    for path, label, n in topic_links:
+        body.append('<li><span class="when">%d items</span><a href="%s">%s</a></li>' % (n, path, esc(label)))
+    body.append("</ul>")
+    page("/topics/", "Topics", "The daily items from %s grouped by kind: regulation, deployment, evidence, money, workforce and incidents." % NAME, '<section class="panel">' + "".join(body) + "</section>", active="/posts/")
+    urls.append(("/topics/", LAST_UPDATED, "daily", "0.5"))
 
 # ------------------------------------------------------------------ watch list
 order = {"rising": 0, "active": 1, "favorable": 2, "quiet": 3}
@@ -667,7 +717,16 @@ for path, lastmod, freq, prio in urls:
     sm.append("<url><loc>%s</loc><lastmod>%s</lastmod><changefreq>%s</changefreq><priority>%s</priority></url>" % (esc(absurl(path)), esc(lastmod[:10]), freq, prio))
 sm.append("</urlset>")
 write("/sitemap.xml", "\n".join(sm) + "\n")
-write("/robots.txt", "User-agent: *\nAllow: /\nSitemap: %s\n" % absurl("/sitemap.xml"))
+recent = [(slug, p) for slug, p in post_pages if p.get("date") and (datetime.date.today() - datetime.date.fromisoformat(p["date"][:10])).days <= 2 and not p.get("baseline")]
+ns = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">']
+for slug, p in recent:
+    ns.append("<url><loc>%s</loc><news:news><news:publication><news:name>%s</news:name><news:language>en</news:language></news:publication><news:publication_date>%s</news:publication_date><news:title>%s</news:title></news:news></url>"
+              % (esc(absurl(post_url(slug))), esc(NAME), iso_dt(p["date"]), esc(p.get("headline") or "Daily post")))
+ns.append("</urlset>")
+write("/sitemap-news.xml", "\n".join(ns) + "\n")
+write("/robots.txt", "User-agent: *\nAllow: /\nSitemap: %s\nSitemap: %s\n" % (absurl("/sitemap.xml"), absurl("/sitemap-news.xml")))
+write("/llms.txt", "# %s\n\n> %s\n\nWritten by %s. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter and the special topics are signed essays.\n\n## Sections\n\n- [Daily posts](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
+      % (NAME, config["description"], AUTHOR, absurl("/posts/"), absurl("/letters/"), absurl("/specials/"), absurl("/watch/"), absurl("/dates/"), absurl("/where-things-stand/"), absurl("/topics/"), absurl("/about/"), absurl("/feed.xml")))
 
 write("/favicon.svg", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2F63A8"/>'
       '<path d="M20 14v18a12 12 0 0 0 24 0V14" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="50" r="5" fill="#fff"/></svg>')

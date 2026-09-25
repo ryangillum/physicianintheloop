@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evidence: AI in medicine, item by item | Physician in the Loop</title>
+<meta name="description" content="What the studies and the professional societies say, and what nobody has shown yet. Every item, newest first, linked to its source.">
+<meta name="author" content="Ryan Gillum, MD">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="canonical" href="https://physicianintheloop.org/topics/evidence/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Physician in the Loop">
+<meta property="og:title" content="Evidence: AI in medicine, item by item">
+<meta property="og:description" content="What the studies and the professional societies say, and what nobody has shown yet. Every item, newest first, linked to its source.">
+<meta property="og:url" content="https://physicianintheloop.org/topics/evidence/">
+<meta property="og:image" content="https://physicianintheloop.org/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Evidence: AI in medicine, item by item">
+<meta name="twitter:description" content="What the studies and the professional societies say, and what nobody has shown yet. Every item, newest first, linked to its source.">
+<meta name="twitter:image" content="https://physicianintheloop.org/og-image.png">
+<meta name="theme-color" content="#F5F8FC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1522" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="alternate" type="application/rss+xml" title="Physician in the Loop" href="https://physicianintheloop.org/feed.xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #F5F8FC;
+    --bg-2: #EAF0F8;
+    --surface: #FFFFFF;
+    --surface-2: #F0F4FA;
+    --ink: #172033;
+    --ink-2: #33415A;
+    --muted: #61718A;
+    --rule: #DCE4EF;
+    --rule-2: #C9D5E6;
+    --accent: #2F63A8;
+    --accent-2: #1F4B86;
+    --accent-ink: #FFFFFF;
+    --accent-soft: rgba(47, 99, 168, 0.09);
+    --accent-line: rgba(47, 99, 168, 0.28);
+    --link: #2A5C9E;
+    --warn: #A6660F;
+    --bad: #B23B3B;
+    --good: #2C7A55;
+    --shadow: 0 1px 2px rgba(23, 32, 51, 0.04), 0 8px 24px rgba(23, 32, 51, 0.06);
+    --display: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --body: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1522; --bg-2: #141C2D; --surface: #171F31; --surface-2: #1D2739; --ink: #E7ECF4; --ink-2: #C7D1E1; --muted: #98A6BC; --rule: #283449; --rule-2: #34435C;
+      --accent: #7FA9E9; --accent-2: #A9C6F2; --accent-ink: #0F1522; --accent-soft: rgba(127, 169, 233, 0.14); --accent-line: rgba(127, 169, 233, 0.35); --link: #93B8F0;
+      --warn: #E2A94F; --bad: #EA8C8C; --good: #7FCB9F; --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1522; --bg-2: #141C2D; --surface: #171F31; --surface-2: #1D2739; --ink: #E7ECF4; --ink-2: #C7D1E1; --muted: #98A6BC; --rule: #283449; --rule-2: #34435C;
+    --accent: #7FA9E9; --accent-2: #A9C6F2; --accent-ink: #0F1522; --accent-soft: rgba(127, 169, 233, 0.14); --accent-line: rgba(127, 169, 233, 0.35); --link: #93B8F0;
+    --warn: #E2A94F; --bad: #EA8C8C; --good: #7FCB9F; --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 112px; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.65; margin: 0; padding-inline: 16px; padding-block: 0 72px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--accent-line); transition: color .15s ease, text-decoration-color .15s ease; }
+  a:hover { color: var(--accent-2); text-decoration-color: currentColor; }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+  h1, h2, h3, h4 { font-family: var(--display); font-weight: 600; line-height: 1.15; text-wrap: balance; margin: 0; letter-spacing: -0.01em; color: var(--ink); }
+  h1 { font-size: clamp(2.1rem, 6vw, 3.1rem); line-height: 1.05; letter-spacing: -0.02em; }
+  h2 { font-size: 1.8rem; }
+  h3 { font-size: 1.32rem; }
+  h4 { font-size: 1.08rem; }
+  p { margin: 0 0 1.1em; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 600; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  .eyebrow { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); }
+  .mono { font-family: var(--mono); font-size: 0.78rem; }
+  .muted { color: var(--muted); }
+  .btn { display: inline-block; font-family: var(--body); font-weight: 600; font-size: 0.95rem; background: var(--accent); color: var(--accent-ink); padding: 10px 18px; border-radius: 999px; text-decoration: none; line-height: 1.2; white-space: nowrap; border: 0; cursor: pointer; box-shadow: 0 1px 2px rgba(23, 32, 51, 0.12); transition: background .15s ease, transform .15s ease; }
+  .btn:hover { background: var(--accent-2); color: var(--accent-ink); transform: translateY(-1px); }
+  .btn.small { font-size: 0.85rem; padding: 7px 14px; }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent-line); box-shadow: none; }
+  .btn.ghost:hover { background: var(--accent-soft); color: var(--accent-2); }
+
+  /* sticky header: brand row + tab row */
+  .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: saturate(1.2) blur(10px); -webkit-backdrop-filter: saturate(1.2) blur(10px); border-bottom: 1px solid var(--rule); margin-inline: -16px; padding-inline: 16px; }
+  .topbar::before { content: ""; display: block; height: 3px; margin-inline: -16px; background: linear-gradient(90deg, var(--accent-2), var(--accent) 55%, var(--bg-2)); }
+  .topbar-inner { max-width: 740px; margin: 0 auto; }
+  .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 11px 6px; }
+  .brand { font-family: var(--display); font-weight: 600; font-size: 1.22rem; color: var(--ink); text-decoration: none; white-space: nowrap; letter-spacing: -0.01em; }
+  .brand:hover { color: var(--accent-2); }
+  .tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin-inline: -4px; padding: 2px 4px 8px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { appearance: none; background: none; border: 0; font-family: var(--body); font-weight: 600; font-size: 0.9rem; color: var(--muted); padding: 7px 12px; border-radius: 999px; white-space: nowrap; cursor: pointer; line-height: 1.2; transition: background .15s ease, color .15s ease; }
+  .tab:hover { color: var(--accent-2); background: var(--accent-soft); }
+  .tab[aria-selected="true"] { color: var(--accent-ink); background: var(--accent); }
+  .tab .n { display: inline-block; min-width: 1.4em; margin-left: 6px; padding: 1px 6px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-family: var(--mono); font-size: 0.66rem; vertical-align: 1px; }
+  .tab[aria-selected="true"] .n { background: rgba(255,255,255,0.22); color: var(--accent-ink); }
+
+  /* masthead panel (Today tab) */
+  .masthead { margin: 22px 0 28px; padding: 30px 26px 26px; border-radius: 16px; background: linear-gradient(160deg, var(--bg-2) 0%, var(--surface) 70%); border: 1px solid var(--rule); box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .masthead::after { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(closest-side, var(--accent-soft), transparent); pointer-events: none; }
+  .masthead .dek { font-family: var(--display); font-size: 1.22rem; line-height: 1.45; color: var(--ink-2); max-width: 600px; margin-top: 12px; font-weight: 400; }
+  .byline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-top: 16px; font-size: 0.92rem; color: var(--muted); }
+  .byline .who { color: var(--ink); font-weight: 600; }
+  .subscribe { margin-top: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .subscribe .note { font-size: 0.9rem; color: var(--muted); max-width: 420px; }
+  @media (max-width: 480px) { .masthead { padding: 24px 18px 22px; } }
+
+  .panel { padding-block: 8px 24px; }
+  .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin: 20px 0 18px; }
+  .panel-head h2 { font-size: 1.6rem; position: relative; padding-left: 14px; }
+  .panel-head h2::before { content: ""; position: absolute; left: 0; top: 0.18em; width: 4px; height: 0.95em; border-radius: 2px; background: var(--accent); }
+  .panel-head .sub { font-size: 0.92rem; color: var(--muted); }
+  .lead { color: var(--ink-2); max-width: 640px; margin-bottom: 20px; font-size: 1.05rem; }
+
+  /* post card */
+  .post { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 26px 26px 22px; box-shadow: var(--shadow); }
+  @media (max-width: 480px) { .post { padding: 20px 18px 18px; } }
+  .post-date { font-family: var(--mono); font-size: 0.74rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+  .post h2.headline { font-size: clamp(1.55rem, 4.6vw, 2.15rem); margin-top: 8px; line-height: 1.15; }
+  .post .dek { font-family: var(--display); font-size: 1.15rem; color: var(--ink-2); margin-top: 10px; line-height: 1.45; }
+  .section-label { font-family: var(--display); font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-2); margin: 26px 0 0; padding-left: 12px; position: relative; line-height: 1.3; }
+  .section-label::before { content: ""; position: absolute; left: 0; top: 0.32em; width: 3px; height: 0.68em; border-radius: 2px; background: var(--accent); }
+  .section-label.details-label { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--rule); }
+  .section-label.details-label::before { top: calc(22px + 0.32em); }
+  .section-label + .items { margin-top: 14px; }
+  .section-label + .items .item:first-child { border-top: 0; padding-top: 4px; }
+  .post .intro { margin-top: 12px; }
+  .post .intro p:first-child::first-letter { font-family: var(--display); font-size: 3.1em; line-height: 0.82; float: left; padding-right: 9px; padding-top: 5px; color: var(--accent); font-weight: 600; }
+  .items { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 20px; }
+  .item { padding-top: 18px; border-top: 1px solid var(--rule); }
+  .item .cat { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); }
+  .item .cat .when { color: var(--muted); }
+  .item-title { font-family: var(--display); font-weight: 600; font-size: 1.22rem; line-height: 1.28; margin-top: 5px; }
+  .item-title a { color: var(--ink); text-decoration: none; }
+  .item-title a:hover { color: var(--accent-2); text-decoration: underline; text-decoration-color: var(--accent-line); }
+  .item-body { margin-top: 7px; color: var(--ink-2); }
+  .item-src { font-size: 0.86rem; color: var(--muted); margin-top: 7px; }
+  .item-src a { color: var(--muted); }
+  .takeaway { margin-top: 28px; padding: 18px 20px 18px 22px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; }
+  .takeaway h4 { color: var(--accent-2); margin-bottom: 8px; font-family: var(--mono); font-weight: 500; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; }
+  .more-row { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; }
+
+  /* recent list on Today */
+  .recent { list-style: none; margin: 8px 0 0; padding: 0; }
+  .recent li { padding-block: 12px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 96px 1fr; gap: 4px 14px; }
+  .recent li:last-child { border-bottom: 1px solid var(--rule); }
+  .recent .when { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); padding-top: 5px; }
+  .recent a { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; color: var(--ink); text-decoration: none; }
+  .recent a:hover { color: var(--accent-2); }
+  @media (max-width: 480px) { .recent li { grid-template-columns: 1fr; } }
+
+  /* expandable lists (posts, letters) */
+  details { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; margin-bottom: 10px; transition: box-shadow .15s ease; }
+  details:hover { box-shadow: var(--shadow); }
+  details[open] { box-shadow: var(--shadow); border-color: var(--rule-2); }
+  summary { cursor: pointer; list-style: none; padding: 16px 18px; display: grid; grid-template-columns: 96px 1fr; gap: 6px 14px; align-items: baseline; }
+  summary::-webkit-details-marker { display: none; }
+  summary .when { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); letter-spacing: 0.05em; padding-top: 5px; }
+  summary .t { font-family: var(--display); font-weight: 600; font-size: 1.16rem; line-height: 1.28; color: var(--ink); }
+  summary:hover .t { color: var(--accent-2); }
+  summary .d { grid-column: 2; font-size: 0.95rem; color: var(--muted); }
+  details[open] > summary { border-bottom: 1px solid var(--rule); }
+  @media (max-width: 480px) { summary { grid-template-columns: 1fr; padding: 14px 16px; } summary .d { grid-column: 1; } }
+  .details-body { padding: 6px 18px 22px; }
+  @media (max-width: 480px) { .details-body { padding: 6px 16px 18px; } }
+  .empty { color: var(--muted); font-style: italic; padding: 14px 18px; background: var(--surface); border: 1px dashed var(--rule-2); border-radius: 12px; }
+
+  /* letters */
+  .letter .body-copy { margin-top: 14px; }
+  .letter .section-label:first-child { margin-top: 20px; }
+  .letter .section-label + .body-copy { margin-top: 12px; }
+  .letter .outlook .section-label + div { margin-top: 12px; }
+  .special-body { max-width: 720px; }
+  .special-body p { margin: 0 0 14px; font-size: 1.04rem; line-height: 1.68; }
+  .special-body h3 { font-family: var(--display); font-size: 1.32rem; font-weight: 600; margin: 30px 0 10px; color: var(--ink); }
+  .special-body .pull { margin: 22px 0; }
+  .special-body p.step strong { color: var(--accent-2); }
+  .letter .outlook { margin-top: 0; }
+
+  /* watch list */
+  .watch { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .watch li { display: grid; grid-template-columns: 110px 1fr; gap: 8px 16px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; align-items: start; }
+  .status { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 5px 9px; border-radius: 999px; text-align: center; line-height: 1.3; font-weight: 500; }
+  .status.rising { color: var(--bad); background: rgba(178, 59, 59, 0.10); }
+  .status.active { color: var(--warn); background: rgba(166, 102, 15, 0.11); }
+  .status.quiet { color: var(--muted); background: var(--surface-2); }
+  .status.favorable { color: var(--good); background: rgba(44, 122, 85, 0.11); }
+  .watch .name { font-family: var(--display); font-weight: 600; font-size: 1.12rem; line-height: 1.28; }
+  .watch .note { font-size: 0.97rem; margin-top: 5px; color: var(--ink-2); }
+  .watch .last { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); margin-top: 7px; }
+  .watch .src { font-size: 0.84rem; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .watch .src a { color: var(--muted); }
+  @media (max-width: 480px) { .watch li { grid-template-columns: 1fr; } .status { justify-self: start; } }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 16px; font-size: 0.88rem; color: var(--muted); align-items: center; }
+
+  /* dates: timeline */
+  .cal-month { font-family: var(--display); font-weight: 600; font-size: 1.15rem; color: var(--accent-2); margin: 24px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--rule-2); }
+  .cal-month:first-child { margin-top: 0; }
+  .cal { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--rule-2); }
+  .cal li { display: grid; grid-template-columns: 92px 1fr; gap: 12px; padding: 10px 0 12px 14px; position: relative; }
+  .cal li::before { content: ""; position: absolute; left: -20px; top: 20px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--accent-line); }
+  .cal li.past::before { background: var(--rule-2); box-shadow: none; }
+  .cal .d { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); font-variant-numeric: tabular-nums; padding-top: 4px; }
+  .cal .t { font-weight: 600; color: var(--ink); }
+  .cal .n { font-size: 0.93rem; color: var(--muted); }
+  .cal li.past { opacity: 0.55; }
+  @media (max-width: 480px) { .cal li { grid-template-columns: 1fr; gap: 2px; } }
+
+  /* long-form */
+  .doc h2 { margin-top: 46px; padding-top: 26px; border-top: 1px solid var(--rule); font-size: 1.65rem; }
+  .doc h2.first { border-top: 0; padding-top: 0; margin-top: 8px; }
+  .doc h3 { margin-top: 28px; margin-bottom: 10px; color: var(--accent-2); }
+  .doc p, .doc li { max-width: 680px; color: var(--ink-2); }
+  .doc p strong { color: var(--ink); }
+  .doc ul, .doc ol { padding-left: 1.2em; margin: 0 0 1.05em; }
+  .doc li + li { margin-top: 8px; }
+  .doc .lede { font-family: var(--display); font-size: 1.18rem; color: var(--ink-2); line-height: 1.5; }
+  .toc { font-size: 0.96rem; list-style: none; padding: 16px 18px; margin: 18px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; box-shadow: var(--shadow); }
+  .toc a { text-decoration: none; font-weight: 600; }
+  .toc a:hover { text-decoration: underline; }
+  @media (max-width: 520px) { .toc { grid-template-columns: 1fr; } }
+  .pull { border-left: 3px solid var(--accent); padding: 12px 20px; margin: 26px 0; font-family: var(--display); font-size: 1.28rem; line-height: 1.4; color: var(--accent-2); max-width: 640px; background: var(--accent-soft); border-radius: 0 12px 12px 0; }
+  .tablewrap { overflow-x: auto; margin: 16px 0 24px; -webkit-overflow-scrolling: touch; border: 1px solid var(--rule); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; min-width: 600px; font-size: 0.93rem; background: var(--surface); }
+  th, td { text-align: left; vertical-align: top; padding: 11px 12px; border-bottom: 1px solid var(--rule); }
+  tr:last-child td { border-bottom: 0; }
+  th { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-2); font-weight: 500; background: var(--surface-2); }
+  .t-high { color: var(--bad); font-weight: 600; }
+  .t-mod { color: var(--warn); font-weight: 600; }
+  .t-low { color: var(--good); font-weight: 600; }
+  .totop { margin-top: 30px; }
+
+  .about { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 24px 24px; box-shadow: var(--shadow); }
+  .about h3 { margin-bottom: 8px; color: var(--accent-2); }
+  .about p { color: var(--ink-2); }
+  .about-head { display: flex; gap: 22px; align-items: flex-start; }
+  .about-photo { width: 176px; height: auto; flex: 0 0 auto; border-radius: 14px; border: 1px solid var(--rule); box-shadow: var(--shadow); }
+  .about-intro { min-width: 0; }
+  @media (max-width: 560px) { .about-head { flex-direction: column; } .about-photo { width: 150px; } }
+  .foot { padding-block: 30px; font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--rule); margin-top: 24px; }
+  .foot a { color: var(--muted); }
+  .foot .tablinks a { margin-right: 12px; font-weight: 600; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  @media (prefers-reduced-motion: reduce) { .btn, .tab, details, a { transition: none; } }
+
+  .tab { text-decoration: none; }
+  .tab[aria-current="page"] { color: var(--accent-ink); background: var(--accent); }
+  .tab[aria-current="page"] .n { background: rgba(255,255,255,0.22); color: var(--accent-ink); }
+  main { display: block; }
+  .post h1.headline { font-size: clamp(1.55rem, 4.6vw, 2.15rem); margin-top: 8px; line-height: 1.15; letter-spacing: -0.01em; }
+  .post .standfirst { font-family: var(--display); font-size: 1.15rem; color: var(--ink-2); margin-top: 10px; line-height: 1.45; }
+  .post .body-copy { margin-top: 14px; }
+  .post .section-label + .body-copy { margin-top: 12px; }
+  .post .outlook .section-label + div { margin-top: 12px; }
+  .post .special-body { margin-top: 6px; }
+  .crumbs { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 18px 0 12px; }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--accent-2); }
+  .archive { list-style: none; margin: 8px 0 0; padding: 0; }
+  .archive li { padding-block: 12px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 96px 1fr; gap: 4px 14px; }
+  .archive li:last-child { border-bottom: 1px solid var(--rule); }
+  .archive .when { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); padding-top: 5px; }
+  .archive a { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; color: var(--ink); text-decoration: none; }
+  .archive a:hover { color: var(--accent-2); }
+  .archive .d { grid-column: 2; font-size: 0.95rem; color: var(--muted); }
+  @media (max-width: 480px) { .archive li { grid-template-columns: 1fr; } .archive .d { grid-column: 1; } }
+  .pager { display: flex; justify-content: space-between; gap: 16px; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 0.95rem; }
+  .pager a { font-weight: 600; text-decoration: none; max-width: 48%; }
+  .pager a:hover { text-decoration: underline; }
+  .pager .lbl { display: block; font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 3px; }
+  .subscribe-box { margin-top: 28px; padding: 20px 22px; background: var(--accent-soft); border-radius: 12px; }
+  .subscribe-box p { margin: 0 0 12px; color: var(--ink-2); }
+  .doc .doc-title { font-size: clamp(1.6rem, 4.6vw, 2rem); margin: 4px 0 14px; line-height: 1.15; }
+  .foot .tablinks { display: flex; flex-wrap: wrap; gap: 4px 0; }
+</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "CollectionPage", "name": "Evidence", "url": "https://physicianintheloop.org/topics/evidence/", "isPartOf": {"@type": "WebSite", "name": "Physician in the Loop", "url": "https://physicianintheloop.org/"}}</script>
+</head>
+<body>
+<div class="topbar" id="topbar"><div class="topbar-inner"><div class="brand-row"><a class="brand" href="/">Physician in the Loop</a><a class="btn small" href="https://physicianintheloop.substack.com/subscribe" target="_blank" rel="noopener">Subscribe</a></div><nav class="tabs" aria-label="Sections"><a class="tab" href="/">Today</a><a class="tab" href="/posts/" aria-current="page">Daily posts<span class="n">11</span></a><a class="tab" href="/letters/">Friday letter</a><a class="tab" href="/specials/">Special topics</a><a class="tab" href="/watch/">Watch list</a><a class="tab" href="/dates/">Dates</a><a class="tab" href="/where-things-stand/">Where things stand</a><a class="tab" href="/about/">About</a></nav></div></div>
+<div class="wrap">
+<main>
+<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">Evidence</h1><span class="sub">13 items from the daily posts</span></div><p class="lead">What the studies and the professional societies say, and what nobody has shown yet. Each item links to the day it ran and to its original source.</p><ul class="items"><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-23/#item-4" style="color:inherit">Sept 22, 2026</a></span></div><div class="item-title"><a href="https://www.nature.com/articles/s41746-026-03260-7" target="_blank" rel="noopener">Autonomous robotic thyroid ultrasound avoids 75% of on-site exams and misses 19% of biopsy recommendations in 262-patient, three-center trial</a></div><div class="item-body">Xu and colleagues at Zhongshan Hospital in Shanghai <a href="https://www.nature.com/articles/s41746-026-03260-7" target="_blank" rel="noopener">reported in npj Digital Medicine</a> on FARUSS, a six-axis robotic arm that positions the probe and scans the thyroid on its own using deep learning, feeding an AI platform that detects nodules and assigns TI-RADS categories. The team tested it prospectively against conventional scans in 262 participants at three Chinese institutions from March 2024 to August 2025: intraclass correlations for thyroid measurements were 0.76 to 0.80, nodule identification matched 85.6% of the time, and TI-RADS agreement after a sonologist revised the AI&#x27;s call reached kappa 0.75 to 0.88. The robot was slower to scan, 202 seconds against 147, and the AI read faster than a human, 183 seconds against 254. In the authors&#x27; triage scheme, the system avoided 74.8% of on-site examinations that turned out not to be needed and missed 19.2% of the fine-needle aspiration recommendations a human would have made. Three authors work for the technology companies involved, and the study was funded by the Chinese government.</div><div class="item-src"><a href="/posts/2026-09-23/#item-4">From the Sept 23, 2026 post</a> · Source: <a href="https://www.nature.com/articles/s41746-026-03260-7" target="_blank" rel="noopener">npj Digital Medicine</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-22/#item-1" style="color:inherit">Sept 22, 2026</a></span></div><div class="item-title"><a href="https://www.nature.com/articles/s41591-026-04656-4" target="_blank" rel="noopener">EAGLE finds esophageal cancer on noncontrast CT with 90% sensitivity and 98.5% specificity and holds a 42% positive predictive value prospectively</a></div><div class="item-body">Zhou, Guo, Wang and colleagues trained a two-stage model, one stage to locate the esophagus and one to segment lesions and score malignancy, on 6,813 patients from two centers, then validated it on 80,612 patients across 12 centers in China, the Czech Republic and Australia. On an external test set of 11,466 patients from eight centers, the model found esophageal cancer with 90.0% sensitivity and 98.5% specificity and high-grade precancer with 52.5% sensitivity; on 1,607 low-dose chest CTs it ran at 88.4% sensitivity and 99.0% specificity. In a reader study it outperformed all 17 radiologists, exceeding their average by 19.1 points of sensitivity and 18.4 points of specificity, and as an assistant it raised the radiologists&#x27; cancer sensitivity from 71.9% to 85.7%. Run prospectively on hospital scans from January to April 2025, followed through July 2026, and on 10,959 consecutive asymptomatic lung screening participants, the model&#x27;s flags had a positive predictive value of 42.2%, with specificity of 99.94% in the screening cohort. The authors listed the study&#x27;s limits: nearly all patients were Chinese, a population in which squamous cell cancer dominates, with only preliminary validation abroad; performance was worse in women because the training set skewed male; follow-up was less than two years with imperfect compliance; and the reader study lacked a full crossover design. In the U.S. the common tumor is adenocarcinoma of the distal esophagus, which the model has not been shown to detect. The paper appeared one day after Alibaba&#x27;s abdominal CT model was released free of charge.</div><div class="item-src"><a href="/posts/2026-09-22/#item-1">From the Sept 22, 2026 post</a> · Source: <a href="https://www.nature.com/articles/s41591-026-04656-4" target="_blank" rel="noopener">Nature Medicine</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-22/#item-4" style="color:inherit">Sept 16, 2026</a></span></div><div class="item-title"><a href="https://www.edelman.com/sites/g/files/aatuss191/files/2026-09/2026%20Edelman%20Trust%20Barometer%20Special%20Analysis%20with%20the%20Yale%20School%20of%20Public%20Health_FINAL.pdf" target="_blank" rel="noopener">Across 13 countries, 49% say an AI-skilled layperson could do at least one physician task as well as a physician; 59% of adults under 35 agree</a></div><div class="item-body">The 49% figure comes from a <a href="https://www.edelman.com/sites/g/files/aatuss191/files/2026-09/2026%20Edelman%20Trust%20Barometer%20Special%20Analysis%20with%20the%20Yale%20School%20of%20Public%20Health_FINAL.pdf" target="_blank" rel="noopener">special analysis</a> of the 2026 Edelman Trust Barometer written with the Yale School of Public Health and released this month, which <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/49-say-ai-users-can-match-or-beat-physicians-on-some-health-tasks-survey/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review</a> reported on Monday. Edelman surveyed 12,998 people in 13 countries, about 1,000 per country including 995 Americans, between Feb. 28 and March 11. Asked which tasks a person with no medical training but skilled with AI could do as well as a trained professional, 26% chose deciding whether someone needs care, 19% chose determining treatment or medication, 19% chose performing basic procedures and 16% chose diagnosing illness. Agreement ran 59% among ages 18 to 34, 52% among ages 35 to 54 and 35% among those over 55, and 56% among the university-educated against 42% among those without a university education. The same analysis found that only 51% of people who receive conflicting recommendations always follow their doctor&#x27;s. Edelman is a public relations firm and the barometer is its product; the analysis was written with Yale and its method is published. The question measured what respondents believe an AI-skilled layperson could do, not what such a person can do.</div><div class="item-src"><a href="/posts/2026-09-22/#item-4">From the Sept 22, 2026 post</a> · Sources: <a href="https://www.edelman.com/sites/g/files/aatuss191/files/2026-09/2026%20Edelman%20Trust%20Barometer%20Special%20Analysis%20with%20the%20Yale%20School%20of%20Public%20Health_FINAL.pdf" target="_blank" rel="noopener">Edelman Trust Barometer special analysis with Yale School of Public Health (PDF)</a>, <a href="https://www.edelman.com/trust/2026/trust-barometer/special-report-health" target="_blank" rel="noopener">Edelman (Trust and Health special report)</a>, <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/49-say-ai-users-can-match-or-beat-physicians-on-some-health-tasks-survey/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review</a>, <a href="https://www.medicaldaily.com/ai-health-advice-trust-survey-edelman-yale-478780" target="_blank" rel="noopener">Medical Daily</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-21/#item-1" style="color:inherit">Sept 18, 2026</a></span></div><div class="item-title"><a href="https://github.com/alibaba-damo-academy/damo-radar" target="_blank" rel="noopener">Alibaba&#x27;s DAMO RADAR reads contrast abdominal CT for 146 findings, outperforms 23 of 26 radiologists in Science; weights free for research</a></div><div class="item-body">The model was trained on more than 400,000 contrast-enhanced abdominal CT exams paired with their reports, about 15 million anatomy-tagged image-text pairs, according to <a href="https://github.com/alibaba-damo-academy/damo-radar" target="_blank" rel="noopener">the GitHub page</a>, which links to the Science paper. <a href="https://www.scmp.com/tech/big-tech/article/3368055/alibaba-open-sources-medical-ai-model-can-detect-cancer-and-nearly-150-conditions" target="_blank" rel="noopener">The South China Morning Post</a> reported Thursday that the model was tested on nearly 40,000 real-world exams and recorded a mean AUC of 0.913 across 146 findings in 18 organs, cancers included. The test set came from eight outside centers, the model outperformed 23 of 26 radiologists, and radiologists using it as an assistant gained about 10 points of sensitivity and read more than 30% faster, <a href="https://www.techtimes.com/articles/327749/20260919/alibaba-radiology-ai-outperforms-23-26-radiologists-across-146-diseases-science.htm" target="_blank" rel="noopener">TechTimes</a> reported; the code is released under the Apache 2.0 license and the weights are licensed for research, not commercial use. The Science paper is behind a paywall, and the figures here come from the company&#x27;s page and the press reports. The model was validated on Chinese patients only and on contrast-enhanced abdominal CT only, with no prospective trial and no regulatory clearance in any country. Under a final order published Thursday in the <a href="https://www.federalregister.gov/d/2026-19074" target="_blank" rel="noopener">Federal Register</a>, every radiology detection, diagnosis and triage algorithm in the U.S. still requires its own 510(k) clearance from the FDA, open weights or not.</div><div class="item-src"><a href="/posts/2026-09-21/#item-1">From the Sept 21, 2026 post</a> · Sources: <a href="https://github.com/alibaba-damo-academy/damo-radar" target="_blank" rel="noopener">DAMO Academy (GitHub, links the Science paper)</a>, <a href="https://www.scmp.com/tech/big-tech/article/3368055/alibaba-open-sources-medical-ai-model-can-detect-cancer-and-nearly-150-conditions" target="_blank" rel="noopener">South China Morning Post</a>, <a href="https://www.techtimes.com/articles/327749/20260919/alibaba-radiology-ai-outperforms-23-26-radiologists-across-146-diseases-science.htm" target="_blank" rel="noopener">TechTimes</a>, <a href="https://www.federalregister.gov/d/2026-19074" target="_blank" rel="noopener">Federal Register (radiology CADe/CADx/CADt final order)</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-21/#item-2" style="color:inherit">Sept 19, 2026</a></span></div><div class="item-title"><a href="https://www.nature.com/articles/s41746-026-03270-5" target="_blank" rel="noopener">Stigmatizing language about frequent ED use leads three open models to rank deteriorating patients below stable ones in 221,556 comparisons</a></div><div class="item-body">Emergency physicians and a bioinformatician at UT Southwestern built pairs of patients from two academic emergency departments, matched on Emergency Severity Index, in which one patient deteriorated within six hours and the other did not, then asked Gemma, Qwen and DeepSeek which to see first, before and after inserting stigmatizing or neutral versions of 18 attributes. Stigmatizing language about frequent emergency department use pushed the deteriorating patient down the list in every model and dataset, by as much as 9.4%, and neutral phrasing scored 1.4 to 7.1 points higher, according to the <a href="https://www.nature.com/articles/s41746-026-03270-5" target="_blank" rel="noopener">paper</a> in npj Digital Medicine. Psychiatric history moved rankings by up to 9.5% but reached significance in only one model, and race, language and insurance showed no consistent harm. The authors concluded that the wording of the input is a safety-critical design choice. Thursday&#x27;s post covered a model that scored identical presentations as less severe when the patient was female.</div><div class="item-src"><a href="/posts/2026-09-21/#item-2">From the Sept 21, 2026 post</a> · Source: <a href="https://www.nature.com/articles/s41746-026-03270-5" target="_blank" rel="noopener">npj Digital Medicine</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-21/#item-4" style="color:inherit">Sept 21, 2026</a></span></div><div class="item-title"><a href="https://www.nature.com/articles/s41746-026-03205-0" target="_blank" rel="noopener">Papers with a physician co-author follow reporting checklist better, discuss fairness more in review of 41 chest X-ray foundation models</a></div><div class="item-body">Radiologists at St. Jude reviewed every chest radiograph foundation model published through March 2025, 41 in all, and scored each paper against CLAIM, the reporting checklist for medical imaging AI. The <a href="https://www.nature.com/articles/s41746-026-03205-0" target="_blank" rel="noopener">brief communication</a> in npj Digital Medicine found transformer architectures and language-model components becoming dominant, model sharing still uncommon and one variable that tracked with quality: publications with a physician among the authors adhered to CLAIM significantly better and discussed fairness more often. The paper is short, and its authors report the link as a correlation only.</div><div class="item-src"><a href="/posts/2026-09-21/#item-4">From the Sept 21, 2026 post</a> · Source: <a href="https://www.nature.com/articles/s41746-026-03205-0" target="_blank" rel="noopener">npj Digital Medicine</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-20/#item-2" style="color:inherit">Sept 17, 2026</a></span></div><div class="item-title"><a href="https://doi.org/10.1056/AIoa2501034" target="_blank" rel="noopener">Year of edits by more than 1,000 UC San Diego physicians shows AI portal drafts that need clinical judgment take 60% to 70% longer to finish</a></div><div class="item-body">The study, published in <a href="https://doi.org/10.1056/AIoa2501034" target="_blank" rel="noopener">NEJM AI</a>, examined a year of Epic-integrated draft replies to patient portal messages across specialties at UC San Diego Health. Researchers sorted every physician edit into a 15-category taxonomy built with language models and expert review and used response time as the measure of workload. Scheduling changes were the most common edit, appearing in 38.5% of edited messages, followed by lifestyle and non-drug advice in 18.2% and added empathy in 16.1%; stopping or tapering a medication was the rarest edit at 2.4%. Clinical edits added the most time per message: interpreting a radiology result added 70.1% to the time spent on a message, clarifying or ruling out a diagnosis added 63.9% and interpreting laboratory results added 60.8%. The authors concluded that the burden is not uniform, with judgment edits costing the most per message and high-volume administrative edits costing the most across the system, according to reports in <a href="https://www.beckersphysicianleadership.com/digital-health/the-hidden-workload-behind-physicians-ai-assistants/" target="_blank" rel="noopener">Becker&#x27;s Physician Leadership</a> and <a href="https://www.hcinnovationgroup.com/analytics-ai/generative-ai/news/55405862/uc-san-diego-researchers-study-physician-edits-to-ai-drafted-messages" target="_blank" rel="noopener">Healthcare Innovation</a>; the paper is behind NEJM AI&#x27;s paywall, and the figures come from those two reports.</div><div class="item-src"><a href="/posts/2026-09-20/#item-2">From the Sept 20, 2026 post</a> · Sources: <a href="https://doi.org/10.1056/AIoa2501034" target="_blank" rel="noopener">NEJM AI</a>, <a href="https://www.beckersphysicianleadership.com/digital-health/the-hidden-workload-behind-physicians-ai-assistants/" target="_blank" rel="noopener">Becker&#x27;s Physician Leadership</a>, <a href="https://www.hcinnovationgroup.com/analytics-ai/generative-ai/news/55405862/uc-san-diego-researchers-study-physician-edits-to-ai-drafted-messages" target="_blank" rel="noopener">Healthcare Innovation</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-18/#item-1" style="color:inherit">Sept 11, 2026</a></span></div><div class="item-title"><a href="https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2853919" target="_blank" rel="noopener">Epic&#x27;s End-of-Life Care Index ranks patients well but overstates how many will die in test of 287,106 encounters at 39 hospitals</a></div><div class="item-body">Kohn and colleagues ran Epic&#x27;s one-year mortality model, which the paper describes as &quot;perhaps the most widely available commercial mortality risk model,&quot; on 154,063 encounters at Trinity Health and 133,043 at Kaiser Permanente Southern California from 2022 through 2023. Discrimination was moderate to high, with a C statistic of 0.76 at Trinity and 0.81 at Kaiser, but calibration was poor in both systems, and the scaled Brier score at Trinity was essentially zero, meaning the probabilities the model reported there were about as useful as the base rate. Performance was weakest in patients 75 and older, where the C statistic fell to 0.69 and 0.73, and it degraded in liver disease, kidney disease and heart failure. Dr. James Deardorff, a UCSF geriatrician, <a href="https://www.statnews.com/2026/09/18/geriatrician-explains-why-ai-for-older-adults-deserves-careful-scrutiny/" target="_blank" rel="noopener">wrote in STAT</a> on Friday that the same prediction is harmless when it prompts a goals-of-care conversation and dangerous when it feeds a transplant or resource decision. Many hospitals have the score switched on.</div><div class="item-src"><a href="/posts/2026-09-18/#item-1">From the Sept 18, 2026 post</a> · Sources: <a href="https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2853919" target="_blank" rel="noopener">JAMA Network Open</a>, <a href="https://www.statnews.com/2026/09/18/geriatrician-explains-why-ai-for-older-adults-deserves-careful-scrutiny/" target="_blank" rel="noopener">STAT (Deardorff)</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-18/#item-5" style="color:inherit">Sept 16, 2026</a></span></div><div class="item-title"><a href="https://www.nature.com/articles/s41746-026-03090-7" target="_blank" rel="noopener">Model trained on 140,000 emergency triage decisions scores identical presentations as less severe when the patient is female</a></div><div class="item-body">Guerra-Adames and colleagues at Bordeaux University Hospital trained a Mistral model to reproduce nurses&#x27; triage scores, then fed it pairs of cases that differed only in the patient&#x27;s sex, they reported in npj Digital Medicine. Female versions came out 1.1% lower in predicted severity in Bordeaux and 2.2% lower on the U.S. MIMIC-IV records; retraining on sex-neutralized text made the gap disappear, and the pattern shifted with the sex of the triage nurse. The authors described the result as a probe of what the charts record rather than proof of bedside undertriage, and as a hypothesis generator rather than a verdict.</div><div class="item-src"><a href="/posts/2026-09-18/#item-5">From the Sept 18, 2026 post</a> · Source: <a href="https://www.nature.com/articles/s41746-026-03090-7" target="_blank" rel="noopener">npj Digital Medicine</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-17/#item-4" style="color:inherit">Sept 17, 2026</a></span></div><div class="item-title"><a href="https://www.nature.com/articles/s41746-026-03234-9" target="_blank" rel="noopener">Review finds developers involved in 73% of 229 digital health trials, with higher odds of a positive result</a></div><div class="item-body">A group from the Harvard T.H. Chan School of Public Health and the University of Pennsylvania published the rapid review in npj Digital Medicine on Sept. 17, covering 229 randomized trials from 29 systematic reviews in nutrition, maternal health, mental health and sleep from 2013 to 2025. Developers took part in 73% of the trials. Developer-involved trials had 2.47 times the odds of being preregistered and, when weighted by sample size, higher odds of reporting a statistically significant result, an odds ratio of 1.23 with a confidence interval of 1.16 to 1.31. The authors called for independent efficacy trials, more transparent reporting and regulatory oversight. The domains studied were behavioral rather than diagnostic; the review did not cover ambient scribes or diagnostic agents.</div><div class="item-src"><a href="/posts/2026-09-17/#item-4">From the Sept 17, 2026 post</a> · Source: <a href="https://www.nature.com/articles/s41746-026-03234-9" target="_blank" rel="noopener">npj Digital Medicine</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-16/#item-1" style="color:inherit">Sept 15, 2026</a></span></div><div class="item-title"><a href="https://www.nature.com/articles/s41591-026-04609-x" target="_blank" rel="noopener">Open-weight diagnostic agent run inside the hospital is 98.9% accurate on the 49.4% of cases it keeps, selected by agreement across five runs</a></div><div class="item-body">Kather&#x27;s group tested a fully autonomous agent that interviews the patient, examines, orders tests and diagnoses on 551 MIMIC-IV cases across seven acute conditions (appendicitis, cholecystitis, diverticulitis, pancreatitis, pneumonia, pulmonary embolism and urinary infection), 2,400 abdominal cases and 990 published multispecialty cases. Open-weight models hosted on premises (Qwen, GLM and GPT-OSS), which keep patient data inside the hospital, reached 90.0% on the seven-disease task and 83.8% on the four-disease task, near a cloud GPT-5.2 baseline, the authors said. Agreement across five repeated runs separated right from wrong answers with an AUC of 0.86, and at a consistency threshold of 0.90 the agent retained 49.4% of cases at 98.9% accuracy; blinded physician review of 181 cases agreed with the automated grading 92.3% of the time. The authors listed the limitations: retrospective simulation only, text only, one institution&#x27;s data, lower accuracy in older patients and roughly five times the compute. Under that design, the remaining cases, those on which the agent&#x27;s repeated runs disagreed, are routed to a person.</div><div class="item-src"><a href="/posts/2026-09-16/#item-1">From the Sept 16, 2026 post</a> · Source: <a href="https://www.nature.com/articles/s41591-026-04609-x" target="_blank" rel="noopener">Nature Medicine</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-16-launch/#item-7" style="color:inherit">Jun 17, 2026</a></span></div><div class="item-title"><a href="https://www.nature.com/articles/s41586-026-10764-5" target="_blank" rel="noopener">In Nature trial, Google&#x27;s AMIE management plans rated appropriate 95% to 98% of the time versus 72% to 81% for physicians</a></div><div class="item-body">Google&#x27;s AMIE trial in Nature was a randomized, blinded virtual OSCE with 100 multi-visit cases and 21 primary care physicians; the model&#x27;s management plans were rated appropriate 95% to 98% of the time versus 72% to 81% for the physicians. The same paper describes the system as &quot;not ready for real-world translation,&quot; citing a text-only format with patient actors and no pharmacist or order entry. In April, Science published a Harvard study in which an OpenAI model matched attending physicians on emergency department triage and admission decisions using real records. Stanford researchers have repeatedly found that a physician using the model does no better than the model alone, and that the gap closes only when the physician commits to an assessment first and then compares.</div><div class="item-src"><a href="/posts/2026-09-16-launch/#item-7">From the Sept 16, 2026 post</a> · Sources: <a href="https://www.nature.com/articles/s41586-026-10764-5" target="_blank" rel="noopener">Nature</a>, <a href="https://www.science.org/doi/10.1126/science.adz4433" target="_blank" rel="noopener">Science</a>, <a href="https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2825395" target="_blank" rel="noopener">JAMA Network Open</a>, <a href="https://www.nature.com/articles/s41746-026-02545-1" target="_blank" rel="noopener">npj Digital Medicine</a></div></li><li class="item"><div class="cat">Evidence  <span class="when"><a href="/posts/2026-09-15/#item-7" style="color:inherit">Sept 11, 2026</a></span></div><div class="item-title"><a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/who-will-carry-the-liability-6-health-system-leaders-on-autonomous-ais-biggest-question/" target="_blank" rel="noopener">Seven health system leaders tell Becker&#x27;s autonomous AI needs narrow use cases, named accountability, escalation paths and developer liability</a></div><div class="item-body">Becker&#x27;s Hospital Review asked chief information officers and chief medical information officers at Cornell, Baptist Health, HSS, Premier Health, Christ Hospital, North Country Healthcare and Denver Health what the ADVOCATE agents of the Advanced Research Projects Agency for Health (ARPA-H) would need. Dr. Curtis Cole of Cornell said the agents will not succeed if the companies that build and oversee them have no liability. Joy Oh of Christ Hospital asked who is responsible when a supervisory agent misses an inappropriate recommendation, and Dr. Daniel Kortsch of Denver Health said the technology has been tested on curated cases, not safety-net populations. The consensus was narrow use cases, named accountability and escalation paths, not broad autonomy.</div><div class="item-src"><a href="/posts/2026-09-15/#item-7">From the Sept 15, 2026 post</a> · Source: <a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/who-will-carry-the-liability-6-health-system-leaders-on-autonomous-ais-biggest-question/" target="_blank" rel="noopener">Becker&#x27;s Hospital Review</a></div></li></ul></section>
+</main>
+<footer class="foot"><div class="tablinks"><a href="/">Today</a><a href="/posts/">Daily posts</a><a href="/letters/">Friday letter</a><a href="/specials/">Special topics</a><a href="/watch/">Watch list</a><a href="/dates/">Dates</a><a href="/where-things-stand/">Where things stand</a><a href="/about/">About</a></div><p style="margin-top:10px">Physician in the Loop. Written by Ryan Gillum, MD. Daily on this site, weekly on <a href="https://physicianintheloop.substack.com" target="_blank" rel="noopener">Substack</a>. Not medical, legal, or financial advice. <a href="/topics/">Topics</a>. <a href="/feed.xml">RSS</a>.</p></footer>
+</div>
+</body>
+</html>

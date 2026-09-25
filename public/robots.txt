@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
 Sitemap: https://physicianintheloop.org/sitemap.xml
+Sitemap: https://physicianintheloop.org/sitemap-news.xml
