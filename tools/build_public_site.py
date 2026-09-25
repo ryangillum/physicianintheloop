@@ -15,8 +15,13 @@ Version 2.1 (Sept 24, 2026): topic hub pages (/topics/<category>/), item anchors
 Version 2.2 (Sept 25, 2026): Friday letters open with their illustration (letter.image, a data URI written to
 /images/letters/<weekOf>.<ext>) in place of THE SHORT READ label, which stays on daily posts; the image is the
 letter page's social preview and structured-data image, heads the letter in the feed, and shows on the home page.
+Version 2.3 (Sept 25, 2026): daily posts get the same treatment (post.image above THE SHORT READ, /images/posts/<slug>.<ext>,
+the post page's social image; not added to the feed, which the podcast reads). Every illustration is also kept under
+<repo root>/assets/images/, so a post or letter keeps its picture on the site after the working page retires the
+picture's data (it leaves image {alt} with no src) or trims the post; that folder is the only thing outside public/
+the script writes besides netlify.toml. Image addresses carry ?v=<hash> so a replaced picture is never served stale.
 """
-import sys, re, os, io, json, html as H, base64, shutil, datetime, urllib.parse
+import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
 # ------------------------------------------------------------------ inputs
 if len(sys.argv) < 3:
@@ -174,8 +179,8 @@ def paras(arr, cls=""):
         arr = [arr]
     return '<div class="%s">%s</div>' % (cls, "".join("<p>%s</p>" % rich(t) for t in arr if t))
 
-def post_body(p, anchors=False):
-    out = []
+def post_body(p, anchors=False, fig=""):
+    out = [fig] if fig else []
     intro = p.get("intro") or p.get("summary")
     if intro:
         out.append('<div class="section-label">THE SHORT READ</div>')
@@ -259,7 +264,9 @@ def fix_internal_links(fragment):
 EXTRA_CSS = """
   .tab { text-decoration: none; }
   .letter-art { margin: 18px 0 20px; }
-  .letter-art img, .letter-card img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 12px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); }
+  .post-art { margin: 18px 0 0; }
+  .post-art + .section-label { margin-top: 24px; }
+  .letter-art img, .letter-card img, .post-art img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 12px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); }
   .letter .letter-art + .body-copy { margin-top: 0; }
   .letter-card { display: block; margin: 8px 0 6px; }
   .tab[aria-current="page"] { color: var(--accent-ink); background: var(--accent); }
@@ -441,37 +448,84 @@ if m:
 about_inner = re.sub(r'<div class="panel-head">.*?</div>\s*', "", about_inner, count=1, flags=re.S)
 about_inner = fix_internal_links(about_inner)
 
-# ------------------------------------------------------------------ letter illustrations (data URI -> file)
-LETTER_IMG = {}   # slug -> (path or https url, alt, raster?)
-for slug, w in letter_pages:
-    im = w.get("image")
-    if isinstance(im, str):
-        im = {"src": im}
-    if not isinstance(im, dict):
-        continue
-    src, alt = str(im.get("src") or ""), str(im.get("alt") or "")
-    mm = re.match(r'data:image/(jpeg|jpg|png|webp);base64,(.+)$', src, re.S)
-    if mm:
-        path_ = "/images/letters/%s.%s" % (slug, "jpg" if mm.group(1) in ("jpeg", "jpg") else mm.group(1))
-        write(path_, base64.b64decode(mm.group(2)), binary=True)
-        LETTER_IMG[slug] = (path_, alt, True)
-    elif src.startswith("data:image/svg+xml;base64,"):
-        path_ = "/images/letters/%s.svg" % slug
-        write(path_, base64.b64decode(src.split(",", 1)[1]), binary=True)
-        LETTER_IMG[slug] = (path_, alt, False)
-    elif src.startswith("https://"):
-        LETTER_IMG[slug] = (src, alt, True)
+# ------------------------------------------------------------------ illustrations (data URI -> file, with a permanent archive)
+ARCHIVE = os.path.join(ROOT, "assets", "images")
+EXT = {"jpeg": "jpg", "jpg": "jpg", "png": "png", "webp": "webp", "svg+xml": "svg"}
+
+def collect_images(kind, pages):
+    """kind: 'posts' or 'letters'. Returns slug -> (site path or https url, alt, raster?).
+
+    A piece shows a picture only when its JSON has an "image" entry. An entry with a data URI is written to the
+    archive (replacing any earlier picture for that slug) and served from /images/<kind>/; an entry with alt text
+    but no src is one the working page has retired to stay light, and is served from the archive. A piece with no
+    entry gets no picture, even if the archive holds one from an earlier version of it. The site path carries
+    ?v=<hash of the file> so a replaced picture is never served from a browser's cache."""
+    found = {}
+    arch = os.path.join(ARCHIVE, kind)
+    for slug, obj in pages:
+        im = obj.get("image")
+        if isinstance(im, str):
+            im = {"src": im}
+        if not isinstance(im, dict):
+            continue
+        src, alt = str(im.get("src") or ""), str(im.get("alt") or "")
+        if src.startswith("https://"):
+            found[slug] = (src, alt, True)
+            continue
+        mm = re.match(r'data:image/(jpeg|jpg|png|webp|svg\+xml);base64,(.+)$', src, re.S)
+        if mm:
+            try:
+                raw = base64.b64decode(re.sub(r"\s+", "", mm.group(2)), validate=True)
+            except Exception:
+                raw = b""
+            if len(raw) < 100:
+                print("warning: the image data for %s/%s is not valid base64; the piece is built without a picture" % (kind, slug))
+                continue
+            os.makedirs(arch, exist_ok=True)
+            for old in os.listdir(arch):
+                if old.startswith(slug + ".") and not old.endswith(".json"):
+                    os.remove(os.path.join(arch, old))
+            with open(os.path.join(arch, "%s.%s" % (slug, EXT[mm.group(1)])), "wb") as f:
+                f.write(raw)
+            with open(os.path.join(arch, slug + ".json"), "w", encoding="utf-8") as f:
+                json.dump({"alt": alt}, f, ensure_ascii=False)
+        files = sorted(f for f in (os.listdir(arch) if os.path.isdir(arch) else []) if f.startswith(slug + ".") and not f.endswith(".json"))
+        if not files:
+            continue
+        fn = files[0]
+        with open(os.path.join(arch, fn), "rb") as f:
+            blob = f.read()
+        write("/images/%s/%s" % (kind, fn), blob, binary=True)
+        if not alt:
+            try:
+                alt = json.load(open(os.path.join(arch, slug + ".json"), encoding="utf-8")).get("alt", "")
+            except Exception:
+                alt = ""
+        found[slug] = ("/images/%s/%s?v=%s" % (kind, fn, hashlib.sha1(blob).hexdigest()[:10]), alt, not fn.endswith(".svg"))
+    return found
+
+LETTER_IMG = collect_images("letters", letter_pages)
+POST_IMG = collect_images("posts", post_pages)
+
+def figure_html(img_map, slug, cls, lazy=False):
+    if slug not in img_map:
+        return ""
+    src, alt, _ = img_map[slug]
+    return '<figure class="%s"><img src="%s" alt="%s" width="1200" height="630" decoding="async"%s></figure>' % (cls, esc(src), esc(alt), ' loading="lazy"' if lazy else "")
 
 def letter_figure(slug, lazy=False):
-    if slug not in LETTER_IMG:
-        return ""
-    src, alt, _ = LETTER_IMG[slug]
-    return '<figure class="letter-art"><img src="%s" alt="%s" width="1200" height="630" decoding="async"%s></figure>' % (esc(src), esc(alt), ' loading="lazy"' if lazy else "")
+    return figure_html(LETTER_IMG, slug, "letter-art", lazy)
+
+def post_figure(slug, lazy=False):
+    return figure_html(POST_IMG, slug, "post-art", lazy)
+
+def og_for(img_map, slug):
+    if slug in img_map and img_map[slug][2]:
+        return img_map[slug][0], img_map[slug][1]
+    return None, None
 
 def letter_og(slug):
-    if slug in LETTER_IMG and LETTER_IMG[slug][2]:
-        return LETTER_IMG[slug][0], LETTER_IMG[slug][1]
-    return None, None
+    return og_for(LETTER_IMG, slug)
 
 # ------------------------------------------------------------------ home
 masthead = re.search(r'<header class="masthead">.*?</header>', section_html("today"), re.S)
@@ -484,7 +538,7 @@ if posts:
     slug0, p0 = post_pages[0]
     body.append('<div class="eyebrow">Today\'s post</div>')
     body.append('<article class="post"><div class="post-date"><time datetime="%s">%s</time></div><h2 class="headline"><a href="%s" style="color:inherit;text-decoration:none">%s</a></h2>' % (esc(p0.get("date", "")), esc(fmt(p0.get("date"))), post_url(slug0), esc(p0.get("headline", ""))))
-    body.append(post_body(p0))
+    body.append(post_body(p0, fig=post_figure(slug0)))
     body.append('<div class="more-row"><a class="btn ghost small" href="%s">Link to this post</a><a class="btn ghost small" href="/posts/">All posts</a><a class="btn ghost small" href="/where-things-stand/">Where things stand</a>%s</div></article>'
                 % (post_url(slug0), '<a class="btn ghost small" href="/specials/">Special topics</a>' if specials else ""))
     if len(post_pages) > 1:
@@ -521,11 +575,12 @@ for i, (slug, p) in enumerate(post_pages):
     headline = p.get("headline") or "Daily post, " + fmt(p.get("date"))
     desc = describe(p.get("intro") or p.get("summary") or [p.get("dek") or headline])
     art = ['<article class="post"><div class="post-date"><time datetime="%s">%s</time>%s</div><h1 class="headline">%s</h1>' % (esc(p.get("date", "")), esc(fmt(p.get("date"))), " · Pinned" if p.get("baseline") else "", esc(headline))]
-    art.append(post_body(p, anchors=True))
+    art.append(post_body(p, anchors=True, fig=post_figure(slug)))
     art.append("</article>")
     older = (post_pages[i + 1][1].get("headline", ""), post_url(post_pages[i + 1][0])) if i + 1 < len(post_pages) else None
     newer = (post_pages[i - 1][1].get("headline", ""), post_url(post_pages[i - 1][0])) if i > 0 else None
-    entry_page("NewsArticle", path, [(NAME, "/"), ("Daily posts", "/posts/"), (fmt(p.get("date")), None)], headline, desc, p.get("date"), "".join(art), older, newer)
+    og_i, og_alt = og_for(POST_IMG, slug)
+    entry_page("NewsArticle", path, [(NAME, "/"), ("Daily posts", "/posts/"), (fmt(p.get("date")), None)], headline, desc, p.get("date"), "".join(art), older, newer, image=og_i, image_alt=og_alt)
     urls.append((path, p.get("date") or LAST_UPDATED, "weekly" if i else "daily", "0.8" if i < 7 else "0.6"))
 
 body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Daily posts</h1><span class="sub">newest first</span></div>',
