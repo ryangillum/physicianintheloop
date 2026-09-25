@@ -184,6 +184,9 @@
   .letter .section-label:first-child { margin-top: 20px; }
   .letter .section-label + .body-copy { margin-top: 12px; }
   .letter .outlook .section-label + div { margin-top: 12px; }
+  .letter-art { margin: 18px 0 20px; }
+  .letter-art img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 12px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); }
+  .letter .letter-art + .body-copy { margin-top: 0; }
   .special-body { max-width: 720px; }
   .special-body p { margin: 0 0 14px; font-size: 1.04rem; line-height: 1.68; }
   .special-body h3 { font-family: var(--display); font-size: 1.32rem; font-weight: 600; margin: 30px 0 10px; color: var(--ink); }
@@ -258,6 +261,10 @@
   @media (prefers-reduced-motion: reduce) { .btn, .tab, details, a { transition: none; } }
 
   .tab { text-decoration: none; }
+  .letter-art { margin: 18px 0 20px; }
+  .letter-art img, .letter-card img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 12px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); }
+  .letter .letter-art + .body-copy { margin-top: 0; }
+  .letter-card { display: block; margin: 8px 0 6px; }
   .tab[aria-current="page"] { color: var(--accent-ink); background: var(--accent); }
   .tab[aria-current="page"] .n { background: rgba(255,255,255,0.22); color: var(--accent-ink); }
   main { display: block; }

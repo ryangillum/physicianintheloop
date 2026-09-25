@@ -12,6 +12,9 @@ title, description and structured data for search engines.
 
 Version 2 (Sept 24, 2026): multi-page site, RSS feed, sitemap, JSON-LD, analytics from the config file.
 Version 2.1 (Sept 24, 2026): topic hub pages (/topics/<category>/), item anchors, Google News sitemap, llms.txt.
+Version 2.2 (Sept 25, 2026): Friday letters open with their illustration (letter.image, a data URI written to
+/images/letters/<weekOf>.<ext>) in place of THE SHORT READ label, which stays on daily posts; the image is the
+letter page's social preview and structured-data image, heads the letter in the feed, and shows on the home page.
 """
 import sys, re, os, io, json, html as H, base64, shutil, datetime, urllib.parse
 
@@ -255,6 +258,10 @@ def fix_internal_links(fragment):
 # ------------------------------------------------------------------ page shell
 EXTRA_CSS = """
   .tab { text-decoration: none; }
+  .letter-art { margin: 18px 0 20px; }
+  .letter-art img, .letter-card img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 12px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); }
+  .letter .letter-art + .body-copy { margin-top: 0; }
+  .letter-card { display: block; margin: 8px 0 6px; }
   .tab[aria-current="page"] { color: var(--accent-ink); background: var(--accent); }
   .tab[aria-current="page"] .n { background: rgba(255,255,255,0.22); color: var(--accent-ink); }
   main { display: block; }
@@ -325,8 +332,9 @@ FOOT = ('<footer class="foot"><div class="tablinks">' + "".join('<a href="%s">%s
         '</div><p style="margin-top:10px">%s. Written by %s. Daily on this site, weekly on <a href="%s" target="_blank" rel="noopener">Substack</a>. '
         'Not medical, legal, or financial advice. <a href="/topics/">Topics</a>. <a href="/feed.xml">RSS</a>.</p></footer>' % (esc(NAME), esc(AUTHOR), esc(SUBSTACK)))
 
-def page(path, title, desc, body, active=None, kind="website", jsonld=None, published=None, modified=None, head_extra=""):
+def page(path, title, desc, body, active=None, kind="website", jsonld=None, published=None, modified=None, head_extra="", image=None, image_alt=None):
     url = absurl(path)
+    og_img = (absurl(image) if image.startswith("/") else image) if image else absurl("/og-image.png")
     full_title = title if (title.startswith(NAME) or title.endswith(NAME)) else "%s | %s" % (title, NAME)
     head = ['<!DOCTYPE html>', '<html lang="en">', '<head>', '<meta charset="utf-8">',
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
@@ -340,13 +348,15 @@ def page(path, title, desc, body, active=None, kind="website", jsonld=None, publ
             '<meta property="og:title" content="%s">' % esc(title),
             '<meta property="og:description" content="%s">' % esc(desc),
             '<meta property="og:url" content="%s">' % esc(url),
-            '<meta property="og:image" content="%s">' % esc(absurl("/og-image.png")),
+            '<meta property="og:image" content="%s">' % esc(og_img),
             '<meta property="og:image:width" content="1200">', '<meta property="og:image:height" content="630">',
             '<meta property="og:locale" content="en_US">',
             '<meta name="twitter:card" content="summary_large_image">',
             '<meta name="twitter:title" content="%s">' % esc(title),
             '<meta name="twitter:description" content="%s">' % esc(desc),
-            '<meta name="twitter:image" content="%s">' % esc(absurl("/og-image.png"))]
+            '<meta name="twitter:image" content="%s">' % esc(og_img)]
+    if image_alt:
+        head += ['<meta property="og:image:alt" content="%s">' % esc(image_alt), '<meta name="twitter:image:alt" content="%s">' % esc(image_alt)]
     if config.get("twitter_handle"):
         head.append('<meta name="twitter:site" content="%s">' % esc(config["twitter_handle"]))
     if published:
@@ -388,11 +398,11 @@ def write(path, content, binary=False):
 PUBLISHER = {"@type": "Organization", "name": NAME, "url": SITE, "logo": {"@type": "ImageObject", "url": absurl("/logo.png"), "width": 512, "height": 512}}
 PERSON = {"@type": "Person", "name": AUTHOR, "url": absurl("/about/"), "jobTitle": "Physician", "sameAs": [SUBSTACK]}
 
-def article_ld(kind, url, headline, desc, date):
+def article_ld(kind, url, headline, desc, date, image=None):
     return {"@context": "https://schema.org", "@type": kind, "headline": headline[:110], "description": desc,
             "datePublished": iso_dt(date), "dateModified": iso_dt(date if date != LAST_UPDATED else LAST_UPDATED),
             "author": PERSON, "publisher": PUBLISHER, "mainEntityOfPage": {"@type": "WebPage", "@id": url},
-            "image": [absurl("/og-image.png")], "isAccessibleForFree": True, "inLanguage": "en-US"}
+            "image": [(absurl(image) if image.startswith("/") else image) if image else absurl("/og-image.png")], "isAccessibleForFree": True, "inLanguage": "en-US"}
 
 def breadcrumbs(items):
     """items: [(label, path)] ending with the current page (path may be None)."""
@@ -431,6 +441,38 @@ if m:
 about_inner = re.sub(r'<div class="panel-head">.*?</div>\s*', "", about_inner, count=1, flags=re.S)
 about_inner = fix_internal_links(about_inner)
 
+# ------------------------------------------------------------------ letter illustrations (data URI -> file)
+LETTER_IMG = {}   # slug -> (path or https url, alt, raster?)
+for slug, w in letter_pages:
+    im = w.get("image")
+    if isinstance(im, str):
+        im = {"src": im}
+    if not isinstance(im, dict):
+        continue
+    src, alt = str(im.get("src") or ""), str(im.get("alt") or "")
+    mm = re.match(r'data:image/(jpeg|jpg|png|webp);base64,(.+)$', src, re.S)
+    if mm:
+        path_ = "/images/letters/%s.%s" % (slug, "jpg" if mm.group(1) in ("jpeg", "jpg") else mm.group(1))
+        write(path_, base64.b64decode(mm.group(2)), binary=True)
+        LETTER_IMG[slug] = (path_, alt, True)
+    elif src.startswith("data:image/svg+xml;base64,"):
+        path_ = "/images/letters/%s.svg" % slug
+        write(path_, base64.b64decode(src.split(",", 1)[1]), binary=True)
+        LETTER_IMG[slug] = (path_, alt, False)
+    elif src.startswith("https://"):
+        LETTER_IMG[slug] = (src, alt, True)
+
+def letter_figure(slug, lazy=False):
+    if slug not in LETTER_IMG:
+        return ""
+    src, alt, _ = LETTER_IMG[slug]
+    return '<figure class="letter-art"><img src="%s" alt="%s" width="1200" height="630" decoding="async"%s></figure>' % (esc(src), esc(alt), ' loading="lazy"' if lazy else "")
+
+def letter_og(slug):
+    if slug in LETTER_IMG and LETTER_IMG[slug][2]:
+        return LETTER_IMG[slug][0], LETTER_IMG[slug][1]
+    return None, None
+
 # ------------------------------------------------------------------ home
 masthead = re.search(r'<header class="masthead">.*?</header>', section_html("today"), re.S)
 masthead = masthead.group(0) if masthead else ('<header class="masthead"><div class="eyebrow">%s</div><h1>%s</h1><p class="dek">%s</p></header>' % (esc(config["tagline"]), esc(NAME), esc(config["description"])))
@@ -454,7 +496,10 @@ else:
     body.append('<p class="empty">No posts yet.</p>')
 if letters:
     ls, w0 = letter_pages[0]
-    body.append('<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">The Friday letter</h2><a class="sub" href="/letters/">all letters</a></div><ul class="recent"><li><span class="when">%s</span><a href="%s">%s</a></li></ul>' % (esc(w0.get("dateRange") or fmt(w0.get("weekOf"))), letter_url(ls), esc(w0.get("headline") or "The Friday letter")))
+    body.append('<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">The Friday letter</h2><a class="sub" href="/letters/">all letters</a></div>')
+    if ls in LETTER_IMG:
+        body.append('<a class="letter-card" href="%s"><img src="%s" alt="%s" width="1200" height="630" loading="lazy" decoding="async"></a>' % (letter_url(ls), esc(LETTER_IMG[ls][0]), esc(LETTER_IMG[ls][1])))
+    body.append('<ul class="recent"><li><span class="when">%s</span><a href="%s">%s</a></li></ul>' % (esc(w0.get("dateRange") or fmt(w0.get("weekOf"))), letter_url(ls), esc(w0.get("headline") or "The Friday letter")))
 home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": SITE, "description": config["description"], "inLanguage": "en-US", "author": PERSON, "publisher": PUBLISHER},
            {"@context": "https://schema.org", "@type": "Person", "name": AUTHOR, "url": absurl("/about/"), "jobTitle": "Physician", "sameAs": [SUBSTACK], **({"image": absurl(photo_path)} if photo_path else {})}]
 HASH_REDIRECT = ('<script>(function(){var h=location.hash.replace(/^#/,"");if(!h)return;var map=%s;if(map[h]){location.replace(map[h]);return;}'
@@ -465,11 +510,11 @@ page("/", PAGE_TITLE + ": " + config["tagline"], config["description"], '<sectio
 urls.append(("/", LAST_UPDATED, "daily", "1.0"))
 
 # ------------------------------------------------------------------ daily posts
-def entry_page(kind, path, crumbs, headline, desc, date, article_html, older, newer, extra_ld=None):
+def entry_page(kind, path, crumbs, headline, desc, date, article_html, older, newer, extra_ld=None, image=None, image_alt=None):
     ld, crumb_html = breadcrumbs(crumbs)
-    lds = [article_ld(kind, absurl(path), headline, desc, date), ld] + ([extra_ld] if extra_ld else [])
+    lds = [article_ld(kind, absurl(path), headline, desc, date, image), ld] + ([extra_ld] if extra_ld else [])
     body = crumb_html + article_html + pager(older, newer) + subscribe_box()
-    page(path, headline, desc, '<section class="panel">' + body + "</section>", active="/%s/" % path.split("/")[1], kind="article", jsonld=lds, published=iso_dt(date), modified=iso_dt(date))
+    page(path, headline, desc, '<section class="panel">' + body + "</section>", active="/%s/" % path.split("/")[1], kind="article", jsonld=lds, published=iso_dt(date), modified=iso_dt(date), image=image, image_alt=image_alt)
 
 for i, (slug, p) in enumerate(post_pages):
     path = post_url(slug)
@@ -505,9 +550,10 @@ for i, (slug, w) in enumerate(letter_pages):
     art = ['<article class="post letter"><div class="post-date">The Friday letter · <time datetime="%s">%s</time></div><h1 class="headline">%s</h1>' % (esc(w.get("weekOf", "")), esc(w.get("dateRange") or fmt(w.get("weekOf"))), esc(headline))]
     if w.get("dek"):
         art.append('<p class="standfirst">%s</p>' % rich(w["dek"]))
+    art.append(letter_figure(slug))
     copy = w.get("body") or w.get("summary")
     if copy:
-        art.append('<div class="section-label">THE SHORT READ</div>' + paras(copy, "body-copy"))
+        art.append(paras(copy, "body-copy"))
     for t in w.get("themes") or []:
         art.append("<h4>%s</h4><p>%s</p>" % (esc(t.get("title", "")), rich(t.get("body", ""))))
     if w.get("top"):
@@ -521,7 +567,8 @@ for i, (slug, w) in enumerate(letter_pages):
     art.append("</article>")
     older = (letter_pages[i + 1][1].get("headline", ""), letter_url(letter_pages[i + 1][0])) if i + 1 < len(letter_pages) else None
     newer = (letter_pages[i - 1][1].get("headline", ""), letter_url(letter_pages[i - 1][0])) if i > 0 else None
-    entry_page("Article", path, [(NAME, "/"), ("Friday letter", "/letters/"), (w.get("dateRange") or fmt(w.get("weekOf")), None)], headline, desc, w.get("weekOf"), "".join(art), older, newer)
+    og_i, og_alt = letter_og(slug)
+    entry_page("Article", path, [(NAME, "/"), ("Friday letter", "/letters/"), (w.get("dateRange") or fmt(w.get("weekOf")), None)], headline, desc, w.get("weekOf"), "".join(art), older, newer, image=og_i, image_alt=og_alt)
     urls.append((path, w.get("weekOf") or LAST_UPDATED, "monthly", "0.8"))
 
 body = ['<div class="panel-head"><h1 style="font-size:1.6rem">The Friday letter</h1><a class="sub" href="%s" target="_blank" rel="noopener">archive on Substack</a></div>' % esc(SUBSTACK),
@@ -697,7 +744,7 @@ feed_items = []
 for slug, p in post_pages:
     feed_items.append((p.get("date") or "", 2, p.get("headline") or "Daily post", absurl(post_url(slug)), describe(p.get("intro") or [p.get("headline")], 300), post_body(p)))
 for slug, w in letter_pages:
-    feed_items.append((w.get("weekOf") or "", 3, w.get("headline") or "The Friday letter", absurl(letter_url(slug)), plain(w.get("dek") or ""), paras(w.get("body")) + ('<div class="section-label">SOURCE MATERIAL</div>' + render_items(w["top"]) if w.get("top") else "") + (paras(w["outlook"]) if w.get("outlook") else "")))
+    feed_items.append((w.get("weekOf") or "", 3, w.get("headline") or "The Friday letter", absurl(letter_url(slug)), plain(w.get("dek") or ""), (('<p><img src="%s" alt="%s" width="1200" height="630"></p>' % (esc(LETTER_IMG[slug][0] if LETTER_IMG[slug][0].startswith("https://") else absurl(LETTER_IMG[slug][0])), esc(LETTER_IMG[slug][1]))) if slug in LETTER_IMG else "") + paras(w.get("body")) + ('<div class="section-label">SOURCE MATERIAL</div>' + render_items(w["top"]) if w.get("top") else "") + (paras(w["outlook"]) if w.get("outlook") else "")))
 for slug, sp in special_pages:
     feed_items.append((sp.get("date") or "", 1, sp.get("title") or "Special topic", absurl(special_url(slug)), plain(sp.get("dek") or ""), "".join("<p>%s</p>" % rich((b.get("lead", "") + " " + b.get("text", "")).strip()) for b in sp.get("blocks") or [])))
 feed_items.sort(key=lambda x: (x[0], x[1]), reverse=True)
