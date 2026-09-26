@@ -27,6 +27,14 @@ article's subscribe box has a "Listen to the podcast" button, /listen redirects 
 copyright line. The podcast and the copyright holder come from site.config.json ("podcast", "copyright_holder"; set
 "podcast" to false to leave the podcast out).
 Version 2.4.1 (Sept 26, 2026): the footer and llms.txt credit the site as "Created by" the author (was "Written by").
+Version 2.4.2 (Sept 26, 2026): the podcast blurb reads "Each morning's post as a short audio briefing, published every day."
+Version 2.5 (Sept 26, 2026): the blurb, the /podcast/ description and llms.txt drop "short" ("Each morning's post as an audio
+briefing, published every day."). Every daily post page (not the pinned launch post) ends with that day's episode player: the
+page asks /api/episode/<date> when it loads and shows the player only once the episode is in the show's feed, because
+episodes publish around 7:30 to 8:00 AM Mountain, after the 7:15 build. /api/episode/<date> is a Netlify function the script
+writes to <repo root>/netlify/functions/episode.mjs (netlify.toml points Netlify at that folder); it reads the feed, finds the
+item titled "Daily Update for <Month> <D>, <YYYY>" (config "episode_title") and answers with the Transistor id, cached on
+Netlify's CDN for an hour when found and two minutes when not.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -59,6 +67,7 @@ DEFAULT_CONFIG = {
         "spotify": "https://open.spotify.com/show/6F9zsXoKZGAvqPx2GmDSqh",
         "youtube": None,
         "playlist_height": 390,
+        "episode_title": "Daily Update for {date}",
     },
 }
 config = dict(DEFAULT_CONFIG)
@@ -465,7 +474,7 @@ def subscribe_box():
     return ('<div class="subscribe-box"><p>The Friday letter: the week that mattered and specific recommendations, free, in your inbox.</p>'
             '<div class="subscribe-actions"><a class="btn" href="%s" target="_blank" rel="noopener">Get the Friday letter</a>%s</div></div>' % (esc(SUBSCRIBE), pod))
 
-POD_BLURB = "Each morning's post as a short two-voice audio briefing, published every day."
+POD_BLURB = "Each morning's post as an audio briefing, published every day."
 POD_SCRIPT = ('<script>(function(){var d=false;try{d=window.matchMedia("(prefers-color-scheme: dark)").matches}catch(e){}'
               'var f=document.querySelectorAll("iframe.pod-frame");for(var i=0;i<f.length;i++){f[i].src=f[i].getAttribute(d?"data-dark":"data-light")}})();</script>')
 
@@ -479,6 +488,115 @@ def pod_embed(kind, height, title, lazy=False):
 def pod_apps():
     links = [(label, POD.get(key)) for label, key in (("Apple Podcasts", "apple"), ("Spotify", "spotify"), ("YouTube", "youtube")) if POD.get(key)]
     return '<div class="pod-apps">%s</div>' % "".join('<a class="btn ghost small" href="%s" target="_blank" rel="noopener">%s</a>' % (esc(u), esc(l)) for l, u in links)
+
+EPISODE_SCRIPT = ('<script>(function(){var s=document.getElementById("post-episode");if(!s||!window.fetch)return;'
+                  'fetch("/api/episode/"+s.getAttribute("data-date")).then(function(r){return r.ok?r.json():null})'
+                  '.then(function(e){if(!e||!e.found||!/^[a-z0-9]+$/i.test(e.id||""))return;var d=false;'
+                  'try{d=window.matchMedia("(prefers-color-scheme: dark)").matches}catch(x){}'
+                  's.querySelector("iframe").src="https://share.transistor.fm/e/"+e.id+(d?"/dark":"");s.hidden=false})'
+                  '.catch(function(){})})();</script>')
+
+def episode_block(date):
+    """That day's episode player at the foot of a daily post page. It stays hidden until /api/episode/<date> finds the episode."""
+    if not (POD and re.match(r"^\d{4}-\d{2}-\d{2}$", date or "")):
+        return ""
+    return ('<section class="post-episode" id="post-episode" data-date="%s" hidden aria-label="Podcast episode for this post">'
+            '<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">Listen to this post</h2><a class="sub" href="/podcast/">all episodes</a></div>'
+            '<div class="pod-player"><iframe title="Podcast episode for this post" height="180" scrolling="no" loading="lazy"></iframe></div></section>' % esc(date)
+            + EPISODE_SCRIPT)
+
+EPISODE_FN = r'''// Podcast episode lookup for physicianintheloop.org. Written by tools/build_public_site.py on every
+// site build; edit the generator, not this file.
+//
+// GET /api/episode/YYYY-MM-DD finds the episode titled for that date in the show's feed and answers
+// {"found": true, "id": "...", "embed": "https://share.transistor.fm/e/<id>", ...}, or {"found": false}
+// before the episode exists. Daily post pages call it when they load and show the player only when found.
+// Answers are cached on Netlify's CDN: a found episode for an hour, a missing one for two minutes, so a
+// new episode appears on its post page within a few minutes of publishing.
+
+const FEED = __FEED__;
+const TITLE = __TITLE__;
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+function titleFor(date) {
+  const [y, m, d] = date.split("-").map(Number);
+  return TITLE.replace("{date}", MONTHS[m - 1] + " " + d + ", " + y);
+}
+
+function plain(s) {
+  return s
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/&amp;/g, "&")
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function reply(body, status, browserCache, cdnCache) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": browserCache,
+      "netlify-cdn-cache-control": cdnCache,
+    },
+  });
+}
+
+export default async (req, context) => {
+  const date = (context && context.params && context.params.date) || new URL(req.url).searchParams.get("date") || "";
+  const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!parts || +parts[2] < 1 || +parts[2] > 12 || +parts[3] < 1 || +parts[3] > 31) {
+    return reply({ found: false, error: "bad date" }, 400, "public, max-age=86400", "public, s-maxage=86400");
+  }
+  let xml;
+  try {
+    const res = await fetch(FEED, { headers: { "user-agent": "physicianintheloop.org episode lookup" } });
+    if (!res.ok) throw new Error("feed answered " + res.status);
+    xml = await res.text();
+  } catch (err) {
+    return reply({ found: false, error: "feed unavailable" }, 502, "no-store", "no-store");
+  }
+  const want = plain(titleFor(date));
+  for (const chunk of xml.split(/<item[\s>]/i).slice(1)) {
+    const item = chunk.split(/<\/item>/i)[0];
+    const titles = [...item.matchAll(/<(?:itunes:)?title>([\s\S]*?)<\/(?:itunes:)?title>/gi)].map((t) => plain(t[1]));
+    if (!titles.includes(want)) continue;
+    const link =
+      /<link>\s*https:\/\/share\.transistor\.fm\/s\/([a-z0-9]+)/i.exec(item) ||
+      /<enclosure[^>]+https:\/\/media\.transistor\.fm\/([a-z0-9]+)\//i.exec(item) ||
+      /https:\/\/share\.transistor\.fm\/s\/([a-z0-9]+)/i.exec(item);
+    if (!link) continue;
+    const id = link[1];
+    return reply(
+      { found: true, date, title: titleFor(date), id, share: "https://share.transistor.fm/s/" + id, embed: "https://share.transistor.fm/e/" + id },
+      200,
+      "public, max-age=600",
+      "public, s-maxage=3600, stale-while-revalidate=86400"
+    );
+  }
+  return reply({ found: false, date }, 200, "public, max-age=60", "public, s-maxage=120");
+};
+
+export const config = { path: "/api/episode/:date" };
+'''
+
+def write_episode_function():
+    """Write (or remove) the Netlify function behind /api/episode/<date>. Returns True when it is written."""
+    target = os.path.join(ROOT, "netlify", "functions", "episode.mjs")
+    if not POD:
+        if os.path.exists(target):
+            os.remove(target)
+        return False
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    src = EPISODE_FN.replace("__FEED__", json.dumps(POD["rss"])).replace("__TITLE__", json.dumps(POD.get("episode_title") or "Daily Update for {date}"))
+    with open(target, "w", encoding="utf-8") as f:
+        f.write(src)
+    return True
 
 def podcast_home():
     if not POD:
@@ -644,6 +762,8 @@ for i, (slug, p) in enumerate(post_pages):
     art = ['<article class="post"><div class="post-date"><time datetime="%s">%s</time>%s</div><h1 class="headline">%s</h1>' % (esc(p.get("date", "")), esc(fmt(p.get("date"))), " · Pinned" if p.get("baseline") else "", esc(headline))]
     art.append(post_body(p, anchors=True, fig=post_figure(slug)))
     art.append("</article>")
+    if not p.get("baseline"):
+        art.append(episode_block(p.get("date")))
     older = (post_pages[i + 1][1].get("headline", ""), post_url(post_pages[i + 1][0])) if i + 1 < len(post_pages) else None
     newer = (post_pages[i - 1][1].get("headline", ""), post_url(post_pages[i - 1][0])) if i > 0 else None
     og_i, og_alt = og_for(POST_IMG, slug)
@@ -863,7 +983,7 @@ if POD:
             pod_embed("playlist", int(POD.get("playlist_height") or 390), "Every episode of the %s podcast" % POD["name"]),
             '<h2 class="pod-follow">Follow the show</h2>', pod_apps(),
             '<p class="pod-feed">In any other podcast app, add the feed: <code>%s</code></p>' % esc(POD["rss"]), POD_SCRIPT]
-    page("/podcast/", "Podcast", "Every episode of the %s podcast, each morning's post as a short audio briefing, playable here or in Apple Podcasts and Spotify." % POD["name"],
+    page("/podcast/", "Podcast", "Every episode of the %s podcast, each morning's post as an audio briefing, playable here or in Apple Podcasts and Spotify." % POD["name"],
          '<section class="panel">' + "".join(body) + "</section>", active="/podcast/", jsonld=ld_pod)
     urls.append(("/podcast/", LAST_UPDATED, "daily", "0.8"))
 
@@ -910,7 +1030,7 @@ write("/sitemap-news.xml", "\n".join(ns) + "\n")
 write("/robots.txt", "User-agent: *\nAllow: /\nSitemap: %s\nSitemap: %s\n" % (absurl("/sitemap.xml"), absurl("/sitemap-news.xml")))
 write("/llms.txt", "# %s\n\n> %s\n\nCreated by %s. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter and the special topics are signed essays.\n\n## Sections\n\n- [Daily posts](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
       % (NAME, config["description"], AUTHOR, absurl("/posts/"), absurl("/letters/"), absurl("/specials/"), absurl("/watch/"), absurl("/dates/"), absurl("/where-things-stand/"), absurl("/topics/"), absurl("/about/"), absurl("/feed.xml"))
-      + ("- [Podcast](%s): each morning's post as a short audio briefing; podcast feed %s\n" % (absurl("/podcast/"), POD["rss"]) if POD else ""))
+      + ("- [Podcast](%s): each morning's post as an audio briefing; podcast feed %s\n" % (absurl("/podcast/"), POD["rss"]) if POD else ""))
 
 write("/favicon.svg", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2F63A8"/>'
       '<path d="M20 14v18a12 12 0 0 0 24 0V14" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="50" r="5" fill="#fff"/></svg>')
@@ -925,8 +1045,9 @@ write("/_redirects", "/subscribe  %s  302\n/substack   %s  302\n/newsletter %s  
 write("/_headers", "/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n"
       "/images/*\n  Cache-Control: public, max-age=604800\n/og-image.png\n  Cache-Control: public, max-age=86400\n/logo.png\n  Cache-Control: public, max-age=604800\n")
 page("/404.html", "Page not found", "That page is not here.", '<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">That page is not here</h1></div><p class="lead">Try the <a href="/">front page</a>, the <a href="/posts/">daily posts</a>, or the <a href="/letters/">Friday letter</a>.</p></section>')
+HAS_FUNCTIONS = write_episode_function()
 with open(os.path.join(ROOT, "netlify.toml"), "w") as f:
-    f.write('[build]\n  publish = "public"\n  command = ""\n')
+    f.write('[build]\n  publish = "public"\n  command = ""\n' + ('\n[functions]\n  directory = "netlify/functions"\n' if HAS_FUNCTIONS else ""))
 
 n_files = sum(len(fs) for _, _, fs in os.walk(OUT))
 print("ok: built %d pages (%d posts, %d letters, %d specials), %d files in %s; updated %s; analytics %s" % (len(urls), len(post_pages), len(letter_pages), len(special_pages), n_files, OUT, LAST_UPDATED, (config.get("analytics") or {}).get("provider") or "none"))
