@@ -20,6 +20,12 @@ the post page's social image; not added to the feed, which the podcast reads). E
 <repo root>/assets/images/, so a post or letter keeps its picture on the site after the working page retires the
 picture's data (it leaves image {alt} with no src) or trims the post; that folder is the only thing outside public/
 the script writes besides netlify.toml. Image addresses carry ?v=<hash> so a replaced picture is never served stale.
+Version 2.4 (Sept 26, 2026): the podcast. A /podcast/ page plays every episode in Transistor's playlist player (the dark
+variant when the reader's system is dark), with Apple Podcasts, Spotify and RSS links and PodcastSeries structured data;
+a Podcast tab sits second in the navigation, the home page carries the latest episode's player after today's post, every
+article's subscribe box has a "Listen to the podcast" button, /listen redirects to /podcast/, and the footer carries the
+copyright line. The podcast and the copyright holder come from site.config.json ("podcast", "copyright_holder"; set
+"podcast" to false to leave the podcast out).
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -43,6 +49,16 @@ DEFAULT_CONFIG = {
     "google_site_verification": None,
     "bing_verification": None,
     "twitter_handle": None,
+    "copyright_holder": "Nomad Medical Group, LLC",
+    "podcast": {
+        "name": "Physician in the Loop",
+        "transistor_slug": "physician-in-the-loop",
+        "rss": "https://feeds.transistor.fm/physician-in-the-loop",
+        "apple": "https://podcasts.apple.com/podcast/physician-in-the-loop/id6815879355",
+        "spotify": "https://open.spotify.com/show/6F9zsXoKZGAvqPx2GmDSqh",
+        "youtube": None,
+        "playlist_height": 390,
+    },
 }
 config = dict(DEFAULT_CONFIG)
 if os.path.exists(CONFIG_PATH):
@@ -56,6 +72,13 @@ if os.path.exists(CONFIG_PATH):
 SITE = config["site_url"].rstrip("/") + "/"
 NAME = config["site_name"]
 AUTHOR = config["author"]
+POD = None
+if config.get("podcast") is not False:
+    POD = dict(DEFAULT_CONFIG["podcast"])
+    if isinstance(config.get("podcast"), dict):
+        POD.update({k: v for k, v in config["podcast"].items() if v})
+    if not (POD.get("transistor_slug") and POD.get("rss")):
+        POD = None
 
 # ------------------------------------------------------------------ read the artifact page
 raw = open(SRC, encoding="utf-8").read()
@@ -247,15 +270,19 @@ def letter_url(slug): return "/letters/%s/" % slug
 def special_url(slug): return "/specials/%s/" % slug
 def absurl(path): return SITE.rstrip("/") + path
 
-NAV = [("/", "Today"), ("/posts/", "Daily posts"), ("/letters/", "Friday letter"), ("/specials/", "Special topics"),
+NAV = [("/", "Today")] + ([("/podcast/", "Podcast")] if POD else []) + [("/posts/", "Daily posts"), ("/letters/", "Friday letter"), ("/specials/", "Special topics"),
        ("/watch/", "Watch list"), ("/dates/", "Dates"), ("/where-things-stand/", "Where things stand"), ("/about/", "About")]
-HASH_MAP = {"today": "/", "posts": "/posts/", "letters": "/letters/", "specials": "/specials/", "watch": "/watch/", "dates": "/dates/", "landscape": "/where-things-stand/", "about": "/about/"}
+HASH_MAP = {"today": "/", "podcast": "/podcast/", "posts": "/posts/", "letters": "/letters/", "specials": "/specials/", "watch": "/watch/", "dates": "/dates/", "landscape": "/where-things-stand/", "about": "/about/"}
+ICON = ('<svg class="ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">'
+        '<path d="M4 15v-3a8 8 0 0 1 16 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+        '<rect x="3" y="13" width="5" height="8" rx="2" fill="currentColor"/><rect x="16" y="13" width="5" height="8" rx="2" fill="currentColor"/></svg>')
+TAB_ICON = ICON.replace('class="ico"', 'class="tab-ico"').replace('width="18" height="18"', 'width="14" height="14"')
 
 def fix_internal_links(fragment):
     """Turn the app's hash-tab links into real page links inside copied HTML (long read, about, masthead)."""
     def sub(m):
         return 'href="%s"' % HASH_MAP[m.group(1)]
-    fragment = re.sub(r'href="#(today|posts|letters|specials|watch|dates|landscape|about)"', sub, fragment)
+    fragment = re.sub(r'href="#(today|podcast|posts|letters|specials|watch|dates|landscape|about)"', sub, fragment)
     fragment = re.sub(r'\s+data-tab-link="[^"]*"', "", fragment)
     fragment = re.sub(r'\s+data-scroll-top="[^"]*"', "", fragment)
     return fragment
@@ -297,6 +324,19 @@ EXTRA_CSS = """
   .subscribe-box p { margin: 0 0 12px; color: var(--ink-2); }
   .doc .doc-title { font-size: clamp(1.6rem, 4.6vw, 2rem); margin: 4px 0 14px; line-height: 1.15; }
   .foot .tablinks { display: flex; flex-wrap: wrap; gap: 4px 0; }
+  .btn.listen { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: var(--bg); }
+  .btn.listen:hover { background: var(--accent-2); color: var(--accent-ink); }
+  .btn .ico { width: 18px; height: 18px; flex: 0 0 auto; }
+  .tab .tab-ico { width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; }
+  .pod-apps { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pod-feed { font-size: 0.9rem; color: var(--muted); margin: 14px 0 0; overflow-wrap: anywhere; }
+  .pod-feed code { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-2); user-select: all; }
+  .pod-player { border-radius: 12px; overflow: hidden; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--surface); }
+  .pod-player iframe { display: block; width: 100%; border: 0; }
+  .pod-player + .pod-apps { margin-top: 12px; }
+  .pod-follow { font-size: 1.3rem; margin: 30px 0 12px; }
+  .subscribe-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .copyright { margin-top: 6px; font-size: 0.8rem; }
 """
 
 def analytics_snippet():
@@ -331,13 +371,14 @@ def nav_html(active):
     for path, label in NAV:
         cur = ' aria-current="page"' if path == active else ""
         count = '<span class="n">%d</span>' % len(posts) if (path == "/posts/" and posts) else ""
-        out.append('<a class="tab" href="%s"%s>%s%s</a>' % (path, cur, esc(label), count))
+        out.append('<a class="tab" href="%s"%s>%s%s%s</a>' % (path, cur, TAB_ICON if path == "/podcast/" else "", esc(label), count))
     out.append("</nav></div></div>")
     return "".join(out)
 
 FOOT = ('<footer class="foot"><div class="tablinks">' + "".join('<a href="%s">%s</a>' % (p, esc(l)) for p, l in NAV) +
         '</div><p style="margin-top:10px">%s. Written by %s. Daily on this site, weekly on <a href="%s" target="_blank" rel="noopener">Substack</a>. '
-        'Not medical, legal, or financial advice. <a href="/topics/">Topics</a>. <a href="/feed.xml">RSS</a>.</p></footer>' % (esc(NAME), esc(AUTHOR), esc(SUBSTACK)))
+        'Not medical, legal, or financial advice. <a href="/topics/">Topics</a>. <a href="/feed.xml">RSS</a>.</p>'
+        '<p class="copyright">&copy; %d %s. All rights reserved.</p></footer>' % (esc(NAME), esc(AUTHOR), esc(SUBSTACK), datetime.date.today().year, esc(config.get("copyright_holder") or AUTHOR)))
 
 def page(path, title, desc, body, active=None, kind="website", jsonld=None, published=None, modified=None, head_extra="", image=None, image_alt=None):
     url = absurl(path)
@@ -419,8 +460,31 @@ def breadcrumbs(items):
     return ld, html_
 
 def subscribe_box():
+    pod = ('<a class="btn listen" href="/podcast/">%sListen to the podcast</a>' % ICON) if POD else ""
     return ('<div class="subscribe-box"><p>The Friday letter: the week that mattered and specific recommendations, free, in your inbox.</p>'
-            '<a class="btn" href="%s" target="_blank" rel="noopener">Get the Friday letter</a></div>' % esc(SUBSCRIBE))
+            '<div class="subscribe-actions"><a class="btn" href="%s" target="_blank" rel="noopener">Get the Friday letter</a>%s</div></div>' % (esc(SUBSCRIBE), pod))
+
+POD_BLURB = "Each morning's post as a short two-voice audio briefing, published every day."
+POD_SCRIPT = ('<script>(function(){var d=false;try{d=window.matchMedia("(prefers-color-scheme: dark)").matches}catch(e){}'
+              'var f=document.querySelectorAll("iframe.pod-frame");for(var i=0;i<f.length;i++){f[i].src=f[i].getAttribute(d?"data-dark":"data-light")}})();</script>')
+
+def pod_embed(kind, height, title, lazy=False):
+    """Transistor's player: kind 'latest' (one episode) or 'playlist' (every episode). The script picks the light or dark variant."""
+    base = "https://share.transistor.fm/e/%s/%s" % (POD["transistor_slug"], kind)
+    return ('<div class="pod-player"><iframe class="pod-frame" data-light="%s" data-dark="%s/dark" title="%s" height="%d" scrolling="no"%s></iframe>'
+            '<noscript><iframe src="%s" title="%s" height="%d" scrolling="no"></iframe></noscript></div>'
+            % (esc(base), esc(base), esc(title), height, ' loading="lazy"' if lazy else "", esc(base), esc(title), height))
+
+def pod_apps():
+    links = [(label, POD.get(key)) for label, key in (("Apple Podcasts", "apple"), ("Spotify", "spotify"), ("YouTube", "youtube")) if POD.get(key)]
+    return '<div class="pod-apps">%s</div>' % "".join('<a class="btn ghost small" href="%s" target="_blank" rel="noopener">%s</a>' % (esc(u), esc(l)) for l, u in links)
+
+def podcast_home():
+    if not POD:
+        return ""
+    return ('<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">The daily podcast</h2><a class="sub" href="/podcast/">all episodes</a></div>'
+            '<p class="lead" style="margin-bottom:14px">%s</p>' % esc(POD_BLURB)
+            + pod_embed("latest", 180, "Latest episode of the %s podcast" % POD["name"], lazy=True) + pod_apps() + POD_SCRIPT)
 
 def pager(prev_, next_):
     """prev_/next_ are (label, path) for the older and newer piece, or None."""
@@ -541,6 +605,7 @@ if posts:
     body.append(post_body(p0, fig=post_figure(slug0)))
     body.append('<div class="more-row"><a class="btn ghost small" href="%s">Link to this post</a><a class="btn ghost small" href="/posts/">All posts</a><a class="btn ghost small" href="/where-things-stand/">Where things stand</a>%s</div></article>'
                 % (post_url(slug0), '<a class="btn ghost small" href="/specials/">Special topics</a>' if specials else ""))
+    body.append(podcast_home())
     if len(post_pages) > 1:
         body.append('<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">Recent posts</h2><a class="sub" href="/posts/">all posts</a></div><ul class="recent">')
         for slug, p in post_pages[1:7]:
@@ -548,6 +613,7 @@ if posts:
         body.append("</ul>")
 else:
     body.append('<p class="empty">No posts yet.</p>')
+    body.append(podcast_home())
 if letters:
     ls, w0 = letter_pages[0]
     body.append('<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">The Friday letter</h2><a class="sub" href="/letters/">all letters</a></div>')
@@ -786,8 +852,22 @@ page("/where-things-stand/", land_title, land_desc, '<section class="panel doc">
 urls.append(("/where-things-stand/", LAST_UPDATED, "monthly", "0.8"))
 
 # ------------------------------------------------------------------ about
+# ------------------------------------------------------------------ podcast
+if POD:
+    ld_pod = {"@context": "https://schema.org", "@type": "PodcastSeries", "name": POD["name"], "url": absurl("/podcast/"), "webFeed": POD["rss"],
+              "description": POD_BLURB, "inLanguage": "en-US", "author": PERSON, "publisher": PUBLISHER,
+              "sameAs": [u for u in (POD.get("apple"), POD.get("spotify"), POD.get("youtube")) if u]}
+    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Podcast</h1><span class="sub">every episode, playable here</span></div>',
+            '<p class="lead">%s Play any episode below, or follow the show in Apple Podcasts, Spotify or any app that takes an RSS feed.</p>' % esc(POD_BLURB),
+            pod_embed("playlist", int(POD.get("playlist_height") or 390), "Every episode of the %s podcast" % POD["name"]),
+            '<h2 class="pod-follow">Follow the show</h2>', pod_apps(),
+            '<p class="pod-feed">In any other podcast app, add the feed: <code>%s</code></p>' % esc(POD["rss"]), POD_SCRIPT]
+    page("/podcast/", "Podcast", "Every episode of the %s podcast, each morning's post as a short audio briefing, playable here or in Apple Podcasts and Spotify." % POD["name"],
+         '<section class="panel">' + "".join(body) + "</section>", active="/podcast/", jsonld=ld_pod)
+    urls.append(("/podcast/", LAST_UPDATED, "daily", "0.8"))
+
 ld_about = {"@context": "https://schema.org", "@type": "AboutPage", "name": "About " + NAME, "url": absurl("/about/"), "mainEntity": {**PERSON, **({"image": absurl(photo_path)} if photo_path else {})}}
-page("/about/", "About", "Who writes %s: %s, a country doctor in the mountains of Colorado, on what artificial intelligence is doing to medicine." % (NAME, AUTHOR),
+page("/about/", "About", "%s was created by %s, a family doctor in the mountains of Colorado, to sort what matters in AI in medicine from the noise." % (NAME, AUTHOR),
      '<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">About</h1></div>' + about_inner + "</section>", active="/about/", jsonld=ld_about)
 urls.append(("/about/", LAST_UPDATED, "monthly", "0.5"))
 
@@ -828,7 +908,8 @@ ns.append("</urlset>")
 write("/sitemap-news.xml", "\n".join(ns) + "\n")
 write("/robots.txt", "User-agent: *\nAllow: /\nSitemap: %s\nSitemap: %s\n" % (absurl("/sitemap.xml"), absurl("/sitemap-news.xml")))
 write("/llms.txt", "# %s\n\n> %s\n\nWritten by %s. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter and the special topics are signed essays.\n\n## Sections\n\n- [Daily posts](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
-      % (NAME, config["description"], AUTHOR, absurl("/posts/"), absurl("/letters/"), absurl("/specials/"), absurl("/watch/"), absurl("/dates/"), absurl("/where-things-stand/"), absurl("/topics/"), absurl("/about/"), absurl("/feed.xml")))
+      % (NAME, config["description"], AUTHOR, absurl("/posts/"), absurl("/letters/"), absurl("/specials/"), absurl("/watch/"), absurl("/dates/"), absurl("/where-things-stand/"), absurl("/topics/"), absurl("/about/"), absurl("/feed.xml"))
+      + ("- [Podcast](%s): each morning's post as a short audio briefing; podcast feed %s\n" % (absurl("/podcast/"), POD["rss"]) if POD else ""))
 
 write("/favicon.svg", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2F63A8"/>'
       '<path d="M20 14v18a12 12 0 0 0 24 0V14" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="50" r="5" fill="#fff"/></svg>')
@@ -839,7 +920,7 @@ for name in ("og-image.png", "logo.png"):  # made once, kept in the repository's
     else:
         print("warning: %s not found; social previews will have no image" % name, file=sys.stderr)
 
-write("/_redirects", "/subscribe  %s  302\n/substack   %s  302\n/newsletter %s  302\n/landscape/  /where-things-stand/  301\n/today/  /  301\n" % (SUBSCRIBE, SUBSTACK, SUBSTACK))
+write("/_redirects", "/subscribe  %s  302\n/substack   %s  302\n/newsletter %s  302\n/landscape/  /where-things-stand/  301\n/today/  /  301\n" % (SUBSCRIBE, SUBSTACK, SUBSTACK) + ("/listen  /podcast/  301\n" if POD else ""))
 write("/_headers", "/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n"
       "/images/*\n  Cache-Control: public, max-age=604800\n/og-image.png\n  Cache-Control: public, max-age=86400\n/logo.png\n  Cache-Control: public, max-age=604800\n")
 page("/404.html", "Page not found", "That page is not here.", '<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">That page is not here</h1></div><p class="lead">Try the <a href="/">front page</a>, the <a href="/posts/">daily posts</a>, or the <a href="/letters/">Friday letter</a>.</p></section>')

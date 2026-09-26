@@ -7,8 +7,21 @@
   "substack_url": "https://physicianintheloop.substack.com",
   "subscribe_url": "https://physicianintheloop.substack.com/subscribe",
   "timezone": "America/Denver",
-  "analytics": {"provider": null, "id": null},
+  "analytics": {
+    "provider": null,
+    "id": null
+  },
   "google_site_verification": null,
   "bing_verification": null,
-  "twitter_handle": null
+  "twitter_handle": null,
+  "copyright_holder": "Nomad Medical Group, LLC",
+  "podcast": {
+    "name": "Physician in the Loop",
+    "transistor_slug": "physician-in-the-loop",
+    "rss": "https://feeds.transistor.fm/physician-in-the-loop",
+    "apple": "https://podcasts.apple.com/podcast/physician-in-the-loop/id6815879355",
+    "spotify": "https://open.spotify.com/show/6F9zsXoKZGAvqPx2GmDSqh",
+    "youtube": null,
+    "playlist_height": 390
+  }
 }

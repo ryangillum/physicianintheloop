@@ -15,3 +15,4 @@ Written by Ryan Gillum, MD. Daily posts are third-person news wire copy about ar
 - [Topics](https://physicianintheloop.org/topics/): the daily items grouped by kind
 - [About](https://physicianintheloop.org/about/)
 - [RSS feed](https://physicianintheloop.org/feed.xml)
+- [Podcast](https://physicianintheloop.org/podcast/): each morning's post as a short audio briefing; podcast feed https://feeds.transistor.fm/physician-in-the-loop
