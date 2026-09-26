@@ -26,6 +26,7 @@ a Podcast tab sits second in the navigation, the home page carries the latest ep
 article's subscribe box has a "Listen to the podcast" button, /listen redirects to /podcast/, and the footer carries the
 copyright line. The podcast and the copyright holder come from site.config.json ("podcast", "copyright_holder"; set
 "podcast" to false to leave the podcast out).
+Version 2.4.1 (Sept 26, 2026): the footer and llms.txt credit the site as "Created by" the author (was "Written by").
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -376,7 +377,7 @@ def nav_html(active):
     return "".join(out)
 
 FOOT = ('<footer class="foot"><div class="tablinks">' + "".join('<a href="%s">%s</a>' % (p, esc(l)) for p, l in NAV) +
-        '</div><p style="margin-top:10px">%s. Written by %s. Daily on this site, weekly on <a href="%s" target="_blank" rel="noopener">Substack</a>. '
+        '</div><p style="margin-top:10px">%s. Created by %s. Daily on this site, weekly on <a href="%s" target="_blank" rel="noopener">Substack</a>. '
         'Not medical, legal, or financial advice. <a href="/topics/">Topics</a>. <a href="/feed.xml">RSS</a>.</p>'
         '<p class="copyright">&copy; %d %s. All rights reserved.</p></footer>' % (esc(NAME), esc(AUTHOR), esc(SUBSTACK), datetime.date.today().year, esc(config.get("copyright_holder") or AUTHOR)))
 
@@ -907,7 +908,7 @@ for slug, p in recent:
 ns.append("</urlset>")
 write("/sitemap-news.xml", "\n".join(ns) + "\n")
 write("/robots.txt", "User-agent: *\nAllow: /\nSitemap: %s\nSitemap: %s\n" % (absurl("/sitemap.xml"), absurl("/sitemap-news.xml")))
-write("/llms.txt", "# %s\n\n> %s\n\nWritten by %s. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter and the special topics are signed essays.\n\n## Sections\n\n- [Daily posts](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
+write("/llms.txt", "# %s\n\n> %s\n\nCreated by %s. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter and the special topics are signed essays.\n\n## Sections\n\n- [Daily posts](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
       % (NAME, config["description"], AUTHOR, absurl("/posts/"), absurl("/letters/"), absurl("/specials/"), absurl("/watch/"), absurl("/dates/"), absurl("/where-things-stand/"), absurl("/topics/"), absurl("/about/"), absurl("/feed.xml"))
       + ("- [Podcast](%s): each morning's post as a short audio briefing; podcast feed %s\n" % (absurl("/podcast/"), POD["rss"]) if POD else ""))
 
