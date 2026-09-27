@@ -1,8 +1,8 @@
 # Physician in the Loop
 
-> How artificial intelligence changes medicine for the people who actually practice it. Daily posts, a Friday letter, a watch list, and a calendar of the dates that matter.
+> How artificial intelligence changes medicine for patients and the people who practice on the front lines. Daily posts, a Friday letter and a podcast.
 
-Created by Ryan Gillum, MD. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter and the special topics are signed essays.
+Created by Ryan Gillum, MD. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter is an unsigned editorial in the manner of a leader in The Economist, and the special topics are signed essays.
 
 ## Sections
 
