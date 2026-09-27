@@ -35,6 +35,13 @@ episodes publish around 7:30 to 8:00 AM Mountain, after the 7:15 build. /api/epi
 writes to <repo root>/netlify/functions/episode.mjs (netlify.toml points Netlify at that folder); it reads the feed, finds the
 item titled "Daily Update for <Month> <D>, <YYYY>" (config "episode_title") and answers with the Transistor id, cached on
 Netlify's CDN for an hour when found and two minutes when not.
+Version 2.6 (Sept 26, 2026): each Friday letter page carries the author's byline ("By Ryan Gillum, MD", from config "author")
+under its standfirst, and a player for the letter's audio (read by the ElevenLabs voice Daniel, published to the same
+Transistor show as "Friday Letter: <headline>") just under its illustration. The player stays hidden until
+/api/letter/<weekOf> finds the episode: the same Netlify function now also answers that route, matching an episode whose
+title starts with config podcast.letter_title_prefix ("Friday Letter") and whose show notes link to /letters/<weekOf>/.
+Every letter is also written as plain text to /letters/<weekOf>/letter.json, and the newest to /letters/latest.json, which
+is what the podcast pipeline reads to make the audio.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -68,6 +75,7 @@ DEFAULT_CONFIG = {
         "youtube": None,
         "playlist_height": 390,
         "episode_title": "Daily Update for {date}",
+        "letter_title_prefix": "Friday Letter",
     },
 }
 config = dict(DEFAULT_CONFIG)
@@ -347,6 +355,13 @@ EXTRA_CSS = """
   .pod-follow { font-size: 1.3rem; margin: 30px 0 12px; }
   .subscribe-actions { display: flex; flex-wrap: wrap; gap: 10px; }
   .copyright { margin-top: 6px; font-size: 0.8rem; }
+  .letter-byline { margin: 12px 0 0; font-size: 0.95rem; color: var(--muted); }
+  .letter-byline .who { color: var(--ink); font-weight: 600; }
+  .letter-audio { margin: 0 0 24px; }
+  .letter-audio-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 10px; }
+  .letter-audio-head h2 { font-size: 1.05rem; margin: 0; }
+  .letter-audio-head .sub { font-size: 0.85rem; color: var(--muted); }
+  .letter-audio + .body-copy { margin-top: 0; }
 """
 
 def analytics_snippet():
@@ -505,6 +520,22 @@ def episode_block(date):
             '<div class="pod-player"><iframe title="Podcast episode for this post" height="180" scrolling="no" loading="lazy"></iframe></div></section>' % esc(date)
             + EPISODE_SCRIPT)
 
+LETTER_AUDIO_SCRIPT = ('<script>(function(){var s=document.getElementById("letter-audio");if(!s||!window.fetch)return;'
+                       'fetch("/api/letter/"+s.getAttribute("data-week")).then(function(r){return r.ok?r.json():null})'
+                       '.then(function(e){if(!e||!e.found||!/^[a-z0-9]+$/i.test(e.id||""))return;var d=false;'
+                       'try{d=window.matchMedia("(prefers-color-scheme: dark)").matches}catch(x){}'
+                       's.querySelector("iframe").src="https://share.transistor.fm/e/"+e.id+(d?"/dark":"");s.hidden=false})'
+                       '.catch(function(){})})();</script>')
+
+def letter_audio_block(week):
+    """The letter read aloud, just under its illustration. Hidden until /api/letter/<weekOf> finds the episode."""
+    if not (POD and re.match(r"^\d{4}-\d{2}-\d{2}$", week or "")):
+        return ""
+    return ('<section class="letter-audio" id="letter-audio" data-week="%s" hidden aria-label="Listen to this letter">'
+            '<div class="letter-audio-head"><h2>Listen to this letter</h2><span class="sub">read by an AI voice</span></div>'
+            '<div class="pod-player"><iframe title="This letter, read aloud" height="180" scrolling="no" loading="lazy"></iframe></div></section>' % esc(week)
+            + LETTER_AUDIO_SCRIPT)
+
 EPISODE_FN = r'''// Podcast episode lookup for physicianintheloop.org. Written by tools/build_public_site.py on every
 // site build; edit the generator, not this file.
 //
@@ -513,9 +544,14 @@ EPISODE_FN = r'''// Podcast episode lookup for physicianintheloop.org. Written b
 // before the episode exists. Daily post pages call it when they load and show the player only when found.
 // Answers are cached on Netlify's CDN: a found episode for an hour, a missing one for two minutes, so a
 // new episode appears on its post page within a few minutes of publishing.
+//
+// GET /api/letter/YYYY-MM-DD (the letter's weekOf) finds the Friday letter's audio: an episode whose title
+// starts with LETTER_PREFIX and whose show notes link to /letters/<weekOf>/. Letter pages show their player
+// only when it is found.
 
 const FEED = __FEED__;
 const TITLE = __TITLE__;
+const LETTER_PREFIX = __LETTER__;
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 function titleFor(date) {
@@ -547,8 +583,20 @@ function reply(body, status, browserCache, cdnCache) {
   });
 }
 
+function episodeId(item) {
+  const link =
+    /<link>\s*https:\/\/share\.transistor\.fm\/s\/([a-z0-9]+)/i.exec(item) ||
+    /<enclosure[^>]+https:\/\/media\.transistor\.fm\/([a-z0-9]+)\//i.exec(item) ||
+    /https:\/\/share\.transistor\.fm\/s\/([a-z0-9]+)/i.exec(item);
+  return link ? link[1] : null;
+}
+
 export default async (req, context) => {
-  const date = (context && context.params && context.params.date) || new URL(req.url).searchParams.get("date") || "";
+  const params = (context && context.params) || {};
+  const query = new URL(req.url).searchParams;
+  const week = params.week || (new URL(req.url).pathname.startsWith("/api/letter/") ? new URL(req.url).pathname.split("/")[3] : "") || query.get("week") || "";
+  const isLetter = Boolean(week);
+  const date = isLetter ? week : params.date || query.get("date") || "";
   const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
   if (!parts || +parts[2] < 1 || +parts[2] > 12 || +parts[3] < 1 || +parts[3] > 31) {
     return reply({ found: false, error: "bad date" }, 400, "public, max-age=86400", "public, s-maxage=86400");
@@ -560,6 +608,24 @@ export default async (req, context) => {
     xml = await res.text();
   } catch (err) {
     return reply({ found: false, error: "feed unavailable" }, 502, "no-store", "no-store");
+  }
+  if (isLetter) {
+    const prefix = plain(LETTER_PREFIX);
+    const letterPath = "/letters/" + date + "/";
+    for (const chunk of xml.split(/<item[\s>]/i).slice(1)) {
+      const item = chunk.split(/<\/item>/i)[0];
+      const titles = [...item.matchAll(/<(?:itunes:)?title>([\s\S]*?)<\/(?:itunes:)?title>/gi)].map((t) => plain(t[1]));
+      if (!titles.some((t) => t.startsWith(prefix)) || !item.includes(letterPath)) continue;
+      const id = episodeId(item);
+      if (!id) continue;
+      return reply(
+        { found: true, week: date, title: titles[0], id, share: "https://share.transistor.fm/s/" + id, embed: "https://share.transistor.fm/e/" + id },
+        200,
+        "public, max-age=600",
+        "public, s-maxage=3600, stale-while-revalidate=86400"
+      );
+    }
+    return reply({ found: false, week: date }, 200, "public, max-age=60", "public, s-maxage=120");
   }
   const want = plain(titleFor(date));
   for (const chunk of xml.split(/<item[\s>]/i).slice(1)) {
@@ -582,7 +648,7 @@ export default async (req, context) => {
   return reply({ found: false, date }, 200, "public, max-age=60", "public, s-maxage=120");
 };
 
-export const config = { path: "/api/episode/:date" };
+export const config = { path: ["/api/episode/:date", "/api/letter/:week"] };
 '''
 
 def write_episode_function():
@@ -593,7 +659,9 @@ def write_episode_function():
             os.remove(target)
         return False
     os.makedirs(os.path.dirname(target), exist_ok=True)
-    src = EPISODE_FN.replace("__FEED__", json.dumps(POD["rss"])).replace("__TITLE__", json.dumps(POD.get("episode_title") or "Daily Update for {date}"))
+    src = (EPISODE_FN.replace("__FEED__", json.dumps(POD["rss"]))
+           .replace("__TITLE__", json.dumps(POD.get("episode_title") or "Daily Update for {date}"))
+           .replace("__LETTER__", json.dumps(POD.get("letter_title_prefix") or "Friday Letter")))
     with open(target, "w", encoding="utf-8") as f:
         f.write(src)
     return True
@@ -785,6 +853,31 @@ page("/posts/", "Daily posts", "Every daily post from %s, newest first: AI in me
 urls.append(("/posts/", LAST_UPDATED, "daily", "0.9"))
 
 # ------------------------------------------------------------------ Friday letters
+def letter_record(slug, w):
+    """The letter as plain text, for the podcast pipeline that reads it aloud (links reduced to their words)."""
+    friday = ""
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})$", w.get("weekOf") or "")
+    if m:
+        import datetime as _dt
+        fd = _dt.date(int(m.group(1)), int(m.group(2)), int(m.group(3))) + _dt.timedelta(days=4)
+        friday = fd.isoformat()
+    img = LETTER_IMG.get(slug)
+    return {
+        "weekOf": w.get("weekOf") or "",
+        "friday": friday,
+        "dateRange": w.get("dateRange") or "",
+        "headline": plain(w.get("headline") or ""),
+        "dek": plain(w.get("dek") or ""),
+        "byline": AUTHOR,
+        "url": absurl(letter_url(slug)),
+        "image": (img[0] if img and img[0].startswith("https://") else absurl(img[0])) if img else None,
+        "image_alt": img[1] if img else None,
+        "body": [plain(x) for x in (w.get("body") or w.get("summary") or []) if x],
+        "outlook": [plain(x) for x in (w.get("outlook") or []) if x],
+        "top": [{"title": plain(x.get("title") or ""), "body": plain(x.get("body") or ""), "url": x.get("url") or ""}
+                for x in (w.get("top") or []) if isinstance(x, dict)],
+    }
+
 for i, (slug, w) in enumerate(letter_pages):
     path = letter_url(slug)
     headline = w.get("headline") or "The Friday letter, " + (w.get("dateRange") or fmt(w.get("weekOf")))
@@ -792,7 +885,9 @@ for i, (slug, w) in enumerate(letter_pages):
     art = ['<article class="post letter"><div class="post-date">The Friday letter · <time datetime="%s">%s</time></div><h1 class="headline">%s</h1>' % (esc(w.get("weekOf", "")), esc(w.get("dateRange") or fmt(w.get("weekOf"))), esc(headline))]
     if w.get("dek"):
         art.append('<p class="standfirst">%s</p>' % rich(w["dek"]))
+    art.append('<p class="letter-byline">By <span class="who">%s</span></p>' % esc(AUTHOR))
     art.append(letter_figure(slug))
+    art.append(letter_audio_block(w.get("weekOf")))
     copy = w.get("body") or w.get("summary")
     if copy:
         art.append(paras(copy, "body-copy"))
@@ -810,6 +905,10 @@ for i, (slug, w) in enumerate(letter_pages):
     older = (letter_pages[i + 1][1].get("headline", ""), letter_url(letter_pages[i + 1][0])) if i + 1 < len(letter_pages) else None
     newer = (letter_pages[i - 1][1].get("headline", ""), letter_url(letter_pages[i - 1][0])) if i > 0 else None
     og_i, og_alt = letter_og(slug)
+    letter_json = letter_record(slug, w)
+    write(path + "letter.json", json.dumps(letter_json, ensure_ascii=False, indent=1) + "\n")
+    if i == 0:
+        write("/letters/latest.json", json.dumps(letter_json, ensure_ascii=False, indent=1) + "\n")
     entry_page("Article", path, [(NAME, "/"), ("Friday letter", "/letters/"), (w.get("dateRange") or fmt(w.get("weekOf")), None)], headline, desc, w.get("weekOf"), "".join(art), older, newer, image=og_i, image_alt=og_alt)
     urls.append((path, w.get("weekOf") or LAST_UPDATED, "monthly", "0.8"))
 

@@ -6,9 +6,14 @@
 // before the episode exists. Daily post pages call it when they load and show the player only when found.
 // Answers are cached on Netlify's CDN: a found episode for an hour, a missing one for two minutes, so a
 // new episode appears on its post page within a few minutes of publishing.
+//
+// GET /api/letter/YYYY-MM-DD (the letter's weekOf) finds the Friday letter's audio: an episode whose title
+// starts with LETTER_PREFIX and whose show notes link to /letters/<weekOf>/. Letter pages show their player
+// only when it is found.
 
 const FEED = "https://feeds.transistor.fm/physician-in-the-loop";
 const TITLE = "Daily Update for {date}";
+const LETTER_PREFIX = "Friday Letter";
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 function titleFor(date) {
@@ -40,8 +45,20 @@ function reply(body, status, browserCache, cdnCache) {
   });
 }
 
+function episodeId(item) {
+  const link =
+    /<link>\s*https:\/\/share\.transistor\.fm\/s\/([a-z0-9]+)/i.exec(item) ||
+    /<enclosure[^>]+https:\/\/media\.transistor\.fm\/([a-z0-9]+)\//i.exec(item) ||
+    /https:\/\/share\.transistor\.fm\/s\/([a-z0-9]+)/i.exec(item);
+  return link ? link[1] : null;
+}
+
 export default async (req, context) => {
-  const date = (context && context.params && context.params.date) || new URL(req.url).searchParams.get("date") || "";
+  const params = (context && context.params) || {};
+  const query = new URL(req.url).searchParams;
+  const week = params.week || (new URL(req.url).pathname.startsWith("/api/letter/") ? new URL(req.url).pathname.split("/")[3] : "") || query.get("week") || "";
+  const isLetter = Boolean(week);
+  const date = isLetter ? week : params.date || query.get("date") || "";
   const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
   if (!parts || +parts[2] < 1 || +parts[2] > 12 || +parts[3] < 1 || +parts[3] > 31) {
     return reply({ found: false, error: "bad date" }, 400, "public, max-age=86400", "public, s-maxage=86400");
@@ -53,6 +70,24 @@ export default async (req, context) => {
     xml = await res.text();
   } catch (err) {
     return reply({ found: false, error: "feed unavailable" }, 502, "no-store", "no-store");
+  }
+  if (isLetter) {
+    const prefix = plain(LETTER_PREFIX);
+    const letterPath = "/letters/" + date + "/";
+    for (const chunk of xml.split(/<item[\s>]/i).slice(1)) {
+      const item = chunk.split(/<\/item>/i)[0];
+      const titles = [...item.matchAll(/<(?:itunes:)?title>([\s\S]*?)<\/(?:itunes:)?title>/gi)].map((t) => plain(t[1]));
+      if (!titles.some((t) => t.startsWith(prefix)) || !item.includes(letterPath)) continue;
+      const id = episodeId(item);
+      if (!id) continue;
+      return reply(
+        { found: true, week: date, title: titles[0], id, share: "https://share.transistor.fm/s/" + id, embed: "https://share.transistor.fm/e/" + id },
+        200,
+        "public, max-age=600",
+        "public, s-maxage=3600, stale-while-revalidate=86400"
+      );
+    }
+    return reply({ found: false, week: date }, 200, "public, max-age=60", "public, s-maxage=120");
   }
   const want = plain(titleFor(date));
   for (const chunk of xml.split(/<item[\s>]/i).slice(1)) {
@@ -75,4 +110,4 @@ export default async (req, context) => {
   return reply({ found: false, date }, 200, "public, max-age=60", "public, s-maxage=120");
 };
 
-export const config = { path: "/api/episode/:date" };
+export const config = { path: ["/api/episode/:date", "/api/letter/:week"] };
