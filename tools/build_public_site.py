@@ -42,6 +42,18 @@ Transistor show as "Friday Letter: <headline>") just under its illustration. The
 title starts with config podcast.letter_title_prefix ("Friday Letter") and whose show notes link to /letters/<weekOf>/.
 Every letter is also written as plain text to /letters/<weekOf>/letter.json, and the newest to /letters/latest.json, which
 is what the podcast pipeline reads to make the audio.
+Version 2.7 (Sept 27, 2026): the daily post's episode player ("Listen to this post") sits just under the post's
+illustration, above THE SHORT READ, on the post page and on the home page's today's post (under the headline when a post
+has no picture), instead of at the foot of the page. The home page's separate "The daily podcast" section, which played
+the latest episode after today's post, is gone: the post's own episode now plays under its picture. /podcast/ keeps the
+full playlist and the follow links.
+Version 2.8 (Sept 27, 2026): the Friday letter is unsigned, like a leader in The Economist. Letter pages no longer show a
+byline; their meta author, their structured-data author (the publication, as an Organization) and their feed items'
+dc:creator name the publication rather than the author, and letter.json and latest.json no longer carry a "byline" field.
+Daily posts, special topics, the footer's "Created by" credit and the About page are unchanged.
+Version 2.9 (Sept 27, 2026): the Friday letter archive (/letters/) shows each letter's illustration beside its entry
+(above it on phones), linked to the letter, so the list reads as a set of covers; a letter without a picture keeps the
+plain text entry. The pictures are the same files the letter pages use.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -220,8 +232,8 @@ def paras(arr, cls=""):
         arr = [arr]
     return '<div class="%s">%s</div>' % (cls, "".join("<p>%s</p>" % rich(t) for t in arr if t))
 
-def post_body(p, anchors=False, fig=""):
-    out = [fig] if fig else []
+def post_body(p, anchors=False, fig="", under_fig=""):
+    out = [x for x in (fig, under_fig) if x]
     intro = p.get("intro") or p.get("summary")
     if intro:
         out.append('<div class="section-label">THE SHORT READ</div>')
@@ -355,13 +367,30 @@ EXTRA_CSS = """
   .pod-follow { font-size: 1.3rem; margin: 30px 0 12px; }
   .subscribe-actions { display: flex; flex-wrap: wrap; gap: 10px; }
   .copyright { margin-top: 6px; font-size: 0.8rem; }
-  .letter-byline { margin: 12px 0 0; font-size: 0.95rem; color: var(--muted); }
-  .letter-byline .who { color: var(--ink); font-weight: 600; }
   .letter-audio { margin: 0 0 24px; }
   .letter-audio-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 10px; }
   .letter-audio-head h2 { font-size: 1.05rem; margin: 0; }
   .letter-audio-head .sub { font-size: 0.85rem; color: var(--muted); }
   .letter-audio + .body-copy { margin-top: 0; }
+  .post-episode { margin: 16px 0 0; }
+  .post-episode-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 10px; }
+  .post-episode-head h2 { font-size: 1.05rem; margin: 0; }
+  .post-episode-head .sub { font-size: 0.85rem; }
+  .post-episode + .section-label { margin-top: 24px; }
+  .letter-list { list-style: none; margin: 8px 0 0; padding: 0; }
+  .letter-list li { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 12px 22px; align-items: start; padding-block: 20px; border-top: 1px solid var(--rule); }
+  .letter-list li:last-child { border-bottom: 1px solid var(--rule); }
+  .letter-list li.no-thumb { grid-template-columns: minmax(0, 1fr); }
+  .letter-list .thumb { display: block; border-radius: 10px; }
+  .letter-list .thumb img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 10px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); transition: transform .15s ease; }
+  .letter-list .thumb:hover img { transform: translateY(-2px); }
+  .letter-list .txt { min-width: 0; }
+  .letter-list .when { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); letter-spacing: 0.04em; }
+  .letter-list .t { display: block; margin-top: 4px; font-family: var(--display); font-weight: 600; font-size: 1.25rem; line-height: 1.25; color: var(--ink); text-decoration: none; }
+  .letter-list .t:hover { color: var(--accent-2); }
+  .letter-list .d { margin: 8px 0 0; font-size: 0.97rem; line-height: 1.5; color: var(--ink-2); }
+  @media (max-width: 600px) { .letter-list li { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+  @media (prefers-reduced-motion: reduce) { .letter-list .thumb img { transition: none; } .letter-list .thumb:hover img { transform: none; } }
 """
 
 def analytics_snippet():
@@ -405,7 +434,7 @@ FOOT = ('<footer class="foot"><div class="tablinks">' + "".join('<a href="%s">%s
         'Not medical, legal, or financial advice. <a href="/topics/">Topics</a>. <a href="/feed.xml">RSS</a>.</p>'
         '<p class="copyright">&copy; %d %s. All rights reserved.</p></footer>' % (esc(NAME), esc(AUTHOR), esc(SUBSTACK), datetime.date.today().year, esc(config.get("copyright_holder") or AUTHOR)))
 
-def page(path, title, desc, body, active=None, kind="website", jsonld=None, published=None, modified=None, head_extra="", image=None, image_alt=None):
+def page(path, title, desc, body, active=None, kind="website", jsonld=None, published=None, modified=None, head_extra="", image=None, image_alt=None, unsigned=False):
     url = absurl(path)
     og_img = (absurl(image) if image.startswith("/") else image) if image else absurl("/og-image.png")
     full_title = title if (title.startswith(NAME) or title.endswith(NAME)) else "%s | %s" % (title, NAME)
@@ -413,7 +442,7 @@ def page(path, title, desc, body, active=None, kind="website", jsonld=None, publ
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
             '<title>%s</title>' % esc(full_title),
             '<meta name="description" content="%s">' % esc(desc),
-            '<meta name="author" content="%s">' % esc(AUTHOR),
+            '<meta name="author" content="%s">' % esc(NAME if unsigned else AUTHOR),
             '<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">',
             '<link rel="canonical" href="%s">' % esc(url),
             '<meta property="og:type" content="%s">' % esc(kind),
@@ -434,7 +463,8 @@ def page(path, title, desc, body, active=None, kind="website", jsonld=None, publ
         head.append('<meta name="twitter:site" content="%s">' % esc(config["twitter_handle"]))
     if published:
         head.append('<meta property="article:published_time" content="%s">' % esc(published))
-        head.append('<meta property="article:author" content="%s">' % esc(absurl("/about/")))
+        if not unsigned:
+            head.append('<meta property="article:author" content="%s">' % esc(absurl("/about/")))
     if modified:
         head.append('<meta property="article:modified_time" content="%s">' % esc(modified))
     if config.get("google_site_verification"):
@@ -471,10 +501,10 @@ def write(path, content, binary=False):
 PUBLISHER = {"@type": "Organization", "name": NAME, "url": SITE, "logo": {"@type": "ImageObject", "url": absurl("/logo.png"), "width": 512, "height": 512}}
 PERSON = {"@type": "Person", "name": AUTHOR, "url": absurl("/about/"), "jobTitle": "Physician", "sameAs": [SUBSTACK]}
 
-def article_ld(kind, url, headline, desc, date, image=None):
+def article_ld(kind, url, headline, desc, date, image=None, unsigned=False):
     return {"@context": "https://schema.org", "@type": kind, "headline": headline[:110], "description": desc,
             "datePublished": iso_dt(date), "dateModified": iso_dt(date if date != LAST_UPDATED else LAST_UPDATED),
-            "author": PERSON, "publisher": PUBLISHER, "mainEntityOfPage": {"@type": "WebPage", "@id": url},
+            "author": ({"@type": "Organization", "name": NAME, "url": SITE} if unsigned else PERSON), "publisher": PUBLISHER, "mainEntityOfPage": {"@type": "WebPage", "@id": url},
             "image": [(absurl(image) if image.startswith("/") else image) if image else absurl("/og-image.png")], "isAccessibleForFree": True, "inLanguage": "en-US"}
 
 def breadcrumbs(items):
@@ -512,12 +542,12 @@ EPISODE_SCRIPT = ('<script>(function(){var s=document.getElementById("post-episo
                   '.catch(function(){})})();</script>')
 
 def episode_block(date):
-    """That day's episode player at the foot of a daily post page. It stays hidden until /api/episode/<date> finds the episode."""
+    """That day's episode player, just under the post's illustration. It stays hidden until /api/episode/<date> finds the episode."""
     if not (POD and re.match(r"^\d{4}-\d{2}-\d{2}$", date or "")):
         return ""
-    return ('<section class="post-episode" id="post-episode" data-date="%s" hidden aria-label="Podcast episode for this post">'
-            '<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">Listen to this post</h2><a class="sub" href="/podcast/">all episodes</a></div>'
-            '<div class="pod-player"><iframe title="Podcast episode for this post" height="180" scrolling="no" loading="lazy"></iframe></div></section>' % esc(date)
+    return ('<section class="post-episode" id="post-episode" data-date="%s" hidden aria-label="Listen to this post">'
+            '<div class="post-episode-head"><h2>Listen to this post</h2><a class="sub" href="/podcast/">all episodes</a></div>'
+            '<div class="pod-player"><iframe title="Podcast episode for this post" height="180" scrolling="no"></iframe></div></section>' % esc(date)
             + EPISODE_SCRIPT)
 
 LETTER_AUDIO_SCRIPT = ('<script>(function(){var s=document.getElementById("letter-audio");if(!s||!window.fetch)return;'
@@ -789,10 +819,9 @@ if posts:
     slug0, p0 = post_pages[0]
     body.append('<div class="eyebrow">Today\'s post</div>')
     body.append('<article class="post"><div class="post-date"><time datetime="%s">%s</time></div><h2 class="headline"><a href="%s" style="color:inherit;text-decoration:none">%s</a></h2>' % (esc(p0.get("date", "")), esc(fmt(p0.get("date"))), post_url(slug0), esc(p0.get("headline", ""))))
-    body.append(post_body(p0, fig=post_figure(slug0)))
+    body.append(post_body(p0, fig=post_figure(slug0), under_fig="" if p0.get("baseline") else episode_block(p0.get("date"))))
     body.append('<div class="more-row"><a class="btn ghost small" href="%s">Link to this post</a><a class="btn ghost small" href="/posts/">All posts</a><a class="btn ghost small" href="/where-things-stand/">Where things stand</a>%s</div></article>'
                 % (post_url(slug0), '<a class="btn ghost small" href="/specials/">Special topics</a>' if specials else ""))
-    body.append(podcast_home())
     if len(post_pages) > 1:
         body.append('<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">Recent posts</h2><a class="sub" href="/posts/">all posts</a></div><ul class="recent">')
         for slug, p in post_pages[1:7]:
@@ -817,21 +846,19 @@ page("/", PAGE_TITLE + ": " + config["tagline"], config["description"], '<sectio
 urls.append(("/", LAST_UPDATED, "daily", "1.0"))
 
 # ------------------------------------------------------------------ daily posts
-def entry_page(kind, path, crumbs, headline, desc, date, article_html, older, newer, extra_ld=None, image=None, image_alt=None):
+def entry_page(kind, path, crumbs, headline, desc, date, article_html, older, newer, extra_ld=None, image=None, image_alt=None, unsigned=False):
     ld, crumb_html = breadcrumbs(crumbs)
-    lds = [article_ld(kind, absurl(path), headline, desc, date, image), ld] + ([extra_ld] if extra_ld else [])
+    lds = [article_ld(kind, absurl(path), headline, desc, date, image, unsigned=unsigned), ld] + ([extra_ld] if extra_ld else [])
     body = crumb_html + article_html + pager(older, newer) + subscribe_box()
-    page(path, headline, desc, '<section class="panel">' + body + "</section>", active="/%s/" % path.split("/")[1], kind="article", jsonld=lds, published=iso_dt(date), modified=iso_dt(date), image=image, image_alt=image_alt)
+    page(path, headline, desc, '<section class="panel">' + body + "</section>", active="/%s/" % path.split("/")[1], kind="article", jsonld=lds, published=iso_dt(date), modified=iso_dt(date), image=image, image_alt=image_alt, unsigned=unsigned)
 
 for i, (slug, p) in enumerate(post_pages):
     path = post_url(slug)
     headline = p.get("headline") or "Daily post, " + fmt(p.get("date"))
     desc = describe(p.get("intro") or p.get("summary") or [p.get("dek") or headline])
     art = ['<article class="post"><div class="post-date"><time datetime="%s">%s</time>%s</div><h1 class="headline">%s</h1>' % (esc(p.get("date", "")), esc(fmt(p.get("date"))), " · Pinned" if p.get("baseline") else "", esc(headline))]
-    art.append(post_body(p, anchors=True, fig=post_figure(slug)))
+    art.append(post_body(p, anchors=True, fig=post_figure(slug), under_fig="" if p.get("baseline") else episode_block(p.get("date"))))
     art.append("</article>")
-    if not p.get("baseline"):
-        art.append(episode_block(p.get("date")))
     older = (post_pages[i + 1][1].get("headline", ""), post_url(post_pages[i + 1][0])) if i + 1 < len(post_pages) else None
     newer = (post_pages[i - 1][1].get("headline", ""), post_url(post_pages[i - 1][0])) if i > 0 else None
     og_i, og_alt = og_for(POST_IMG, slug)
@@ -868,7 +895,6 @@ def letter_record(slug, w):
         "dateRange": w.get("dateRange") or "",
         "headline": plain(w.get("headline") or ""),
         "dek": plain(w.get("dek") or ""),
-        "byline": AUTHOR,
         "url": absurl(letter_url(slug)),
         "image": (img[0] if img and img[0].startswith("https://") else absurl(img[0])) if img else None,
         "image_alt": img[1] if img else None,
@@ -885,7 +911,6 @@ for i, (slug, w) in enumerate(letter_pages):
     art = ['<article class="post letter"><div class="post-date">The Friday letter · <time datetime="%s">%s</time></div><h1 class="headline">%s</h1>' % (esc(w.get("weekOf", "")), esc(w.get("dateRange") or fmt(w.get("weekOf"))), esc(headline))]
     if w.get("dek"):
         art.append('<p class="standfirst">%s</p>' % rich(w["dek"]))
-    art.append('<p class="letter-byline">By <span class="who">%s</span></p>' % esc(AUTHOR))
     art.append(letter_figure(slug))
     art.append(letter_audio_block(w.get("weekOf")))
     copy = w.get("body") or w.get("summary")
@@ -909,15 +934,22 @@ for i, (slug, w) in enumerate(letter_pages):
     write(path + "letter.json", json.dumps(letter_json, ensure_ascii=False, indent=1) + "\n")
     if i == 0:
         write("/letters/latest.json", json.dumps(letter_json, ensure_ascii=False, indent=1) + "\n")
-    entry_page("Article", path, [(NAME, "/"), ("Friday letter", "/letters/"), (w.get("dateRange") or fmt(w.get("weekOf")), None)], headline, desc, w.get("weekOf"), "".join(art), older, newer, image=og_i, image_alt=og_alt)
+    entry_page("Article", path, [(NAME, "/"), ("Friday letter", "/letters/"), (w.get("dateRange") or fmt(w.get("weekOf")), None)], headline, desc, w.get("weekOf"), "".join(art), older, newer, image=og_i, image_alt=og_alt, unsigned=True)
     urls.append((path, w.get("weekOf") or LAST_UPDATED, "monthly", "0.8"))
 
 body = ['<div class="panel-head"><h1 style="font-size:1.6rem">The Friday letter</h1><a class="sub" href="%s" target="_blank" rel="noopener">archive on Substack</a></div>' % esc(SUBSTACK),
         '<p class="lead">Once a week, the version worth keeping: the week\'s developments, why they matter, and specific recommendations. It goes to subscribers by email on Friday mornings and lands here the same day.</p>']
 if letter_pages:
-    body.append('<ul class="archive">')
-    for slug, w in letter_pages:
-        body.append('<li><span class="when">%s</span><a href="%s">%s</a>%s</li>' % (esc(w.get("dateRange") or fmt(w.get("weekOf"))), letter_url(slug), esc(w.get("headline") or "The Friday letter"), ('<span class="d">%s</span>' % esc(plain(w["dek"]))) if w.get("dek") else ""))
+    body.append('<ul class="letter-list">')
+    for k, (slug, w) in enumerate(letter_pages):
+        thumb = ""
+        if slug in LETTER_IMG:
+            src, alt, _ = LETTER_IMG[slug]
+            thumb = ('<a class="thumb" href="%s" tabindex="-1" aria-hidden="true"><img src="%s" alt="%s" width="1200" height="630" decoding="async"%s></a>'
+                     % (letter_url(slug), esc(src), esc(alt), ' loading="lazy"' if k > 1 else ""))
+        body.append('<li%s>%s<div class="txt"><span class="when">%s</span><a class="t" href="%s">%s</a>%s</div></li>' % (
+            "" if thumb else ' class="no-thumb"', thumb, esc(w.get("dateRange") or fmt(w.get("weekOf"))), letter_url(slug),
+            esc(w.get("headline") or "The Friday letter"), ('<p class="d">%s</p>' % esc(plain(w["dek"]))) if w.get("dek") else ""))
     body.append("</ul>")
 else:
     body.append('<p class="empty">The first letter is on its way.</p>')
@@ -1097,20 +1129,20 @@ def cdata(s):
 
 feed_items = []
 for slug, p in post_pages:
-    feed_items.append((p.get("date") or "", 2, p.get("headline") or "Daily post", absurl(post_url(slug)), describe(p.get("intro") or [p.get("headline")], 300), post_body(p)))
+    feed_items.append((p.get("date") or "", 2, p.get("headline") or "Daily post", absurl(post_url(slug)), describe(p.get("intro") or [p.get("headline")], 300), post_body(p), AUTHOR))
 for slug, w in letter_pages:
-    feed_items.append((w.get("weekOf") or "", 3, w.get("headline") or "The Friday letter", absurl(letter_url(slug)), plain(w.get("dek") or ""), (('<p><img src="%s" alt="%s" width="1200" height="630"></p>' % (esc(LETTER_IMG[slug][0] if LETTER_IMG[slug][0].startswith("https://") else absurl(LETTER_IMG[slug][0])), esc(LETTER_IMG[slug][1]))) if slug in LETTER_IMG else "") + paras(w.get("body")) + ('<div class="section-label">SOURCE MATERIAL</div>' + render_items(w["top"]) if w.get("top") else "") + (paras(w["outlook"]) if w.get("outlook") else "")))
+    feed_items.append((w.get("weekOf") or "", 3, w.get("headline") or "The Friday letter", absurl(letter_url(slug)), plain(w.get("dek") or ""), (('<p><img src="%s" alt="%s" width="1200" height="630"></p>' % (esc(LETTER_IMG[slug][0] if LETTER_IMG[slug][0].startswith("https://") else absurl(LETTER_IMG[slug][0])), esc(LETTER_IMG[slug][1]))) if slug in LETTER_IMG else "") + paras(w.get("body")) + ('<div class="section-label">SOURCE MATERIAL</div>' + render_items(w["top"]) if w.get("top") else "") + (paras(w["outlook"]) if w.get("outlook") else ""), NAME))
 for slug, sp in special_pages:
-    feed_items.append((sp.get("date") or "", 1, sp.get("title") or "Special topic", absurl(special_url(slug)), plain(sp.get("dek") or ""), "".join("<p>%s</p>" % rich((b.get("lead", "") + " " + b.get("text", "")).strip()) for b in sp.get("blocks") or [])))
+    feed_items.append((sp.get("date") or "", 1, sp.get("title") or "Special topic", absurl(special_url(slug)), plain(sp.get("dek") or ""), "".join("<p>%s</p>" % rich((b.get("lead", "") + " " + b.get("text", "")).strip()) for b in sp.get("blocks") or []), AUTHOR))
 feed_items.sort(key=lambda x: (x[0], x[1]), reverse=True)
 rss = ['<?xml version="1.0" encoding="UTF-8"?>',
        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">',
        "<channel>", "<title>%s</title>" % esc(NAME), "<link>%s</link>" % esc(SITE), "<description>%s</description>" % esc(config["description"]),
        "<language>en-us</language>", '<atom:link href="%s" rel="self" type="application/rss+xml"/>' % esc(absurl("/feed.xml")),
        "<lastBuildDate>%s</lastBuildDate>" % rfc822(LAST_UPDATED), "<image><url>%s</url><title>%s</title><link>%s</link></image>" % (esc(absurl("/logo.png")), esc(NAME), esc(SITE))]
-for date, _, title, link, desc, content in feed_items[:40]:
+for date, _, title, link, desc, content, creator in feed_items[:40]:
     rss.append("<item><title>%s</title><link>%s</link><guid isPermaLink=\"true\">%s</guid><pubDate>%s</pubDate><dc:creator>%s</dc:creator><description>%s</description><content:encoded>%s</content:encoded></item>"
-               % (esc(title), esc(link), esc(link), rfc822(date), esc(AUTHOR), esc(desc), cdata(content)))
+               % (esc(title), esc(link), esc(link), rfc822(date), esc(creator), esc(desc), cdata(content)))
 rss.append("</channel></rss>")
 write("/feed.xml", "\n".join(rss) + "\n")
 

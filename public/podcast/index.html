@@ -182,8 +182,6 @@
   .letter-art { margin: 18px 0 20px; }
   .letter-art img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 12px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); }
   .letter .letter-art + .body-copy { margin-top: 0; }
-  .letter-byline { margin: 4px 0 14px; font-size: 0.95rem; color: var(--muted); }
-  .letter-byline .who { color: var(--ink); font-weight: 600; }
   .post-art { margin: 18px 0 0; }
   .post-art img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 12px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); }
   .post-art + .section-label { margin-top: 24px; }
@@ -318,13 +316,30 @@
   .pod-follow { font-size: 1.3rem; margin: 30px 0 12px; }
   .subscribe-actions { display: flex; flex-wrap: wrap; gap: 10px; }
   .copyright { margin-top: 6px; font-size: 0.8rem; }
-  .letter-byline { margin: 12px 0 0; font-size: 0.95rem; color: var(--muted); }
-  .letter-byline .who { color: var(--ink); font-weight: 600; }
   .letter-audio { margin: 0 0 24px; }
   .letter-audio-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 10px; }
   .letter-audio-head h2 { font-size: 1.05rem; margin: 0; }
   .letter-audio-head .sub { font-size: 0.85rem; color: var(--muted); }
   .letter-audio + .body-copy { margin-top: 0; }
+  .post-episode { margin: 16px 0 0; }
+  .post-episode-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 10px; }
+  .post-episode-head h2 { font-size: 1.05rem; margin: 0; }
+  .post-episode-head .sub { font-size: 0.85rem; }
+  .post-episode + .section-label { margin-top: 24px; }
+  .letter-list { list-style: none; margin: 8px 0 0; padding: 0; }
+  .letter-list li { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 12px 22px; align-items: start; padding-block: 20px; border-top: 1px solid var(--rule); }
+  .letter-list li:last-child { border-bottom: 1px solid var(--rule); }
+  .letter-list li.no-thumb { grid-template-columns: minmax(0, 1fr); }
+  .letter-list .thumb { display: block; border-radius: 10px; }
+  .letter-list .thumb img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 10px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); transition: transform .15s ease; }
+  .letter-list .thumb:hover img { transform: translateY(-2px); }
+  .letter-list .txt { min-width: 0; }
+  .letter-list .when { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); letter-spacing: 0.04em; }
+  .letter-list .t { display: block; margin-top: 4px; font-family: var(--display); font-weight: 600; font-size: 1.25rem; line-height: 1.25; color: var(--ink); text-decoration: none; }
+  .letter-list .t:hover { color: var(--accent-2); }
+  .letter-list .d { margin: 8px 0 0; font-size: 0.97rem; line-height: 1.5; color: var(--ink-2); }
+  @media (max-width: 600px) { .letter-list li { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+  @media (prefers-reduced-motion: reduce) { .letter-list .thumb img { transition: none; } .letter-list .thumb:hover img { transform: none; } }
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "PodcastSeries", "name": "Physician in the Loop", "url": "https://physicianintheloop.org/podcast/", "webFeed": "https://feeds.transistor.fm/physician-in-the-loop", "description": "Each morning's post as an audio briefing, published every day.", "inLanguage": "en-US", "author": {"@type": "Person", "name": "Ryan Gillum, MD", "url": "https://physicianintheloop.org/about/", "jobTitle": "Physician", "sameAs": ["https://physicianintheloop.substack.com"]}, "publisher": {"@type": "Organization", "name": "Physician in the Loop", "url": "https://physicianintheloop.org/", "logo": {"@type": "ImageObject", "url": "https://physicianintheloop.org/logo.png", "width": 512, "height": 512}}, "sameAs": ["https://podcasts.apple.com/podcast/physician-in-the-loop/id6815879355", "https://open.spotify.com/show/6F9zsXoKZGAvqPx2GmDSqh"]}</script>
 </head>
