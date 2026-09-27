@@ -10,10 +10,14 @@
 // GET /api/letter/YYYY-MM-DD (the letter's weekOf) finds the Friday letter's audio: an episode whose title
 // starts with LETTER_PREFIX and whose show notes link to /letters/<weekOf>/. Letter pages show their player
 // only when it is found.
+//
+// GET /api/special/<slug> finds a special topic's audio the same way: an episode whose title starts with
+// SPECIAL_PREFIX and whose show notes link to /specials/<slug>/.
 
 const FEED = "https://feeds.transistor.fm/physician-in-the-loop";
 const TITLE = "Daily Update for {date}";
 const LETTER_PREFIX = "Friday Letter";
+const SPECIAL_PREFIX = "Special Topic";
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 function titleFor(date) {
@@ -56,6 +60,37 @@ function episodeId(item) {
 export default async (req, context) => {
   const params = (context && context.params) || {};
   const query = new URL(req.url).searchParams;
+  const reqPath = new URL(req.url).pathname;
+  if (params.slug || reqPath.startsWith("/api/special/")) {
+    const slug = params.slug || reqPath.split("/")[3] || "";
+    if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(slug)) {
+      return reply({ found: false, error: "bad slug" }, 400, "public, max-age=86400", "public, s-maxage=86400");
+    }
+    let sxml;
+    try {
+      const res = await fetch(FEED, { headers: { "user-agent": "physicianintheloop.org episode lookup" } });
+      if (!res.ok) throw new Error("feed answered " + res.status);
+      sxml = await res.text();
+    } catch (err) {
+      return reply({ found: false, error: "feed unavailable" }, 502, "no-store", "no-store");
+    }
+    const sprefix = plain(SPECIAL_PREFIX);
+    const specialPath = "/specials/" + slug + "/";
+    for (const chunk of sxml.split(/<item[\s>]/i).slice(1)) {
+      const item = chunk.split(/<\/item>/i)[0];
+      const titles = [...item.matchAll(/<(?:itunes:)?title>([\s\S]*?)<\/(?:itunes:)?title>/gi)].map((x) => plain(x[1]));
+      if (!titles.some((x) => x.startsWith(sprefix)) || !item.includes(specialPath)) continue;
+      const id = episodeId(item);
+      if (!id) continue;
+      return reply(
+        { found: true, slug, title: titles[0], id, share: "https://share.transistor.fm/s/" + id, embed: "https://share.transistor.fm/e/" + id },
+        200,
+        "public, max-age=600",
+        "public, s-maxage=3600, stale-while-revalidate=86400"
+      );
+    }
+    return reply({ found: false, slug }, 200, "public, max-age=60", "public, s-maxage=120");
+  }
   const week = params.week || (new URL(req.url).pathname.startsWith("/api/letter/") ? new URL(req.url).pathname.split("/")[3] : "") || query.get("week") || "";
   const isLetter = Boolean(week);
   const date = isLetter ? week : params.date || query.get("date") || "";
@@ -110,4 +145,4 @@ export default async (req, context) => {
   return reply({ found: false, date }, 200, "public, max-age=60", "public, s-maxage=120");
 };
 
-export const config = { path: ["/api/episode/:date", "/api/letter/:week"] };
+export const config = { path: ["/api/episode/:date", "/api/letter/:week", "/api/special/:slug"] };

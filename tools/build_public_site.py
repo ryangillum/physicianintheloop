@@ -59,6 +59,16 @@ Version 2.10 (Sept 27, 2026): at the author's request the footer no longer says 
 the Topics and RSS links and the copyright line. The default description follows the new masthead dek ("How artificial
 intelligence changes medicine for patients and the people who practice on the front lines."); the live value comes from
 site.config.json. llms.txt now describes the Friday letter as an unsigned editorial (it said the letter was a signed essay).
+Version 2.11 (Sept 27, 2026): special topics can be written like the Friday letter. A special may carry "image" ({src,
+alt}, the same form as a letter's), "top" (SOURCE MATERIAL items, the same form as a letter's) and "unsigned": true.
+The picture is archived under assets/images/specials/, served from /images/specials/<slug>.<ext>, shown under the
+standfirst on the special's page and used as its social image; the /specials/ list shows each special's picture beside
+its entry, like /letters/. An unsigned special's meta author, structured-data author and feed dc:creator name the
+publication, as for letters. The /specials/ page and llms.txt no longer promise "a step-by-step path" or "signed essays".
+A special can be read aloud like a letter: every special is also written as plain text to /specials/<slug>/special.json
+(for the podcast pipeline), and its page carries a "Listen to this special topic" player under the picture, hidden until
+/api/special/<slug> finds the episode: the same Netlify function now also answers that route, matching an episode whose
+title starts with config podcast.special_title_prefix ("Special Topic") and whose show notes link to /specials/<slug>/.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -93,6 +103,7 @@ DEFAULT_CONFIG = {
         "playlist_height": 390,
         "episode_title": "Daily Update for {date}",
         "letter_title_prefix": "Friday Letter",
+        "special_title_prefix": "Special Topic",
     },
 }
 config = dict(DEFAULT_CONFIG)
@@ -561,6 +572,22 @@ LETTER_AUDIO_SCRIPT = ('<script>(function(){var s=document.getElementById("lette
                        's.querySelector("iframe").src="https://share.transistor.fm/e/"+e.id+(d?"/dark":"");s.hidden=false})'
                        '.catch(function(){})})();</script>')
 
+SPECIAL_AUDIO_SCRIPT = ('<script>(function(){var s=document.getElementById("special-audio");if(!s||!window.fetch)return;'
+                        'fetch("/api/special/"+s.getAttribute("data-slug")).then(function(r){return r.ok?r.json():null})'
+                        '.then(function(e){if(!e||!e.found||!/^[a-z0-9]+$/i.test(e.id||""))return;var d=false;'
+                        'try{d=window.matchMedia("(prefers-color-scheme: dark)").matches}catch(x){}'
+                        's.querySelector("iframe").src="https://share.transistor.fm/e/"+e.id+(d?"/dark":"");s.hidden=false})'
+                        '.catch(function(){})})();</script>')
+
+def special_audio_block(slug):
+    """The special topic read aloud, just under its picture. Hidden until /api/special/<slug> finds the episode."""
+    if not (POD and re.match(r"^[a-z0-9][a-z0-9-]{0,79}$", slug or "")):
+        return ""
+    return ('<section class="letter-audio" id="special-audio" data-slug="%s" hidden aria-label="Listen to this special topic">'
+            '<div class="letter-audio-head"><h2>Listen to this special topic</h2><span class="sub">read by an AI voice</span></div>'
+            '<div class="pod-player"><iframe title="This special topic, read aloud" height="180" scrolling="no" loading="lazy"></iframe></div></section>' % esc(slug)
+            + SPECIAL_AUDIO_SCRIPT)
+
 def letter_audio_block(week):
     """The letter read aloud, just under its illustration. Hidden until /api/letter/<weekOf> finds the episode."""
     if not (POD and re.match(r"^\d{4}-\d{2}-\d{2}$", week or "")):
@@ -582,10 +609,14 @@ EPISODE_FN = r'''// Podcast episode lookup for physicianintheloop.org. Written b
 // GET /api/letter/YYYY-MM-DD (the letter's weekOf) finds the Friday letter's audio: an episode whose title
 // starts with LETTER_PREFIX and whose show notes link to /letters/<weekOf>/. Letter pages show their player
 // only when it is found.
+//
+// GET /api/special/<slug> finds a special topic's audio the same way: an episode whose title starts with
+// SPECIAL_PREFIX and whose show notes link to /specials/<slug>/.
 
 const FEED = __FEED__;
 const TITLE = __TITLE__;
 const LETTER_PREFIX = __LETTER__;
+const SPECIAL_PREFIX = __SPECIAL__;
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 function titleFor(date) {
@@ -628,6 +659,37 @@ function episodeId(item) {
 export default async (req, context) => {
   const params = (context && context.params) || {};
   const query = new URL(req.url).searchParams;
+  const reqPath = new URL(req.url).pathname;
+  if (params.slug || reqPath.startsWith("/api/special/")) {
+    const slug = params.slug || reqPath.split("/")[3] || "";
+    if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(slug)) {
+      return reply({ found: false, error: "bad slug" }, 400, "public, max-age=86400", "public, s-maxage=86400");
+    }
+    let sxml;
+    try {
+      const res = await fetch(FEED, { headers: { "user-agent": "physicianintheloop.org episode lookup" } });
+      if (!res.ok) throw new Error("feed answered " + res.status);
+      sxml = await res.text();
+    } catch (err) {
+      return reply({ found: false, error: "feed unavailable" }, 502, "no-store", "no-store");
+    }
+    const sprefix = plain(SPECIAL_PREFIX);
+    const specialPath = "/specials/" + slug + "/";
+    for (const chunk of sxml.split(/<item[\s>]/i).slice(1)) {
+      const item = chunk.split(/<\/item>/i)[0];
+      const titles = [...item.matchAll(/<(?:itunes:)?title>([\s\S]*?)<\/(?:itunes:)?title>/gi)].map((x) => plain(x[1]));
+      if (!titles.some((x) => x.startsWith(sprefix)) || !item.includes(specialPath)) continue;
+      const id = episodeId(item);
+      if (!id) continue;
+      return reply(
+        { found: true, slug, title: titles[0], id, share: "https://share.transistor.fm/s/" + id, embed: "https://share.transistor.fm/e/" + id },
+        200,
+        "public, max-age=600",
+        "public, s-maxage=3600, stale-while-revalidate=86400"
+      );
+    }
+    return reply({ found: false, slug }, 200, "public, max-age=60", "public, s-maxage=120");
+  }
   const week = params.week || (new URL(req.url).pathname.startsWith("/api/letter/") ? new URL(req.url).pathname.split("/")[3] : "") || query.get("week") || "";
   const isLetter = Boolean(week);
   const date = isLetter ? week : params.date || query.get("date") || "";
@@ -682,7 +744,7 @@ export default async (req, context) => {
   return reply({ found: false, date }, 200, "public, max-age=60", "public, s-maxage=120");
 };
 
-export const config = { path: ["/api/episode/:date", "/api/letter/:week"] };
+export const config = { path: ["/api/episode/:date", "/api/letter/:week", "/api/special/:slug"] };
 '''
 
 def write_episode_function():
@@ -695,7 +757,8 @@ def write_episode_function():
     os.makedirs(os.path.dirname(target), exist_ok=True)
     src = (EPISODE_FN.replace("__FEED__", json.dumps(POD["rss"]))
            .replace("__TITLE__", json.dumps(POD.get("episode_title") or "Daily Update for {date}"))
-           .replace("__LETTER__", json.dumps(POD.get("letter_title_prefix") or "Friday Letter")))
+           .replace("__LETTER__", json.dumps(POD.get("letter_title_prefix") or "Friday Letter"))
+           .replace("__SPECIAL__", json.dumps(POD.get("special_title_prefix") or "Special Topic")))
     with open(target, "w", encoding="utf-8") as f:
         f.write(src)
     return True
@@ -738,7 +801,7 @@ ARCHIVE = os.path.join(ROOT, "assets", "images")
 EXT = {"jpeg": "jpg", "jpg": "jpg", "png": "png", "webp": "webp", "svg+xml": "svg"}
 
 def collect_images(kind, pages):
-    """kind: 'posts' or 'letters'. Returns slug -> (site path or https url, alt, raster?).
+    """kind: 'posts', 'letters' or 'specials'. Returns slug -> (site path or https url, alt, raster?).
 
     A piece shows a picture only when its JSON has an "image" entry. An entry with a data URI is written to the
     archive (replacing any earlier picture for that slug) and served from /images/<kind>/; an entry with alt text
@@ -791,6 +854,7 @@ def collect_images(kind, pages):
 
 LETTER_IMG = collect_images("letters", letter_pages)
 POST_IMG = collect_images("posts", post_pages)
+SPECIAL_IMG = collect_images("specials", special_pages)
 
 def figure_html(img_map, slug, cls, lazy=False):
     if slug not in img_map:
@@ -963,6 +1027,32 @@ page("/letters/", "The Friday letter", "The weekly letter from %s: the week's de
 urls.append(("/letters/", LAST_UPDATED, "weekly", "0.9"))
 
 # ------------------------------------------------------------------ special topics
+def special_record(slug, sp):
+    """The special as plain text, for the podcast pipeline that reads it aloud (links reduced to their words; pull
+    quotes left out because they repeat the text; subheadings kept as their own lines)."""
+    img = SPECIAL_IMG.get(slug)
+    body = []
+    for b in sp.get("blocks") or []:
+        kind = b.get("type")
+        if kind == "pull":
+            continue
+        line = plain(((b.get("lead") or "") + " " + (b.get("text") or "")).strip() if kind == "step" else (b.get("text") or ""))
+        if line:
+            body.append(line)
+    return {
+        "slug": slug,
+        "date": sp.get("date") or "",
+        "headline": plain(sp.get("title") or ""),
+        "dek": plain(sp.get("dek") or ""),
+        "url": absurl(special_url(slug)),
+        "unsigned": bool(sp.get("unsigned")),
+        "image": (img[0] if img and img[0].startswith("https://") else absurl(img[0])) if img else None,
+        "image_alt": img[1] if img else None,
+        "body": body,
+        "top": [{"title": plain(x.get("title") or ""), "body": plain(x.get("body") or ""), "url": x.get("url") or ""}
+                for x in (sp.get("top") or []) if isinstance(x, dict)],
+    }
+
 for i, (slug, sp) in enumerate(special_pages):
     path = special_url(slug)
     title = sp.get("title") or "Special topic"
@@ -970,6 +1060,8 @@ for i, (slug, sp) in enumerate(special_pages):
     art = ['<article class="post special"><div class="post-date">Special topic · <time datetime="%s">%s</time></div><h1 class="headline">%s</h1>' % (esc(sp.get("date", "")), esc(fmt(sp.get("date"))), esc(title))]
     if sp.get("dek"):
         art.append('<p class="standfirst">%s</p>' % rich(sp["dek"]))
+    art.append(figure_html(SPECIAL_IMG, slug, "letter-art"))
+    art.append(special_audio_block(slug))
     art.append('<div class="special-body">')
     for blk in sp.get("blocks") or []:
         t = blk.get("type")
@@ -982,24 +1074,36 @@ for i, (slug, sp) in enumerate(special_pages):
         else:
             art.append("<p>%s</p>" % rich(blk.get("text", "")))
     art.append("</div>")
+    if sp.get("top"):
+        art.append('<div class="section-label details-label">SOURCE MATERIAL</div>' + render_items(sp["top"]))
     if sp.get("substackUrl"):
         art.append('<p class="mono" style="margin-top:18px">%s</p>' % ext_link("Read this on Substack", sp["substackUrl"]))
     art.append("</article>")
     older = (special_pages[i + 1][1].get("title", ""), special_url(special_pages[i + 1][0])) if i + 1 < len(special_pages) else None
     newer = (special_pages[i - 1][1].get("title", ""), special_url(special_pages[i - 1][0])) if i > 0 else None
-    entry_page("Article", path, [(NAME, "/"), ("Special topics", "/specials/"), (title, None)], title, desc, sp.get("date"), "".join(art), older, newer)
+    og_i, og_alt = og_for(SPECIAL_IMG, slug)
+    write(path + "special.json", json.dumps(special_record(slug, sp), ensure_ascii=False, indent=1) + "\n")
+    entry_page("Article", path, [(NAME, "/"), ("Special topics", "/specials/"), (title, None)], title, desc, sp.get("date"), "".join(art), older, newer,
+               image=og_i, image_alt=og_alt, unsigned=bool(sp.get("unsigned")))
     urls.append((path, sp.get("date") or LAST_UPDATED, "monthly", "0.8"))
 
 body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Special topics</h1><span class="sub">one question, worked all the way through</span></div>',
-        '<p class="lead">Longer pieces on a single question physicians keep asking, with the evidence, the rules, the prices, and a step-by-step path at the end. Each one also goes out on Substack.</p>']
+        '<p class="lead">Longer pieces on a single question physicians keep asking, argued from the evidence, with what to do about it. Each one also goes out on Substack.</p>']
 if special_pages:
-    body.append('<ul class="archive">')
-    for slug, sp in special_pages:
-        body.append('<li><span class="when">%s</span><a href="%s">%s</a>%s</li>' % (esc(fmt(sp.get("date"))), special_url(slug), esc(sp.get("title") or "Special topic"), ('<span class="d">%s</span>' % esc(plain(sp["dek"]))) if sp.get("dek") else ""))
+    body.append('<ul class="letter-list">')
+    for k, (slug, sp) in enumerate(special_pages):
+        thumb = ""
+        if slug in SPECIAL_IMG:
+            src, alt, _ = SPECIAL_IMG[slug]
+            thumb = ('<a class="thumb" href="%s" tabindex="-1" aria-hidden="true"><img src="%s" alt="%s" width="1200" height="630" decoding="async"%s></a>'
+                     % (special_url(slug), esc(src), esc(alt), ' loading="lazy"' if k > 1 else ""))
+        body.append('<li%s>%s<div class="txt"><span class="when">%s</span><a class="t" href="%s">%s</a>%s</div></li>' % (
+            "" if thumb else ' class="no-thumb"', thumb, esc(fmt(sp.get("date"))), special_url(slug),
+            esc(sp.get("title") or "Special topic"), ('<p class="d">%s</p>' % esc(plain(sp["dek"]))) if sp.get("dek") else ""))
     body.append("</ul>")
 else:
     body.append('<p class="empty">The first special topic is on its way.</p>')
-page("/specials/", "Special topics", "Long pieces from %s on the questions physicians keep asking about AI, with the evidence, the rules and a step-by-step path." % NAME, '<section class="panel">' + "".join(body) + "</section>", active="/specials/",
+page("/specials/", "Special topics", "Long pieces from %s on the questions physicians keep asking about AI, argued from the evidence, with what to do about it." % NAME, '<section class="panel">' + "".join(body) + "</section>", active="/specials/",
      jsonld={"@context": "https://schema.org", "@type": "CollectionPage", "name": "Special topics", "url": absurl("/specials/"), "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}})
 urls.append(("/specials/", LAST_UPDATED, "weekly", "0.8"))
 
@@ -1137,7 +1241,11 @@ for slug, p in post_pages:
 for slug, w in letter_pages:
     feed_items.append((w.get("weekOf") or "", 3, w.get("headline") or "The Friday letter", absurl(letter_url(slug)), plain(w.get("dek") or ""), (('<p><img src="%s" alt="%s" width="1200" height="630"></p>' % (esc(LETTER_IMG[slug][0] if LETTER_IMG[slug][0].startswith("https://") else absurl(LETTER_IMG[slug][0])), esc(LETTER_IMG[slug][1]))) if slug in LETTER_IMG else "") + paras(w.get("body")) + ('<div class="section-label">SOURCE MATERIAL</div>' + render_items(w["top"]) if w.get("top") else "") + (paras(w["outlook"]) if w.get("outlook") else ""), NAME))
 for slug, sp in special_pages:
-    feed_items.append((sp.get("date") or "", 1, sp.get("title") or "Special topic", absurl(special_url(slug)), plain(sp.get("dek") or ""), "".join("<p>%s</p>" % rich((b.get("lead", "") + " " + b.get("text", "")).strip()) for b in sp.get("blocks") or []), AUTHOR))
+    sp_img = (('<p><img src="%s" alt="%s" width="1200" height="630"></p>' % (esc(SPECIAL_IMG[slug][0] if SPECIAL_IMG[slug][0].startswith("https://") else absurl(SPECIAL_IMG[slug][0])), esc(SPECIAL_IMG[slug][1]))) if slug in SPECIAL_IMG else "")
+    feed_items.append((sp.get("date") or "", 1, sp.get("title") or "Special topic", absurl(special_url(slug)), plain(sp.get("dek") or ""),
+                       sp_img + "".join("<p>%s</p>" % rich((b.get("lead", "") + " " + b.get("text", "")).strip()) for b in sp.get("blocks") or [])
+                       + ('<div class="section-label">SOURCE MATERIAL</div>' + render_items(sp["top"]) if sp.get("top") else ""),
+                       NAME if sp.get("unsigned") else AUTHOR))
 feed_items.sort(key=lambda x: (x[0], x[1]), reverse=True)
 rss = ['<?xml version="1.0" encoding="UTF-8"?>',
        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">',
@@ -1163,7 +1271,7 @@ for slug, p in recent:
 ns.append("</urlset>")
 write("/sitemap-news.xml", "\n".join(ns) + "\n")
 write("/robots.txt", "User-agent: *\nAllow: /\nSitemap: %s\nSitemap: %s\n" % (absurl("/sitemap.xml"), absurl("/sitemap-news.xml")))
-write("/llms.txt", "# %s\n\n> %s\n\nCreated by %s. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter is an unsigned editorial in the manner of a leader in The Economist, and the special topics are signed essays.\n\n## Sections\n\n- [Daily posts](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
+write("/llms.txt", "# %s\n\n> %s\n\nCreated by %s. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter is an unsigned editorial in the manner of a leader in The Economist, and the special topics are longer pieces on a single question.\n\n## Sections\n\n- [Daily posts](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
       % (NAME, config["description"], AUTHOR, absurl("/posts/"), absurl("/letters/"), absurl("/specials/"), absurl("/watch/"), absurl("/dates/"), absurl("/where-things-stand/"), absurl("/topics/"), absurl("/about/"), absurl("/feed.xml"))
       + ("- [Podcast](%s): each morning's post as an audio briefing; podcast feed %s\n" % (absurl("/podcast/"), POD["rss"]) if POD else ""))
 
