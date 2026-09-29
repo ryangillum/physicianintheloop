@@ -101,6 +101,8 @@ and the recent changes (when more than 8 entries were added on one day, they sho
 describes the federal section. laws.json adds the federal entries, "federal_categories" and "reviews" (state and date), and
 llms.txt lists the federal page. A malformed review is left out with a warning like a malformed entry, and the federal page, like
 each section, is skipped with a warning if it breaks; nothing then links to it.
+Version 2.13.1 (Sept 29, 2026): on law map pages, an entry's source list is separated by semicolons when any of its labels
+contains a comma (for example "NAIC adoption map, Aug. 31, 2026"), so each source reads as one item; other pages are unchanged.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -334,7 +336,7 @@ def describe(parts, limit=158):
         return cut[:m[-1].end()]
     return cut[:cut.rfind(" ")].rstrip(",;:") + "..."
 
-def sources_line(cls, srcs, fallback_label=None, fallback_url=None):
+def sources_line(cls, srcs, fallback_label=None, fallback_url=None, sep=", "):
     srcs = srcs if srcs else ([{"label": fallback_label or fallback_url, "url": fallback_url}] if (fallback_label or fallback_url) else [])
     if not srcs:
         return ""
@@ -344,7 +346,7 @@ def sources_line(cls, srcs, fallback_label=None, fallback_url=None):
             bits.append(ext_link(s.get("label") or s["url"], s["url"]))
         else:
             bits.append(esc(s.get("label") or ""))
-    return '<div class="%s">%s%s</div>' % (cls, "Sources: " if len(srcs) > 1 else "Source: ", ", ".join(bits))
+    return '<div class="%s">%s%s</div>' % (cls, "Sources: " if len(srcs) > 1 else "Source: ", sep.join(bits))
 
 def render_items(items, anchors=False):
     if not items:
@@ -1481,7 +1483,10 @@ def law_card(e):
         meta.append("<strong>Also touches:</strong> %s" % esc("; ".join(also)))
     if meta:
         out.append('<p class="law-meta">%s</p>' % "<br>".join(meta))
-    out.append(sources_line("law-src", e.get("sources") if isinstance(e.get("sources"), list) else []))
+    srcs = e.get("sources") if isinstance(e.get("sources"), list) else []
+    # 2.13.1: labels such as "NAIC adoption map, Aug. 31, 2026" carry commas, so such a list is separated by semicolons
+    comma = any("," in str(x.get("label") or "") for x in srcs if isinstance(x, dict))
+    out.append(sources_line("law-src", srcs, sep="; " if comma else ", "))
     if e.get("notes"):
         out.append('<p class="law-notes"><strong>Notes:</strong> %s</p>' % rich(e["notes"]))
     if e.get("correction"):

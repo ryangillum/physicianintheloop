@@ -1904,6 +1904,36 @@
    "added": "2026-09-29"
   },
   {
+   "id": "il-sb316-2025",
+   "state": "IL",
+   "category": "clinical",
+   "also": [
+    "mental-health",
+    "disclosure"
+   ],
+   "kind": "law",
+   "name": "SB 316, Artificial Intelligence Companion Model Safety Act",
+   "status": "introduced",
+   "signed": "",
+   "effective": "",
+   "applies_to": "Operators that make AI companions available to users in Illinois; customer service and productivity bots, entertainment features limited to their content, curriculum-bound educational tools, navigation bots and voice assistants that do not sustain a relationship are excluded",
+   "summary": "Would require operators of AI companions to keep a protocol with reasonable methods to detect users' expressions of suicidal ideation or self-harm, to refer those users to crisis services such as the 988 Suicide and Crisis Lifeline and to prevent content encouraging or describing how to commit self-harm, to post a description of the protocol and the yearly number of crisis referrals on their websites, to tell users at the start of an interaction and at least every 3 hours during it that they are communicating with an automated system and not a human, and to take reasonable measures to keep companions from producing material harmful to minors for users the operator knows to be minors.",
+   "physician_read": "It binds no one yet; as passed by the Senate, it would take effect Jan. 1, 2027 and would require AI companion operators to refer users who express suicidal ideation or self-harm to crisis services such as 988. It would also amend the Wellness and Oversight for Psychological Resources Act so that a chatbot that complies with this act and does not provide therapy or psychotherapy services falls outside that Act.",
+   "sources": [
+    {
+     "label": "LegiScan bill page",
+     "url": "https://legiscan.com/IL/bill/SB316/2025"
+    },
+    {
+     "label": "Engrossed text, as passed by the Senate (LegiScan copy)",
+     "url": "https://legiscan.com/IL/text/SB0316/id/3440295"
+    }
+   ],
+   "checked": "2026-09-29",
+   "notes": "The history and text come from LegiScan. Filed Jan. 24, 2025; passed the Senate Executive Committee March 19, 2025; re-referred to Assignments April 11, 2025; approved for consideration May 7, 2026; Senate Floor Amendments No. 2 and 3 were adopted and the bill passed the Senate 57-0 on May 21, 2026; in the House it was assigned to the Executive Committee and re-referred to the Rules Committee under Rule 19(a) May 31, 2026; an alternate chief co-sponsor was added June 15, 2026. LegiScan lists it as dead ('died in committee'); the 104th General Assembly can still take it up, including in its fall veto session, until its term ends in January 2027. The engrossed text says the act takes effect Jan. 1, 2027. The Attorney General or a State's Attorney would enforce it as an unlawful practice under the Consumer Fraud and Deceptive Business Practices Act, with a share of penalties going to the 9-8-8 Trust Fund, and a person who suffers actual damage could sue under that Act. The minors' duty applies to users the operator knows to be minors, based on ages users give or the operator attributes to them; the bill does not require operators to collect new age data.",
+   "added": "2026-09-29"
+  },
+  {
    "id": "il-hb1806-2025",
    "state": "IL",
    "category": "mental-health",
@@ -1966,6 +1996,39 @@
    ],
    "checked": "2026-09-29",
    "notes": "Status, dates and text come from LegiScan's bill page and its copy of the chaptered act. The act amends, among others, the Managed Care Reform and Patient Rights Act (Sections 10, 45 and 85), the Health Carrier External Review Act and the Prior Authorization Reform Act. The chaptered text has no effective-date section; under 5 ILCS 75/1 a bill passed before June 1 that sets no effective date takes effect Jan. 1 of the following year, and this bill passed both houses in May 2024, so it took effect Jan. 1, 2025, the date LegiScan also gives.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "il-hb35-2025",
+   "state": "IL",
+   "category": "payer",
+   "also": [
+    "disclosure"
+   ],
+   "kind": "law",
+   "name": "HB 35, Artificial Intelligence Systems Use in Health Insurance Act",
+   "status": "introduced",
+   "signed": "",
+   "effective": "",
+   "applies_to": "Health insurance issuers under the Department of Insurance's jurisdiction, including HMOs, dental service plan corporations, limited health service organizations and health services plan corporations",
+   "summary": "Would bar a health insurance issuer from issuing an adverse consumer outcome that denies, reduces or terminates coverage or benefits solely on the use of an AI system or predictive model, require that any such AI-driven decision be meaningfully reviewed, under procedures set by Department of Insurance rules, by an individual with authority to override the AI system, who must be a clinical peer when the decision is an adverse determination under the Managed Care Reform and Patient Rights Act, set out the department's authority to examine insurers' AI systems, and let the department adopt rules on disclosing insurers' AI use to consumers.",
+   "physician_read": "It binds no one yet. As passed by the House, a health insurer could not deny, reduce or terminate coverage or benefits solely on an AI system's or predictive model's output, and when such a decision is an adverse determination under the Managed Care Reform and Patient Rights Act, a clinical peer with authority to override the AI system would have to review it.",
+   "sources": [
+    {
+     "label": "LegiScan bill page",
+     "url": "https://legiscan.com/IL/bill/HB35/2025"
+    },
+    {
+     "label": "Engrossed text, as passed by the House (LegiScan copy)",
+     "url": "https://legiscan.com/IL/text/HB0035/id/3207940"
+    },
+    {
+     "label": "5 ILCS 75, Effective Date of Laws Act (Justia copy of the Illinois Compiled Statutes)",
+     "url": "https://law.justia.com/codes/illinois/chapter-5/act-5-ilcs-75/"
+    }
+   ],
+   "checked": "2026-09-29",
+   "notes": "The history and text come from LegiScan. Prefiled Dec. 6, 2024; passed the House Insurance Committee March 11, 2025 (11-6); House Floor Amendment No. 1 adopted and the bill passed the House 79-35 on April 9, 2025; in the Senate it was assigned to the Executive Committee April 23, 2025; the last action was June 2, 2025, when Senate Committee Amendment No. 1 was re-referred to Assignments under Rule 3-9(a). LegiScan lists the bill as dead ('died in committee'); the 104th General Assembly can still take it up, including in its fall veto session, until its term ends in January 2027. The engrossed text defines an adverse consumer outcome to include any claim denial determined by the use of an AI system; its disclosure section only authorizes rules, which may cover notice before AI use and after an adverse decision, correction of inaccurate information and appeal instructions. It sets no effective date; under 5 ILCS 75/2 a bill passed after May 31 takes effect June 1 of the next year unless three-fifths of each house votes for an earlier date.",
    "added": "2026-09-29"
   },
   {
@@ -2082,6 +2145,33 @@
    ],
    "checked": "2026-09-29",
    "notes": "Status and dates come from LegiScan, which records the act as effective Aug. 2, 2024, the day the governor approved it. The amended Sections 10 and 20 were read in LegiScan's copy of the chaptered act and on Justia's copy of the statute.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "il-sb340-2025",
+   "state": "IL",
+   "category": "privacy",
+   "also": [],
+   "kind": "law",
+   "name": "SB 340, Illinois Consumer Data Privacy Act",
+   "status": "introduced",
+   "signed": "",
+   "effective": "",
+   "applies_to": "Businesses in Illinois that collect or process personal data of 100,000 or more consumers (excluding payment-only data), or of 25,000 or more while deriving over 25 percent of gross revenue from selling personal data; small businesses are exempt except from a limit on selling sensitive data",
+   "summary": "Would give consumers rights to access, correct, delete and port their personal data, to opt out of targeted advertising, sale and profiling in furtherance of automated decisions with legal or similarly significant effects, including decisions on health care services, and to question the result of such profiling, would require consent before a controller processes sensitive data, which includes mental or physical health conditions and diagnoses, and would require data protection assessments for processing such as sensitive data and certain profiling.",
+   "physician_read": "It binds no one yet. As passed by the Senate, it would exclude protected health information and health records but not HIPAA-covered practices as such, so a practice that meets its thresholds would have to apply it to personal data it holds that is not protected health information or a health record, and from Jan. 1, 2028 a person who suffers actual damage from a violation could sue.",
+   "sources": [
+    {
+     "label": "LegiScan bill page",
+     "url": "https://legiscan.com/IL/bill/SB340/2025"
+    },
+    {
+     "label": "Engrossed text, as passed by the Senate (LegiScan copy)",
+     "url": "https://legiscan.com/IL/text/SB0340/id/3440313"
+    }
+   ],
+   "checked": "2026-09-29",
+   "notes": "The history and text come from LegiScan. Filed Jan. 24, 2025; passed the Senate Executive Committee March 19, 2025; re-referred to Assignments April 11, 2025; approved for consideration May 7, 2026; four Senate floor amendments were adopted and the bill passed the Senate 54-3 on May 21, 2026; in the House it was assigned to the Executive Committee and re-referred to the Rules Committee under Rule 19(a) May 31, 2026. LegiScan lists it as dead ('died in committee'); the 104th General Assembly can still take it up, including in its fall veto session, until its term ends in January 2027. The health exclusions cover protected health information, health records and information that originates from and is intermingled with them when maintained by a covered entity or business associate acting as such. The Attorney General and State's Attorneys would enforce it through the Consumer Fraud and Deceptive Business Practices Act, after a warning letter and a 30-day cure period that ends Jan. 1, 2028; from Jan. 1, 2028 a person who suffers actual damage could sue under that Act. The engrossed text sets no effective date.",
    "added": "2026-09-29"
   },
   {
@@ -4582,6 +4672,36 @@
    "added": "2026-09-29"
   },
   {
+   "id": "us-s3062-2025",
+   "state": "US",
+   "category": "clinical",
+   "also": [
+    "disclosure",
+    "mental-health"
+   ],
+   "kind": "law",
+   "name": "S. 3062, Guidelines for User Age-verification and Responsible Dialogue Act of 2026 (GUARD Act), 119th Congress, reported by the Senate Judiciary Committee with an amendment (Calendar No. 406)",
+   "status": "introduced",
+   "signed": "",
+   "effective": "",
+   "applies_to": "Anyone who makes an AI chatbot publicly available to consumers",
+   "summary": "As reported, would require providers of public AI chatbots to verify users' ages and keep minors from AI companions; require every public chatbot to disclose at the start of each conversation that it is AI and not a human and, at the start and at reasonably regular intervals, that it does not provide medical, legal, financial or psychological services; bar chatbots from representing themselves as licensed professionals; make it a federal crime, with fines up to $250,000 per offense, to make available a chatbot knowing or with reckless disregard that it engages minors in sexually explicit conduct or solicits minors to suicide, non-suicidal self-injury, imminent unlawful physical or sexual violence or homicide; and take effect 180 days after enactment.",
+   "physician_read": "It binds no one yet. As reported, a public AI chatbot could not represent itself as a licensed professional and would have to tell users at the start of each conversation and at reasonably regular intervals that it does not provide medical, legal, financial or psychological services and that they should consult a licensed professional; minors could not use AI companions.",
+   "sources": [
+    {
+     "label": "LegiScan, bill history",
+     "url": "https://legiscan.com/US/bill/SB3062/2025"
+    },
+    {
+     "label": "Text as reported May 11, 2026 (LegiScan copy)",
+     "url": "https://legiscan.com/US/text/SB3062/id/3435637/US_Congress-2025-SB3062-Introduced.pdf"
+    }
+   ],
+   "checked": "2026-09-29",
+   "notes": "Introduced Oct. 28, 2025 by Sen. Josh Hawley. The Judiciary Committee reported it with an amendment in the nature of a substitute on May 11, 2026, and it was placed on the Senate calendar as Calendar No. 406; the summary follows the reported text. The attorney general and state attorneys general could enforce it, with civil penalties up to $250,000 per violation, and it would not affect state laws at least as protective of chatbot users. Status and history are from LegiScan's record of the bill.",
+   "added": "2026-09-29"
+  },
+  {
    "id": "us-fda-ai-dsf-draft-2025",
    "state": "US",
    "category": "devices",
@@ -5077,7 +5197,7 @@
      "url": "https://www.federalregister.gov/documents/2026/04/06/2026-06600/medicare-program-contract-year-2027-and-certain-contract-year-2026-policy-and-technical-changes-to"
     },
     {
-     "label": "CMS fact sheet, CY 2027 final rule",
+     "label": "CMS fact sheet on the CY 2027 final rule",
      "url": "https://www.cms.gov/newsroom/fact-sheets/contract-year-2027-medicare-advantage-part-d-final-rule"
     }
    ],
@@ -5149,6 +5269,37 @@
    ],
    "checked": "2026-09-29",
    "notes": "An April 6, 2026 notice (CMS-5056-N2, 91 FR 17282) delayed deep brain stimulation for essential tremor and Parkinson's disease and percutaneous image-guided lumbar decompression for spinal stenosis, to allow time for operational readiness, until a date to be announced in a later notice; a correction to the 2025 notice was published the same day. No later Federal Register notice on WISeR had appeared as of Sept. 29, 2026, and CMS's operational guide (version 7.0, updated July 24, 2026) lists 13 services in effect and the two as delayed. WISeR does not apply to Medicare Advantage. CMS's FAQ says the model plans to launch a 'gold carding' exemption program in 2026 for providers that consistently meet coverage criteria and that a human clinician with relevant expertise must review every non-affirmation.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "us-hr3514-2025",
+   "state": "US",
+   "category": "payer",
+   "also": [],
+   "kind": "law",
+   "name": "H.R. 3514, Improving Seniors' Timely Access to Care Act of 2025, 119th Congress, ordered reported by the House Ways and Means Committee",
+   "status": "introduced",
+   "signed": "",
+   "effective": "",
+   "applies_to": "Medicare Advantage organizations; CMS and ONC for a report to Congress",
+   "summary": "As introduced, would set prior authorization requirements for Medicare Advantage plans, including an electronic prior authorization program for plan years beginning on or after Jan. 1, 2028 and annual transparency reports, for plan years beginning on or after Jan. 1, 2027, that give the number and percentage of requests approved and denied through decision support, artificial intelligence, machine-learning or clinical decision-making technology, and would require CMS and ONC to report to Congress by Jan. 1, 2028 on matters including how determinations of routinely approved items and services made solely through automation and AI affect patient access.",
+   "physician_read": "It binds no one yet. As introduced, Medicare Advantage plans would report each year, for plan years beginning on or after Jan. 1, 2027, how many prior authorization requests they approved or denied using AI, machine learning or other decision technology, and would run electronic prior authorization programs for plan years beginning on or after Jan. 1, 2028.",
+   "sources": [
+    {
+     "label": "LegiScan, bill history",
+     "url": "https://legiscan.com/US/bill/HB3514/2025"
+    },
+    {
+     "label": "Ways and Means Committee, markup of July 15, 2026 (results)",
+     "url": "https://waysandmeans.house.gov/event/markup-of-h-r-9641-h-r-3108-h-r-9642-h-r-9468-h-r-3514-h-r-9644-and-h-r-9645/"
+    },
+    {
+     "label": "Text as introduced (LegiScan copy)",
+     "url": "https://legiscan.com/US/text/HB3514/id/3259725/US_Congress-2025-HB3514-Introduced.pdf"
+    }
+   ],
+   "checked": "2026-09-29",
+   "notes": "Introduced May 20, 2025 by Rep. Mike Kelly. The Ways and Means Committee ordered it reported with an amendment in the nature of a substitute by a 42-0 vote on July 15, 2026, according to the committee and LegiScan. The substitute's text could not be found, so the summary describes the introduced text. Status and history are from LegiScan's record of the bill.",
    "added": "2026-09-29"
   },
   {
@@ -5255,7 +5406,7 @@
      "url": "https://www.federalregister.gov/documents/2025/11/05/2025-19787/medicare-and-medicaid-programs-cy-2026-payment-policies-under-the-physician-fee-schedule-and-other"
     },
     {
-     "label": "CMS fact sheet, CY 2026 final rule",
+     "label": "CMS fact sheet on the CY 2026 final rule",
      "url": "https://www.cms.gov/newsroom/fact-sheets/calendar-year-cy-2026-medicare-physician-fee-schedule-final-rule-cms-1832-f"
     }
    ],
@@ -5408,6 +5559,33 @@
    ],
    "checked": "2026-09-29",
    "notes": "The court declared the 'Proscribed Combination' in the March 18, 2024 bulletin unlawful and vacated it, denied a permanent injunction and said the vacatur does not limit the rest of the bulletin; its opinion describes the original bulletin as issued in December 2022. HHS's page (content last reviewed June 26, 2024) carries a banner noting the order, and its guidance on user-authenticated webpages, mobile apps, business associate agreements and HIPAA authorizations remains posted. The bulletin does not mention AI.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "us-s3097-2025",
+   "state": "US",
+   "category": "privacy",
+   "also": [],
+   "kind": "law",
+   "name": "S. 3097, Health Information Privacy Reform Act, 119th Congress, reported by the Senate Health, Education, Labor, and Pensions Committee with an amendment (Calendar No. 538)",
+   "status": "introduced",
+   "signed": "",
+   "effective": "",
+   "applies_to": "HHS (rulemaking); entities that process identifiable health information outside HIPAA's protections for protected health information, including data brokers; HIPAA covered entities for the AI-related minimum necessary rules",
+   "summary": "As reported, would direct HHS, in consultation with the FTC, to set privacy, security and breach notification standards within 18 months for identifiable health information processed by entities other than covered entities and business associates acting with respect to protected health information, including data brokers, and to issue regulations within one year on how the minimum necessary standard applies to health information used to develop, train, validate, modify or operate AI or machine learning models and on unified de-identification standards that account for re-identification methods using AI.",
+   "physician_read": "It binds no one yet. As reported, HHS would have one year to issue rules on how HIPAA's minimum necessary standard applies when protected health information is used to develop, train, validate or fine-tune AI or machine learning models, including when a larger data set is reasonably necessary.",
+   "sources": [
+    {
+     "label": "LegiScan, bill history",
+     "url": "https://legiscan.com/US/bill/SB3097/2025"
+    },
+    {
+     "label": "Text as reported Aug. 4, 2026 (LegiScan copy)",
+     "url": "https://legiscan.com/US/text/SB3097/id/3454697/US_Congress-2025-SB3097-Introduced.pdf"
+    }
+   ],
+   "checked": "2026-09-29",
+   "notes": "Introduced Nov. 4, 2025 by Sens. Bill Cassidy and Margaret Hassan. The HELP Committee reported it with an amendment in the nature of a substitute on Aug. 4, 2026, and it was placed on the Senate calendar as Calendar No. 538; the summary follows the reported text. Status and history are from LegiScan's record of the bill.",
    "added": "2026-09-29"
   },
   {
