@@ -69,6 +69,20 @@ A special can be read aloud like a letter: every special is also written as plai
 (for the podcast pipeline), and its page carries a "Listen to this special topic" player under the picture, hidden until
 /api/special/<slug> finds the episode: the same Netlify function now also answers that route, matching an episode whose
 title starts with config podcast.special_title_prefix ("Special Topic") and whose show notes link to /specials/<slug>/.
+Version 2.12 (Sept 29, 2026): the standing references. The page's JSON may carry "laws" (the AI health law map: one entry per
+state law, rule or bill: {id, state, category, also, kind, name, status, signed, effective, applies_to, summary, physician_read,
+sources, checked, notes, added?, changed?, correction?}), "rhtp" (the Rural Health Transformation Program tracker, one row per
+state), "explainers" ({slug, title, published, reviewed, short, blocks[h|p|list], changes, watch_for}) and "patients" (the
+weekly letter for patients: {weekOf, date, headline, dek, intro, blocks[h|p|ask], question, closing}). Each becomes a section
+whose tab appears in the navigation only when its list has entries: /law-map/ (a tile map of the 50 states shaded by the
+laws and rules enacted or in force, with a category filter; what takes effect in the next 90 days; what was added or changed
+in the last 30; how the map works; the data at /law-map/laws.json), /law-map/<state>/ (the state's entries by category),
+/rhtp/ (open and upcoming funding rounds, a table and a card per state), /explainers/ and /explainers/<slug>/, and
+/patients/ and /patients/<weekOf>/ with letter.json (plain text for reading aloud, the parenthetical source links left out)
+and /patients/latest.json. The home page adds the newest letter for patients and links to the guides and trackers. An entry
+marked "hidden": true is left out; a malformed entry is left out with a warning, and a section whose data breaks is skipped
+with a warning, so a bad entry never stops the publish. "deployments" and "explainer_flags" are records for the daily task
+and are not shown. feed.xml is unchanged.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -156,6 +170,69 @@ LAST_UPDATED = meta.get("lastUpdated", "") or datetime.date.today().isoformat()
 LAST_LABEL = meta.get("lastUpdatedLabel", "")
 SUBSTACK = meta.get("substackUrl") or config["substack_url"]
 SUBSCRIBE = meta.get("subscribeUrl") or config["subscribe_url"]
+
+# ------------------------------------------------------------------ standing references (2.12): law map, program tracker, explainers, patient letters
+STATES = [("AL", "Alabama"), ("AK", "Alaska"), ("AZ", "Arizona"), ("AR", "Arkansas"), ("CA", "California"), ("CO", "Colorado"),
+          ("CT", "Connecticut"), ("DE", "Delaware"), ("FL", "Florida"), ("GA", "Georgia"), ("HI", "Hawaii"), ("ID", "Idaho"),
+          ("IL", "Illinois"), ("IN", "Indiana"), ("IA", "Iowa"), ("KS", "Kansas"), ("KY", "Kentucky"), ("LA", "Louisiana"),
+          ("ME", "Maine"), ("MD", "Maryland"), ("MA", "Massachusetts"), ("MI", "Michigan"), ("MN", "Minnesota"), ("MS", "Mississippi"),
+          ("MO", "Missouri"), ("MT", "Montana"), ("NE", "Nebraska"), ("NV", "Nevada"), ("NH", "New Hampshire"), ("NJ", "New Jersey"),
+          ("NM", "New Mexico"), ("NY", "New York"), ("NC", "North Carolina"), ("ND", "North Dakota"), ("OH", "Ohio"), ("OK", "Oklahoma"),
+          ("OR", "Oregon"), ("PA", "Pennsylvania"), ("RI", "Rhode Island"), ("SC", "South Carolina"), ("SD", "South Dakota"),
+          ("TN", "Tennessee"), ("TX", "Texas"), ("UT", "Utah"), ("VT", "Vermont"), ("VA", "Virginia"), ("WA", "Washington"),
+          ("WV", "West Virginia"), ("WI", "Wisconsin"), ("WY", "Wyoming")]
+STATE_NAME = dict(STATES)
+LAW_CATS = [("payer", "Payer and utilization review AI", "Insurers', benefit managers' and utilization reviewers' use of AI, including prior authorization and claim denials."),
+            ("disclosure", "Patient disclosure of AI use", "Telling patients that AI is used in their care or in messages to them."),
+            ("clinical", "Clinical decision and chatbot limits", "Limits on AI in clinical decisions and on health chatbots, including AI presenting itself as a licensed professional."),
+            ("mental-health", "Mental health AI", "AI in therapy and mental health care."),
+            ("privacy", "Data and privacy", "Health and consumer data, biometrics, and data used to train AI.")]
+LAW_CAT_LABEL = {k: l for k, l, _ in LAW_CATS}
+
+
+def _iso(s):
+    """True for a real YYYY-MM-DD date."""
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", str(s or "")):
+        return False
+    try:
+        datetime.date.fromisoformat(str(s))
+        return True
+    except ValueError:
+        return False
+
+
+def _keep(label, rows, ok, key):
+    """The usable entries of one list from the page: dicts that pass ok(), hidden ones left out, one per key.
+    A malformed entry is left out with a warning; it never stops the publish."""
+    kept, seen, bad = [], set(), 0
+    for r in rows if isinstance(rows, list) else []:
+        if isinstance(r, dict) and r.get("hidden"):
+            continue
+        try:
+            good = isinstance(r, dict) and bool(ok(r))
+        except Exception:
+            good = False
+        if not good:
+            bad += 1
+            continue
+        k = key(r)
+        if k in seen:
+            continue
+        seen.add(k)
+        kept.append(r)
+    if bad:
+        print("warning: left out %d %s with missing or malformed fields" % (bad, label), file=sys.stderr)
+    return kept
+
+
+LAWS = _keep("law map entries", data.get("laws"),
+             lambda e: e.get("state") in STATE_NAME and e.get("category") in LAW_CAT_LABEL and (e.get("name") or e.get("id")),
+             lambda e: e.get("id") or e.get("name"))
+RHTP = _keep("program tracker rows", data.get("rhtp"), lambda r: r.get("state") in STATE_NAME, lambda r: r.get("state"))
+EXPLAINERS = _keep("explainers", data.get("explainers"),
+                   lambda x: x.get("title") and re.match(r"^[a-z0-9][a-z0-9-]{0,79}$", x.get("slug") or ""), lambda x: x.get("slug"))
+PATIENTS = sorted(_keep("patient letters", data.get("patients"), lambda x: _iso(x.get("weekOf")) and x.get("headline"), lambda x: x.get("weekOf")),
+                  key=lambda x: x["weekOf"], reverse=True)
 
 def section_html(sec_id):
     """Inner HTML of <section ... id="sec_id"> ... </section> from the artifact page."""
@@ -315,10 +392,16 @@ def post_url(slug): return "/posts/%s/" % slug
 def letter_url(slug): return "/letters/%s/" % slug
 def special_url(slug): return "/specials/%s/" % slug
 def absurl(path): return SITE.rstrip("/") + path
+def law_state_url(code): return "/law-map/%s/" % slugify(STATE_NAME.get(code, code))
+def explainer_url(slug): return "/explainers/%s/" % slug
+def patient_url(week): return "/patients/%s/" % week
 
-NAV = [("/", "Today")] + ([("/podcast/", "Podcast")] if POD else []) + [("/posts/", "Daily posts"), ("/letters/", "Friday letter"), ("/specials/", "Special topics"),
-       ("/watch/", "Watch list"), ("/dates/", "Dates"), ("/where-things-stand/", "Where things stand"), ("/about/", "About")]
+NAV = ([("/", "Today")] + ([("/podcast/", "Podcast")] if POD else []) + [("/posts/", "Daily posts"), ("/letters/", "Friday letter")]
+       + ([("/patients/", "For patients")] if PATIENTS else []) + [("/specials/", "Special topics")]
+       + ([("/law-map/", "Law map")] if LAWS else []) + ([("/rhtp/", "RHTP tracker")] if RHTP else []) + ([("/explainers/", "Explainers")] if EXPLAINERS else [])
+       + [("/watch/", "Watch list"), ("/dates/", "Dates"), ("/where-things-stand/", "Where things stand"), ("/about/", "About")])
 HASH_MAP = {"today": "/", "podcast": "/podcast/", "posts": "/posts/", "letters": "/letters/", "specials": "/specials/", "watch": "/watch/", "dates": "/dates/", "landscape": "/where-things-stand/", "about": "/about/"}
+HASH_MAP.update({k: v for k, v, have in (("patients", "/patients/", PATIENTS), ("lawmap", "/law-map/", LAWS), ("rhtp", "/rhtp/", RHTP), ("explainers", "/explainers/", EXPLAINERS)) if have})
 ICON = ('<svg class="ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">'
         '<path d="M4 15v-3a8 8 0 0 1 16 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
         '<rect x="3" y="13" width="5" height="8" rx="2" fill="currentColor"/><rect x="16" y="13" width="5" height="8" rx="2" fill="currentColor"/></svg>')
@@ -407,6 +490,84 @@ EXTRA_CSS = """
   .letter-list .d { margin: 8px 0 0; font-size: 0.97rem; line-height: 1.5; color: var(--ink-2); }
   @media (max-width: 600px) { .letter-list li { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
   @media (prefers-reduced-motion: reduce) { .letter-list .thumb img { transition: none; } .letter-list .thumb:hover img { transform: none; } }
+  .ref-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { appearance: none; display: inline-block; font-family: var(--body); font-size: 0.85rem; font-weight: 600; color: var(--accent-2); background: var(--surface); border: 1px solid var(--accent-line); border-radius: 999px; padding: 6px 12px; cursor: pointer; line-height: 1.2; text-decoration: none; }
+  .chip:hover { background: var(--accent-soft); color: var(--accent-2); }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .lawmap-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px; }
+  .tilemap { display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 4px; max-width: 640px; margin: 6px 0 12px; }
+  .tile { aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-family: var(--mono); font-size: clamp(0.54rem, 1.9vw, 0.8rem); font-weight: 500; text-decoration: none; border: 1px solid transparent; line-height: 1; min-width: 0; }
+  .tile.nr, .tile-key.nr { background: var(--surface-2); color: var(--muted); border-color: var(--rule); }
+  .tile.nr { opacity: 0.8; }
+  .tile.lv-0, .tile-key.lv-0 { background: var(--surface); color: var(--ink-2); border-color: var(--accent-line); }
+  .tile.lv-1, .tile-key.lv-1 { background: var(--accent-soft); background: color-mix(in srgb, var(--accent) 28%, var(--surface)); color: var(--ink); }
+  .tile.lv-2, .tile-key.lv-2 { background: var(--accent-line); background: color-mix(in srgb, var(--accent) 58%, var(--surface)); color: var(--ink); }
+  .tile.lv-3, .tile-key.lv-3 { background: var(--accent-2); color: var(--accent-ink); }
+  a.tile:hover { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .tile-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.85rem; color: var(--muted); align-items: center; }
+  .tile-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .tile-key { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid transparent; }
+  .tile-cap { font-size: 0.85rem; color: var(--muted); margin: 6px 0 0; }
+  .tile-states { font-size: 0.95rem; margin: 12px 0 0; color: var(--ink-2); }
+  .lm-h { font-size: 1.3rem; margin: 30px 0 8px; }
+  .lm-note { color: var(--ink-2); font-size: 0.97rem; margin: 0 0 10px; }
+  .archive .rt a { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; }
+  .archive li > div { min-width: 0; }
+  .method { margin-top: 30px; padding: 18px 20px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; font-size: 0.95rem; color: var(--ink-2); }
+  .method h2 { font-size: 1.1rem; margin-bottom: 8px; }
+  .method p { margin: 0 0 10px; }
+  .method p:last-child { margin-bottom: 0; }
+  .law { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 18px 20px 16px; box-shadow: var(--shadow); margin: 14px 0; }
+  @media (max-width: 480px) { .law { padding: 16px 16px 14px; } }
+  .law-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .lstat { display: inline-block; font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 9px; border-radius: 999px; font-weight: 500; line-height: 1.3; vertical-align: 1px; }
+  .lstat.st-effective, .lstat.st-open { color: var(--good); background: rgba(44, 122, 85, 0.11); }
+  .lstat.st-enacted, .lstat.st-upcoming { color: var(--warn); background: rgba(166, 102, 15, 0.11); }
+  .lstat.st-passed, .lstat.st-introduced, .lstat.st-awarded { color: var(--accent-2); background: var(--accent-soft); }
+  .lstat.st-failed, .lstat.st-closed { color: var(--muted); background: var(--surface-2); }
+  .lstat.st-blocked { color: var(--bad); background: rgba(178, 59, 59, 0.10); }
+  .law-kind { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .law-name { font-size: 1.15rem; margin-top: 8px; line-height: 1.3; }
+  .law-dates { font-size: 0.92rem; color: var(--accent-2); margin-top: 4px; font-weight: 600; }
+  .law-sum { margin: 10px 0 0; color: var(--ink-2); }
+  .law-read { margin: 12px 0 0; padding: 10px 14px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; color: var(--ink); }
+  .law-meta { margin: 10px 0 0; font-size: 0.93rem; color: var(--ink-2); }
+  .law-src { font-size: 0.86rem; color: var(--muted); margin-top: 8px; }
+  .law-src a { color: var(--muted); }
+  .law-notes { font-size: 0.88rem; color: var(--muted); margin: 8px 0 0; }
+  .law-checked { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); margin-top: 8px; }
+  .law-cat { margin-top: 30px; }
+  .law-cat > h2 { font-size: 1.35rem; }
+  .law-cat-note { color: var(--muted); font-size: 0.93rem; margin: 4px 0 0; }
+  .law-also { font-size: 0.93rem; color: var(--ink-2); margin: 10px 0 0; }
+  .law-toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
+  .law-foot { margin-top: 26px; font-size: 0.9rem; color: var(--muted); }
+  .lawstate .standfirst { margin-bottom: 4px; }
+  .rhtp-state { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 20px 22px; box-shadow: var(--shadow); margin-top: 22px; }
+  @media (max-width: 480px) { .rhtp-state { padding: 18px 16px; } }
+  .rhtp-state h2 { font-size: 1.4rem; }
+  .facts { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 10px 18px; margin: 12px 0 0; }
+  .facts dt { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-2); padding-top: 5px; }
+  .facts dd { margin: 0; color: var(--ink-2); min-width: 0; overflow-wrap: anywhere; }
+  .facts ul { margin: 0; padding-left: 1.1em; }
+  .facts li + li { margin-top: 8px; }
+  @media (max-width: 560px) { .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; } .facts dd { margin-bottom: 12px; } }
+  .short-answer { margin: 18px 0 8px; padding: 16px 20px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; }
+  .short-answer h2, .changes h2, .one-question h2 { font-family: var(--mono); font-weight: 500; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-2); margin: 0 0 8px; }
+  .short-answer p { margin: 0; font-size: 1.06rem; color: var(--ink); }
+  .explainer-body h2, .patient-body h2 { font-family: var(--display); font-size: 1.32rem; font-weight: 600; margin: 30px 0 10px; }
+  .explainer-body ol, .explainer-body ul { padding-left: 1.3em; margin: 0 0 14px; }
+  .explainer-body li { margin: 0 0 8px; font-size: 1.02rem; line-height: 1.6; }
+  .changes { margin-top: 26px; padding: 16px 20px; background: var(--surface-2); border-radius: 12px; }
+  .changes p { margin: 0; color: var(--ink-2); }
+  .explainer-foot { font-size: 0.88rem; color: var(--muted); margin: 18px 0 0; }
+  .patient-note { font-size: 0.88rem; color: var(--muted); margin: 12px 0 0; padding: 10px 14px; border: 1px dashed var(--rule-2); border-radius: 10px; }
+  .patient-intro { font-style: italic; color: var(--ink-2); }
+  .special-body p.ask { background: var(--surface-2); border-radius: 10px; padding: 10px 14px; }
+  .special-body p.ask strong { color: var(--accent-2); }
+  .one-question { margin-top: 26px; padding: 18px 20px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; }
+  .one-question p { margin: 0; font-family: var(--display); font-size: 1.2rem; color: var(--ink); line-height: 1.45; }
+  .patient-closing { margin-top: 18px; color: var(--ink-2); }
 """
 
 def analytics_snippet():
@@ -904,6 +1065,14 @@ if letters:
     if ls in LETTER_IMG:
         body.append('<a class="letter-card" href="%s"><img src="%s" alt="%s" width="1200" height="630" loading="lazy" decoding="async"></a>' % (letter_url(ls), esc(LETTER_IMG[ls][0]), esc(LETTER_IMG[ls][1])))
     body.append('<ul class="recent"><li><span class="when">%s</span><a href="%s">%s</a></li></ul>' % (esc(w0.get("dateRange") or fmt(w0.get("weekOf"))), letter_url(ls), esc(w0.get("headline") or "The Friday letter")))
+if PATIENTS:
+    px = PATIENTS[0]
+    body.append('<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">For patients</h2><a class="sub" href="/patients/">all letters</a></div>')
+    body.append('<ul class="recent"><li><span class="when">%s</span><a href="%s">%s</a></li></ul>' % (esc(fmt(px["weekOf"])), patient_url(px["weekOf"]), esc(px.get("headline") or "")))
+REF_LINKS = [(p_, l_) for p_, l_, have in (("/law-map/", "AI health law map", LAWS), ("/rhtp/", "Rural Health Transformation Program tracker", RHTP), ("/explainers/", "Explainers", EXPLAINERS)) if have]
+if REF_LINKS:
+    body.append('<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">Guides and trackers</h2></div><div class="ref-row">%s</div>'
+                % "".join('<a class="btn ghost small" href="%s">%s</a>' % (p_, esc(l_)) for p_, l_ in REF_LINKS))
 home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": SITE, "description": config["description"], "inLanguage": "en-US", "author": PERSON, "publisher": PUBLISHER},
            {"@context": "https://schema.org", "@type": "Person", "name": AUTHOR, "url": absurl("/about/"), "jobTitle": "Physician", "sameAs": [SUBSTACK], **({"image": absurl(photo_path)} if photo_path else {})}]
 HASH_REDIRECT = ('<script>(function(){var h=location.hash.replace(/^#/,"");if(!h)return;var map=%s;if(map[h]){location.replace(map[h]);return;}'
@@ -914,10 +1083,10 @@ page("/", PAGE_TITLE + ": " + config["tagline"], config["description"], '<sectio
 urls.append(("/", LAST_UPDATED, "daily", "1.0"))
 
 # ------------------------------------------------------------------ daily posts
-def entry_page(kind, path, crumbs, headline, desc, date, article_html, older, newer, extra_ld=None, image=None, image_alt=None, unsigned=False):
+def entry_page(kind, path, crumbs, headline, desc, date, article_html, older, newer, extra_ld=None, image=None, image_alt=None, unsigned=False, tail=None):
     ld, crumb_html = breadcrumbs(crumbs)
     lds = [article_ld(kind, absurl(path), headline, desc, date, image, unsigned=unsigned), ld] + ([extra_ld] if extra_ld else [])
-    body = crumb_html + article_html + pager(older, newer) + subscribe_box()
+    body = crumb_html + article_html + pager(older, newer) + (subscribe_box() if tail is None else tail)
     page(path, headline, desc, '<section class="panel">' + body + "</section>", active="/%s/" % path.split("/")[1], kind="article", jsonld=lds, published=iso_dt(date), modified=iso_dt(date), image=image, image_alt=image_alt, unsigned=unsigned)
 
 for i, (slug, p) in enumerate(post_pages):
@@ -1107,6 +1276,553 @@ page("/specials/", "Special topics", "Long pieces from %s on the questions physi
      jsonld={"@context": "https://schema.org", "@type": "CollectionPage", "name": "Special topics", "url": absurl("/specials/"), "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}})
 urls.append(("/specials/", LAST_UPDATED, "weekly", "0.8"))
 
+# ------------------------------------------------------------------ standing references (2.12): law map, program tracker, explainers, patient letters
+TILE_ROWS = ["AK . . . . . . . . . ME", ". . . . . . . . . VT NH", "WA ID MT ND MN IL WI MI NY RI MA", "OR NV WY SD IA IN OH PA NJ CT .",
+             "CA UT CO NE MO KY WV VA MD DE .", ". AZ NM KS AR TN NC SC . . .", ". . . OK LA MS AL GA . . .", "HI . . TX . . . . FL . ."]
+TILES = {}
+for _r, _row in enumerate(TILE_ROWS):
+    for _c, _code in enumerate(_row.split()):
+        if _code != ".":
+            TILES[_code] = (_c + 1, _r + 1)
+LAW_STATUS = {"introduced": "Introduced", "passed": "Passed", "enacted": "Enacted", "effective": "In force", "failed": "Failed", "blocked": "Blocked"}
+LAW_ORDER = {"effective": 0, "enacted": 1, "passed": 2, "introduced": 3, "blocked": 4, "failed": 5}
+LAW_KIND = {"law": "Law", "rule": "Rule", "policy": "Policy"}
+TODAY_ISO = LAST_UPDATED[:10] if _iso(LAST_UPDATED[:10]) else datetime.date.today().isoformat()
+TODAY_D = datetime.date.fromisoformat(TODAY_ISO)
+LLMS_EXTRA = ""
+EXP_COUNTS = {"laws": 0, "states": 0, "rhtp": 0, "explainers": 0, "patients": 0}
+
+
+def join_and(bits):
+    bits = [b for b in bits if b]
+    if len(bits) < 2:
+        return "".join(bits)
+    return ", ".join(bits[:-1]) + " and " + bits[-1]
+
+
+def cat_lower(label):
+    return label[:1].lower() + label[1:]
+
+
+def law_status_label(e):
+    st = (e.get("status") or "").lower()
+    if st == "introduced" and (e.get("kind") or "").lower() == "rule":
+        return "Proposed"
+    return LAW_STATUS.get(st, st.capitalize() or "Status unknown")
+
+
+def law_anchor(e):
+    return "law-" + slugify(e.get("id") or e.get("name"))
+
+
+def law_cats(e):
+    return [e.get("category")] + [c for c in (e.get("also") or []) if c in LAW_CAT_LABEL and c != e.get("category")]
+
+
+def law_dates(e):
+    st, kind = (e.get("status") or "").lower(), (e.get("kind") or "law").lower()
+    signed = e.get("signed") if _iso(e.get("signed")) else ""
+    eff = e.get("effective") if _iso(e.get("effective")) else ""
+    verb = {"rule": "adopted", "policy": "issued"}.get(kind, "signed")
+    if st == "effective":
+        s = ("In force since %s" % fmt(eff)) if eff else "In force"
+        return s + ((" (%s %s)" % (verb, fmt(signed))) if signed and signed != eff else "")
+    if st == "enacted":
+        s = ("%s %s" % (verb.capitalize(), fmt(signed))) if signed else verb.capitalize()
+        if eff:
+            return s + ("; main duties begin %s" % fmt(eff) if eff > TODAY_ISO else "; main duties began %s" % fmt(eff))
+        return s + "; main duties not yet in force"
+    if st == "passed":
+        return "Passed the legislature; awaiting the governor" + (("; would take effect %s" % fmt(eff)) if eff else "")
+    if st == "introduced":
+        return ("Proposed rule" if kind == "rule" else "Bill in the legislature") + (("; would take effect %s" % fmt(eff)) if eff else "")
+    if st == "blocked":
+        return "Blocked" + (("; had been due to take effect %s" % fmt(eff)) if eff else "")
+    if st == "failed":
+        return "Failed or withdrawn"
+    return ""
+
+
+def law_card(e):
+    st = (e.get("status") or "").lower()
+    kind = (e.get("kind") or "law").lower()
+    out = ['<article class="law" id="%s">' % esc(law_anchor(e)),
+           '<div class="law-top"><span class="lstat st-%s">%s</span><span class="law-kind">%s</span></div>'
+           % (esc(slugify(st)), esc(law_status_label(e)), esc(LAW_KIND.get(kind, kind.capitalize()))),
+           '<h3 class="law-name">%s</h3>' % esc(e.get("name") or e.get("id"))]
+    dl = law_dates(e)
+    if dl:
+        out.append('<div class="law-dates">%s</div>' % esc(dl))
+    if e.get("summary"):
+        out.append('<p class="law-sum">%s</p>' % rich(e["summary"]))
+    if e.get("physician_read"):
+        out.append('<p class="law-read"><strong>Physician read.</strong> %s</p>' % rich(e["physician_read"]))
+    meta = []
+    if e.get("applies_to"):
+        meta.append("<strong>Applies to:</strong> %s" % rich(e["applies_to"]))
+    also = [LAW_CAT_LABEL[c] for c in law_cats(e)[1:]]
+    if also:
+        meta.append("<strong>Also touches:</strong> %s" % esc("; ".join(also)))
+    if meta:
+        out.append('<p class="law-meta">%s</p>' % "<br>".join(meta))
+    out.append(sources_line("law-src", e.get("sources") if isinstance(e.get("sources"), list) else []))
+    if e.get("notes"):
+        out.append('<p class="law-notes"><strong>Notes:</strong> %s</p>' % rich(e["notes"]))
+    if e.get("correction"):
+        out.append('<p class="law-notes"><strong>Correction:</strong> %s</p>' % rich(e["correction"]))
+    if _iso(e.get("checked")):
+        out.append('<div class="law-checked">Checked against its sources <time datetime="%s">%s</time></div>' % (esc(e["checked"]), esc(fmt(e["checked"]))))
+    out.append("</article>")
+    return "".join(out)
+
+
+def state_summary(entries):
+    live = [e for e in entries if (e.get("status") or "") != "failed"]
+    count = {}
+    for e in live:
+        count[e.get("status")] = count.get(e.get("status"), 0) + 1
+    bits = []
+    if count.get("effective"):
+        bits.append("%d in force" % count["effective"])
+    if count.get("enacted"):
+        effs = sorted(set(e["effective"] for e in live if e.get("status") == "enacted" and _iso(e.get("effective")) and e["effective"] > TODAY_ISO))
+        bits.append("%d enacted and not yet in force%s" % (count["enacted"], (" (main duties begin %s)" % join_and([fmt(x) for x in effs])) if effs else ""))
+    if count.get("passed"):
+        bits.append("%d awaiting the governor" % count["passed"])
+    rules = sum(1 for e in live if e.get("status") == "introduced" and (e.get("kind") or "") == "rule")
+    bills = count.get("introduced", 0) - rules
+    if bills:
+        bits.append("%d %s in the legislature" % (bills, "bill" if bills == 1 else "bills"))
+    if rules:
+        bits.append("%d proposed %s" % (rules, "rule" if rules == 1 else "rules"))
+    if count.get("blocked"):
+        bits.append("%d blocked" % count["blocked"])
+    n = len(live)
+    s = "%d %s on the map" % (n, "entry" if n == 1 else "entries")
+    return s + (": " + join_and(bits) + "." if bits else ".")
+
+
+def law_line(e, when):
+    """One entry in a list on the /law-map/ page."""
+    return ('<li><span class="when">%s</span><div><a href="%s#%s">%s</a><div class="d">%s · %s · %s</div></div></li>'
+            % (esc(when), law_state_url(e["state"]), esc(law_anchor(e)), esc(e.get("name") or e.get("id")), esc(STATE_NAME[e["state"]]),
+               esc(LAW_CAT_LABEL[e["category"]]), esc(law_status_label(e))))
+
+
+LAWMAP_SCRIPT = ('<script>(function(){var g=document.querySelector(".lawmap-filter");if(!g)return;g.hidden=false;'
+                 'var bs=g.querySelectorAll("button"),ts=document.querySelectorAll(".tilemap .tile[data-all]"),cap=document.getElementById("lawmap-cap");'
+                 'function lv(n){return n>=4?3:n>=2?2:n>=1?1:0}'
+                 'for(var i=0;i<bs.length;i++){bs[i].addEventListener("click",function(){var c=this.getAttribute("data-cat");'
+                 'for(var j=0;j<bs.length;j++){bs[j].setAttribute("aria-pressed",bs[j]===this?"true":"false")}'
+                 'for(var k=0;k<ts.length;k++){var n=+(ts[k].getAttribute("data-"+c)||0);ts[k].className="tile lv-"+lv(n)}'
+                 'if(cap){cap.textContent=c==="all"?"Shaded by the number of laws and rules enacted or in force.":'
+                 '"Shaded by the number enacted or in force in one category: "+this.textContent+"."}})}})();</script>')
+
+
+def build_law_map():
+    global LLMS_EXTRA
+    by_state = {}
+    for e in LAWS:
+        by_state.setdefault(e["state"], []).append(e)
+    states = sorted(by_state, key=lambda c: STATE_NAME[c])
+    EXP_COUNTS["laws"], EXP_COUNTS["states"] = len(LAWS), len(states)
+
+    def live_count(entries, cat):
+        return sum(1 for e in entries if e.get("status") in ("enacted", "effective") and (cat == "all" or cat in law_cats(e)))
+
+    def lv(n):
+        return 3 if n >= 4 else 2 if n >= 2 else 1 if n >= 1 else 0
+
+    tiles = []
+    for code, (col, row) in sorted(TILES.items(), key=lambda kv: (kv[1][1], kv[1][0])):
+        pos = "grid-column:%d;grid-row:%d" % (col, row)
+        if code in by_state:
+            ents = by_state[code]
+            counts = [("all", live_count(ents, "all"))] + [(k, live_count(ents, k)) for k, _, _ in LAW_CATS]
+            n = counts[0][1]
+            tiles.append('<a class="tile lv-%d" href="%s" style="%s" %s title="%s" aria-label="%s: %d %s enacted or in force"><span>%s</span></a>'
+                         % (lv(n), law_state_url(code), pos, " ".join('data-%s="%d"' % kv for kv in counts), esc(STATE_NAME[code]),
+                            esc(STATE_NAME[code]), n, "law or rule" if n == 1 else "laws and rules", code))
+        else:
+            tiles.append('<span class="tile nr" style="%s" title="%s: not yet reviewed" aria-hidden="true"><span>%s</span></span>' % (pos, esc(STATE_NAME[code]), code))
+    names = [STATE_NAME[c] for c in states]
+    if len(states) == 1:
+        reach = "The map starts with %s; other states are added as they are reviewed." % names[0]
+    else:
+        reach = "It covers %d states so far (%s); others are added as they are reviewed." % (len(states), join_and(names))
+    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">AI health law map</h1><span class="sub">state laws on AI in health care</span></div>',
+            '<p class="lead">State laws, rules and bills on artificial intelligence in health care, each with what it changes in practice for a physician '
+            'and a link to its own text. %s</p>' % esc(reach)]
+    body.append('<div class="lawmap-filter" role="group" aria-label="Shade the map by category" hidden>'
+                '<button type="button" class="chip" data-cat="all" aria-pressed="true">All categories</button>'
+                + "".join('<button type="button" class="chip" data-cat="%s" aria-pressed="false">%s</button>' % (k, esc(l)) for k, l, _ in LAW_CATS) + "</div>")
+    body.append('<div class="tilemap">%s</div>' % "".join(tiles))
+    body.append('<div class="tile-legend"><span><i class="tile-key nr"></i>Not yet reviewed</span><span><i class="tile-key lv-0"></i>None in force</span>'
+                '<span><i class="tile-key lv-1"></i>1</span><span><i class="tile-key lv-2"></i>2 to 3</span><span><i class="tile-key lv-3"></i>4 or more</span></div>'
+                '<p class="tile-cap" id="lawmap-cap">Shaded by the number of laws and rules enacted or in force.</p>')
+    body.append('<p class="tile-states">States on the map: %s.</p>' % ", ".join(
+        '<a href="%s">%s</a> (%d)' % (law_state_url(c), esc(STATE_NAME[c]), len([e for e in by_state[c] if e.get("status") != "failed"])) for c in states))
+    # dates ahead
+    ahead = sorted([e for e in LAWS if e.get("status") in ("enacted", "passed") and _iso(e.get("effective")) and e["effective"] > TODAY_ISO],
+                   key=lambda e: (e["effective"], e["state"], e.get("name") or ""))
+    soon = [e for e in ahead if (datetime.date.fromisoformat(e["effective"]) - TODAY_D).days <= 90]
+    if soon:
+        body.append('<h2 class="lm-h">Taking effect in the next 90 days</h2><ul class="archive">%s</ul>' % "".join(law_line(e, fmt(e["effective"])) for e in soon))
+    elif ahead:
+        body.append('<h2 class="lm-h">Taking effect next</h2><p class="lm-note">Nothing on the map takes effect in the next 90 days. The next dates:</p>'
+                    '<ul class="archive">%s</ul>' % "".join(law_line(e, fmt(e["effective"])) for e in ahead[:8]))
+    # new or changed
+    recent = []
+    for e in LAWS:
+        d = e.get("changed") if _iso(e.get("changed")) else (e.get("added") if _iso(e.get("added")) else "")
+        if d and 0 <= (TODAY_D - datetime.date.fromisoformat(d)).days <= 30:
+            recent.append((d, e))
+    recent.sort(key=lambda x: (x[0], x[1]["state"]), reverse=True)
+    if recent:
+        body.append('<h2 class="lm-h">New or changed in the last 30 days</h2><ul class="archive">%s</ul>' % "".join(
+            law_line(e, ("Updated " if (e.get("changed") and e.get("changed") != e.get("added")) else "Added ") + fmt(d)) for d, e in recent[:12]))
+    body.append('<div class="method"><h2>How the map works</h2>'
+                '<p>The map records state statutes, agency and attorney general rules, and licensing-board policies on AI in health care, in five categories: '
+                + esc(join_and([cat_lower(l) for k, l, _ in LAW_CATS])) + '. '
+                'A bill goes on the map once it has passed at least one committee, and a failed bill keeps its entry, marked failed. Federal rules are covered in the '
+                '<a href="/posts/">daily posts</a> and on the <a href="/watch/">watch list</a>.</p>'
+                '<p>Statuses: <strong>introduced</strong> (a bill filed, or a rule proposed), <strong>passed</strong> (passed the legislature, awaiting the governor), '
+                '<strong>enacted</strong> (signed, or a rule adopted, with its main duties not yet in force), <strong>in force</strong> (its main duties apply now), '
+                '<strong>failed</strong> (died, vetoed or withdrawn) and <strong>blocked</strong> (enjoined, stayed, or delayed with no new date).</p>'
+                '<p>Every entry links to its primary text first: the enacted bill or its page on the legislature\'s site, the rule, or the agency\'s page. A law firm\'s '
+                'summary may follow, labeled secondary, but never stands alone. The physician read says what changes in practice and from when; it states duties '
+                'and dates, not advice. The map is updated from the site\'s daily research, each entry shows the date its sources were last checked, and a mistake is '
+                'corrected in place with a note.</p>'
+                '<p>This is general information, not legal advice. The whole map is available as data at <a href="/law-map/laws.json">/law-map/laws.json</a>.</p></div>')
+    ld = {"@context": "https://schema.org", "@type": "Dataset", "name": "AI health law map", "url": absurl("/law-map/"),
+          "description": "State laws, rules and bills on artificial intelligence in health care, each with what it changes in practice for a physician and a link to its text.",
+          "dateModified": TODAY_ISO, "creator": PUBLISHER, "isAccessibleForFree": True, "inLanguage": "en-US",
+          "spatialCoverage": {"@type": "Place", "name": "United States"},
+          "distribution": {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": absurl("/law-map/laws.json")}}
+    page("/law-map/", "AI health law map", "State laws on AI in health care, with what each changes for physicians and a link to its text: payer AI, patient disclosure, chatbots, mental health and privacy.",
+         '<section class="panel">' + "".join(body) + subscribe_box() + "</section>" + LAWMAP_SCRIPT, active="/law-map/", jsonld=ld)
+    urls.append(("/law-map/", TODAY_ISO, "weekly", "0.8"))
+    write("/law-map/laws.json", json.dumps({"name": "AI health law map", "url": absurl("/law-map/"), "updated": TODAY_ISO,
+                                            "categories": {k: l for k, l, _ in LAW_CATS}, "statuses": LAW_STATUS,
+                                            "laws": sorted(LAWS, key=lambda e: (e["state"], e["category"], e.get("id") or ""))}, ensure_ascii=False, indent=1) + "\n")
+    # one page per state
+    for code in states:
+        ents = sorted(by_state[code], key=lambda e: (LAW_ORDER.get(e.get("status"), 9), e.get("effective") or "", e.get("name") or ""))
+        name = STATE_NAME[code]
+        path = law_state_url(code)
+        live = [e for e in ents if e.get("status") != "failed"]
+        failed = [e for e in ents if e.get("status") == "failed"]
+        summary = state_summary(ents)
+        crumb_ld, crumb_html = breadcrumbs([(NAME, "/"), ("Law map", "/law-map/"), (name, None)])
+        art = [crumb_html, '<article class="post lawstate"><div class="post-date">AI health law map</div>',
+               '<h1 class="headline">%s: AI health laws</h1>' % esc(name), '<p class="standfirst">%s</p>' % esc(summary)]
+        upcoming = [e for e in live if e.get("status") in ("enacted", "passed") and _iso(e.get("effective")) and e["effective"] > TODAY_ISO]
+        if upcoming:
+            art.append('<h2 class="lm-h">Dates ahead</h2><ul class="archive">%s</ul>' % "".join(
+                '<li><span class="when">%s</span><div><a href="#%s">%s</a><div class="d">%s</div></div></li>'
+                % (esc(fmt(e["effective"])), esc(law_anchor(e)), esc(e.get("name") or ""), esc(LAW_CAT_LABEL[e["category"]])) for e in sorted(upcoming, key=lambda e: e["effective"])))
+        art.append('<nav class="law-toc" aria-label="Categories">%s</nav>' % "".join('<a class="chip" href="#%s">%s</a>' % (k, esc(l)) for k, l, _ in LAW_CATS))
+        for key, label, blurb in LAW_CATS:
+            main = [e for e in live if e.get("category") == key]
+            also = [e for e in live if e.get("category") != key and key in law_cats(e)]
+            art.append('<section class="law-cat" id="%s"><h2>%s</h2><p class="law-cat-note">%s</p>' % (key, esc(label), esc(blurb)))
+            for e in main:
+                try:
+                    art.append(law_card(e))
+                except Exception as ex:
+                    print("warning: law map entry %s left out: %s" % (e.get("id"), ex), file=sys.stderr)
+            if also:
+                art.append('<p class="law-also">Also relevant here: %s.</p>' % "; ".join(
+                    '<a href="#%s">%s</a> (under %s)' % (esc(law_anchor(e)), esc(e.get("name") or ""), esc(cat_lower(LAW_CAT_LABEL[e["category"]]))) for e in also))
+            if not main and not also:
+                art.append('<p class="empty">Nothing in this category on the map yet.</p>')
+            art.append("</section>")
+        if failed:
+            art.append('<section class="law-cat" id="failed"><h2>Failed or withdrawn</h2>%s</section>' % "".join(law_card(e) for e in failed))
+        checked = max([e.get("checked") for e in ents if _iso(e.get("checked"))] or [""])
+        art.append('<p class="law-foot">%sGeneral information, not legal advice. <a href="/law-map/">How the map works</a>, and the <a href="/law-map/laws.json">data</a>.</p>'
+                   % (("Most recently checked %s. " % fmt(checked)) if checked else ""))
+        art.append("</article>")
+        desc = describe(["%s's laws and rules on artificial intelligence in health care, with what each changes for physicians and a link to its text. %s" % (name, summary)])
+        ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": "%s: AI health laws" % name, "url": absurl(path), "description": desc,
+              "dateModified": TODAY_ISO, "about": {"@type": "State", "name": name}, "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}}
+        page(path, "%s AI health laws" % name, desc, '<section class="panel">' + "".join(art) + subscribe_box() + "</section>", active="/law-map/", jsonld=[ld, crumb_ld])
+        urls.append((path, TODAY_ISO, "weekly", "0.7"))
+    LLMS_EXTRA += "- [AI health law map](%s): state laws on AI in health care, each with a physician's read; data at %s\n" % (absurl("/law-map/"), absurl("/law-map/laws.json"))
+
+
+def money(v):
+    if isinstance(v, bool):
+        return ""
+    if isinstance(v, (int, float)):
+        return "${:,.0f}".format(v)
+    return str(v or "")
+
+
+def short_url(u):
+    u = re.sub(r"^https?://(www\.)?", "", u or "")
+    return u.rstrip("/")
+
+
+RHTP_AI = {"yes": "Yes", "no": "No", "not found": "Not found in the plan's text"}
+OPP_STATUS = {"upcoming": "Upcoming", "open": "Open", "closed": "Closed", "awarded": "Awarded"}
+
+
+def build_rhtp():
+    global LLMS_EXTRA
+    rows = sorted(RHTP, key=lambda r: STATE_NAME[r["state"]])
+    EXP_COUNTS["rhtp"] = len(rows)
+    names = [STATE_NAME[r["state"]] for r in rows]
+    reach = ("The tracker starts with %s; other states are added as they are reviewed." % names[0]) if len(rows) == 1 else \
+            ("It covers %d states so far; others are added as they are reviewed." % len(rows))
+    special = next((sl for sl, sp in special_pages if sl == "rural-health-transformation-program"), None)
+    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Rural Health Transformation Program tracker</h1><span class="sub">state by state</span></div>',
+            '<p class="lead">The Rural Health Transformation Program sends $10 billion a year to the 50 states for fiscal years 2026 through 2030, under '
+            '<a href="https://www.cms.gov/files/document/chapter-4-protecting-rural-health-hospitals-providers.pdf" target="_blank" rel="noopener">the budget law signed July 4, 2025</a>. '
+            'Hospitals, clinics and other providers get the money through their state\'s funding rounds. This tracker follows each state\'s first-year award, where its plan '
+            'names AI or other technology, its funding rounds and deadlines, and its awards, each linked to its source. %s</p>' % esc(reach)]
+    extra = []
+    if special:
+        extra.append('How a rural hospital gets some of the money: <a href="%s">the special topic</a>.' % special_url(special))
+    extra.append('For states not yet on the tracker, the Rural Health Information Hub <a href="https://www.ruralhealthinfo.org/resources/lists/rhtp" target="_blank" rel="noopener">lists every state\'s program page and lead agency</a>.')
+    body.append('<p class="lm-note">%s</p>' % " ".join(extra))
+    # open and upcoming rounds
+    opps = []
+    for r in rows:
+        for o in r.get("opportunities") or []:
+            if isinstance(o, dict) and (o.get("status") or "").lower() in ("open", "upcoming"):
+                opps.append((o.get("deadline") if _iso(o.get("deadline")) else "9999", r, o))
+    opps.sort(key=lambda x: x[0])
+    body.append('<h2 class="lm-h">Open and upcoming funding rounds</h2>')
+    if opps:
+        body.append('<ul class="archive">')
+        for dl, r, o in opps:
+            title = ext_link(o.get("title") or "Funding round", o["url"]) if o.get("url") else esc(o.get("title") or "Funding round")
+            bits = [STATE_NAME[r["state"]], OPP_STATUS.get((o.get("status") or "").lower(), "")]
+            if o.get("amount"):
+                bits.append(str(o["amount"]))
+            if o.get("eligible"):
+                bits.append("for " + str(o["eligible"]))
+            body.append('<li><span class="when">%s</span><div><span class="rt">%s</span><div class="d">%s</div></div></li>'
+                        % (esc(("Due " + fmt(dl)) if dl != "9999" else "Date not set"), title, esc(" · ".join(b for b in bits if b))))
+        body.append("</ul>")
+    else:
+        body.append('<p class="lm-note">No open or upcoming state funding rounds are on the tracker as of %s.</p>' % esc(fmt(TODAY_ISO)))
+    # the table
+    body.append('<h2 class="lm-h">States on the tracker</h2><div class="tablewrap"><table><thead><tr><th>State</th><th>First-year award</th><th>AI named in the plan</th><th>Latest</th><th>Checked</th></tr></thead><tbody>')
+    for r in rows:
+        aw = [a for a in (r.get("awards") or []) if isinstance(a, dict)]
+        aw.sort(key=lambda a: a.get("date") or "", reverse=True)
+        latest = ""
+        if aw:
+            a = aw[0]
+            latest = "%s: %s%s" % (fmt(a.get("date")), a.get("amount") or "awards", (" to " + str(a["recipients"])) if a.get("recipients") else "")
+        body.append('<tr><td><a href="#%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>'
+                    % (r["state"].lower(), esc(STATE_NAME[r["state"]]), esc(money(r.get("award_fy2026"))), esc(RHTP_AI.get((r.get("ai_named") or "").lower(), r.get("ai_named") or "")),
+                       esc(latest), esc(fmt(r.get("checked")) if _iso(r.get("checked")) else "")))
+    body.append("</tbody></table></div>")
+    # one card per state
+    for r in rows:
+        name = STATE_NAME[r["state"]]
+        f = []
+        if r.get("award_fy2026") not in (None, ""):
+            f.append(("First-year award", esc(money(r["award_fy2026"])) + ((" (%s)" % ext_link("CMS", r["award_url"])) if r.get("award_url") else "")))
+        if r.get("lead_agency"):
+            f.append(("Lead agency", rich(r["lead_agency"])))
+        if r.get("program_url"):
+            f.append(("Program page", ext_link(short_url(r["program_url"]), r["program_url"])))
+        if r.get("contact_url"):
+            f.append(("Contact", ext_link("The program office's contact details", r["contact_url"])))
+        if r.get("technology"):
+            f.append(("Where the plan names technology", rich(r["technology"])))
+        if r.get("ai_named"):
+            f.append(("AI named in the plan", esc(RHTP_AI.get(r["ai_named"].lower(), r["ai_named"]))))
+        ops = [o for o in (r.get("opportunities") or []) if isinstance(o, dict)]
+        if ops:
+            li = []
+            for o in sorted(ops, key=lambda o: o.get("deadline") or "", reverse=True):
+                when = []
+                if _iso(o.get("opens")):
+                    when.append("opened " + fmt(o["opens"]))
+                if _iso(o.get("deadline")):
+                    when.append("deadline " + fmt(o["deadline"]))
+                t_ = ext_link(o.get("title") or "Funding round", o["url"]) if o.get("url") else esc(o.get("title") or "Funding round")
+                parts = [x for x in (esc(o.get("amount") or ""), esc(", ".join(when)), esc(("eligible: " + o["eligible"]) if o.get("eligible") else "")) if x]
+                li.append('<li><span class="lstat st-%s">%s</span> %s%s</li>' % (esc(slugify(o.get("status") or "")), esc(OPP_STATUS.get((o.get("status") or "").lower(), o.get("status") or "")),
+                                                                                 t_, ("; " + "; ".join(parts)) if parts else ""))
+            f.append(("Funding rounds", "<ul>%s</ul>" % "".join(li)))
+        aws = [a for a in (r.get("awards") or []) if isinstance(a, dict)]
+        if aws:
+            li = []
+            for a in sorted(aws, key=lambda a: a.get("date") or "", reverse=True):
+                head = " ".join(x for x in (fmt(a.get("date")) + ":" if a.get("date") else "", a.get("amount") or "", ("to " + a["recipients"]) if a.get("recipients") else "") if x)
+                li.append("<li>%s%s%s</li>" % (esc(head), (". " + rich(a["summary"])) if a.get("summary") else "", (" " + ext_link("Announcement", a["url"])) if a.get("url") else ""))
+            f.append(("Awards", "<ul>%s</ul>" % "".join(li)))
+        if r.get("notes"):
+            f.append(("Next", rich(r["notes"])))
+        card = ['<section class="rhtp-state" id="%s"><h2>%s</h2><dl class="facts">%s</dl>' % (r["state"].lower(), esc(name), "".join("<dt>%s</dt><dd>%s</dd>" % (esc(k), v) for k, v in f))]
+        card.append(sources_line("law-src", r.get("sources") if isinstance(r.get("sources"), list) else []))
+        if _iso(r.get("checked")):
+            card.append('<div class="law-checked">Checked against its sources <time datetime="%s">%s</time></div>' % (esc(r["checked"]), esc(fmt(r["checked"]))))
+        card.append("</section>")
+        body.append("".join(card))
+    body.append('<p class="law-foot">General information, not legal or financial advice. The tracker is updated from the site\'s daily research, and each state shows the date its sources were last checked.</p>')
+    ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": "Rural Health Transformation Program tracker", "url": absurl("/rhtp/"),
+          "description": "The Rural Health Transformation Program state by state: awards, where plans name AI and technology, funding rounds, deadlines and awards.",
+          "dateModified": TODAY_ISO, "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}}
+    page("/rhtp/", "Rural Health Transformation Program tracker", "The Rural Health Transformation Program state by state: first-year awards, where plans name AI and technology, funding rounds, deadlines and awards, each linked to its source.",
+         '<section class="panel">' + "".join(body) + subscribe_box() + "</section>", active="/rhtp/", jsonld=ld)
+    urls.append(("/rhtp/", TODAY_ISO, "weekly", "0.7"))
+    LLMS_EXTRA += "- [Rural Health Transformation Program tracker](%s): the federal program state by state, with awards, funding rounds and deadlines\n" % absurl("/rhtp/")
+
+
+def cap_first(s):
+    s = (s or "").strip()
+    return s[:1].upper() + s[1:]
+
+
+def build_explainers():
+    global LLMS_EXTRA
+    items = EXPLAINERS
+    EXP_COUNTS["explainers"] = len(items)
+    for i, x in enumerate(items):
+        slug = x["slug"]
+        path = explainer_url(slug)
+        title = x["title"]
+        rev = x.get("reviewed") if _iso(x.get("reviewed")) else (x.get("published") if _iso(x.get("published")) else TODAY_ISO)
+        art = ['<article class="post explainer"><div class="post-date">Explainer · Reviewed <time datetime="%s">%s</time></div><h1 class="headline">%s</h1>' % (esc(rev), esc(fmt(rev)), esc(title))]
+        if x.get("short"):
+            art.append('<div class="short-answer"><h2>Short answer</h2><p>%s</p></div>' % rich(x["short"]))
+        art.append('<div class="special-body explainer-body">')
+        for b in x.get("blocks") or []:
+            if not isinstance(b, dict):
+                continue
+            t = b.get("type")
+            if t == "h":
+                art.append("<h2>%s</h2>" % esc(b.get("text", "")))
+            elif t == "list":
+                tag = "ol" if b.get("ordered", True) else "ul"
+                art.append("<%s>%s</%s>" % (tag, "".join("<li>%s</li>" % rich(it) for it in (b.get("items") or []) if it), tag))
+            else:
+                art.append("<p>%s</p>" % rich(b.get("text", "")))
+        art.append("</div>")
+        if x.get("changes"):
+            art.append('<div class="changes"><h2>What would change this answer</h2><p>%s</p></div>' % rich(cap_first(x["changes"])))
+        art.append('<p class="explainer-foot">General information, not legal or medical advice. Every fact links to its source, and the page shows the date it was last reviewed.</p>')
+        art.append("</article>")
+        older = (items[i + 1]["title"], explainer_url(items[i + 1]["slug"])) if i + 1 < len(items) else None
+        newer = (items[i - 1]["title"], explainer_url(items[i - 1]["slug"])) if i > 0 else None
+        desc = describe([x.get("short") or title])
+        entry_page("Article", path, [(NAME, "/"), ("Explainers", "/explainers/"), (title, None)], title, desc, rev, "".join(art), older, newer, unsigned=True)
+        urls.append((path, rev, "monthly", "0.8"))
+    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Explainers</h1><span class="sub">plain answers, with the sources</span></div>',
+            '<p class="lead">Plain answers to questions physicians and practice leaders ask about AI in medicine. Every fact links to its source, each page shows the date it was '
+            'last reviewed, and each ends with what would change the answer.</p><ul class="letter-list">']
+    for x in items:
+        rev = x.get("reviewed") if _iso(x.get("reviewed")) else ""
+        body.append('<li class="no-thumb"><div class="txt"><span class="when">%s</span><a class="t" href="%s">%s</a>%s</div></li>'
+                    % (esc(("Reviewed " + fmt(rev)) if rev else "Explainer"), explainer_url(x["slug"]), esc(x["title"]),
+                       ('<p class="d">%s</p>' % esc(describe([x["short"]], 230))) if x.get("short") else ""))
+    body.append("</ul>")
+    page("/explainers/", "Explainers", "Plain answers to common questions about AI in medicine, from HIPAA and chatbots to AI scribe liability and Medicare payment, each linked to its sources and dated.",
+         '<section class="panel">' + "".join(body) + subscribe_box() + "</section>", active="/explainers/",
+         jsonld={"@context": "https://schema.org", "@type": "CollectionPage", "name": "Explainers", "url": absurl("/explainers/"), "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}})
+    urls.append(("/explainers/", TODAY_ISO, "weekly", "0.8"))
+    LLMS_EXTRA += "- [Explainers](%s): plain answers to common questions about AI in medicine, each dated when reviewed\n" % absurl("/explainers/")
+
+
+CITE_RE = re.compile(r"\s*\((?:\[[^\]]+\]\(https?://[^\s)]+\)(?:;\s*)?)+\)")
+
+
+def spoken(text):
+    """Plain text for reading aloud: the parenthetical source links are dropped, other links keep their words."""
+    return plain(CITE_RE.sub("", "" if text is None else str(text)))
+
+
+def patient_record(x):
+    lines = []
+    for b in x.get("blocks") or []:
+        if not isinstance(b, dict):
+            continue
+        line = spoken(((b.get("lead") or "") + " " + (b.get("text") or "")).strip() if b.get("type") == "ask" else b.get("text"))
+        if line:
+            lines.append(line)
+    return {"weekOf": x["weekOf"], "date": x.get("date") or x["weekOf"], "headline": plain(x.get("headline") or ""), "dek": plain(x.get("dek") or ""),
+            "url": absurl(patient_url(x["weekOf"])), "intro": spoken(x.get("intro")), "body": lines,
+            "question_heading": "One question for your next appointment", "question": spoken(x.get("question")), "closing": spoken(x.get("closing"))}
+
+
+PATIENT_TAIL = ('<div class="subscribe-box"><p>A weekly letter for patients and families on how AI is showing up in health care, in plain language.</p>'
+                '<div class="subscribe-actions"><a class="btn" href="/patients/">All letters for patients</a></div></div>')
+
+
+def build_patients():
+    global LLMS_EXTRA
+    items = PATIENTS
+    EXP_COUNTS["patients"] = len(items)
+    for i, x in enumerate(items):
+        path = patient_url(x["weekOf"])
+        wk = "Week of " + fmt(x["weekOf"])
+        headline = x["headline"]
+        art = ['<article class="post patient"><div class="post-date">For patients · <time datetime="%s">%s</time></div><h1 class="headline">%s</h1>' % (esc(x["weekOf"]), esc(wk), esc(headline))]
+        if x.get("dek"):
+            art.append('<p class="standfirst">%s</p>' % rich(x["dek"]))
+        art.append('<p class="patient-note">General information for patients and families, not medical advice. Each letter is reviewed by a physician before it is published.</p>')
+        art.append('<div class="special-body patient-body">')
+        if x.get("intro"):
+            art.append('<p class="patient-intro">%s</p>' % rich(x["intro"]))
+        for b in x.get("blocks") or []:
+            if not isinstance(b, dict):
+                continue
+            t = b.get("type")
+            if t == "h":
+                art.append("<h2>%s</h2>" % esc(b.get("text", "")))
+            elif t == "ask":
+                art.append('<p class="ask"><strong>%s</strong> %s</p>' % (esc(b.get("lead", "")), rich(b.get("text", ""))))
+            else:
+                art.append("<p>%s</p>" % rich(b.get("text", "")))
+        art.append("</div>")
+        if x.get("question"):
+            art.append('<div class="one-question"><h2>One question for your next appointment</h2><p>%s</p></div>' % rich(x["question"]))
+        if x.get("closing"):
+            art.append('<p class="patient-closing">%s</p>' % rich(x["closing"]))
+        art.append("</article>")
+        older = (items[i + 1]["headline"], patient_url(items[i + 1]["weekOf"])) if i + 1 < len(items) else None
+        newer = (items[i - 1]["headline"], patient_url(items[i - 1]["weekOf"])) if i > 0 else None
+        rec = patient_record(x)
+        write(path + "letter.json", json.dumps(rec, ensure_ascii=False, indent=1) + "\n")
+        if i == 0:
+            write("/patients/latest.json", json.dumps(rec, ensure_ascii=False, indent=1) + "\n")
+        desc = describe([x.get("dek") or x.get("intro") or headline])
+        entry_page("Article", path, [(NAME, "/"), ("For patients", "/patients/"), (wk, None)], headline, desc, x.get("date") or x["weekOf"], "".join(art),
+                   older, newer, unsigned=True, tail=PATIENT_TAIL)
+        urls.append((path, x.get("date") or x["weekOf"], "monthly", "0.7"))
+    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">For patients</h1><span class="sub">a weekly letter for patients and families</span></div>',
+            '<p class="lead">A weekly letter in plain language on how artificial intelligence is showing up in health care: in the exam room, in insurance decisions, '
+            'and in the apps and chatbots people use at home. Each letter is reviewed by a physician before it is published. It is general information, not medical '
+            'advice: talk with your own doctor about your care.</p><ul class="letter-list">']
+    for x in items:
+        body.append('<li class="no-thumb"><div class="txt"><span class="when">%s</span><a class="t" href="%s">%s</a>%s</div></li>'
+                    % (esc("Week of " + fmt(x["weekOf"])), patient_url(x["weekOf"]), esc(x["headline"]), ('<p class="d">%s</p>' % esc(plain(x["dek"]))) if x.get("dek") else ""))
+    body.append("</ul>")
+    page("/patients/", "For patients", "A weekly letter for patients and families on how artificial intelligence is showing up in health care, in plain language, reviewed by a physician.",
+         '<section class="panel">' + "".join(body) + "</section>", active="/patients/",
+         jsonld={"@context": "https://schema.org", "@type": "CollectionPage", "name": "For patients", "url": absurl("/patients/"), "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}})
+    urls.append(("/patients/", TODAY_ISO, "weekly", "0.7"))
+    LLMS_EXTRA += "- [For patients](%s): a weekly letter for patients and families, in plain language\n" % absurl("/patients/")
+
+
+for _label, _fn, _have in (("patient letters", build_patients, PATIENTS), ("law map", build_law_map, LAWS), ("program tracker", build_rhtp, RHTP), ("explainers", build_explainers, EXPLAINERS)):
+    if not _have:
+        continue
+    try:
+        _fn()
+    except Exception as _ex:  # a mistake in one section's data must not stop the morning publish
+        import traceback
+        traceback.print_exc()
+        print("warning: the %s section was not built: %s" % (_label, _ex), file=sys.stderr)
+
+
 # ------------------------------------------------------------------ topics (one hub page per item category)
 CATEGORIES = [("regulation", "Regulation", "Regulators, payers and courts: FDA, CMS and Medicare, HHS, Congress, the states, and who gets sued."),
               ("deployment", "Deployment", "Where AI is actually being switched on: health systems, record vendors, the model companies, and AI-first care."),
@@ -1273,7 +1989,7 @@ write("/sitemap-news.xml", "\n".join(ns) + "\n")
 write("/robots.txt", "User-agent: *\nAllow: /\nSitemap: %s\nSitemap: %s\n" % (absurl("/sitemap.xml"), absurl("/sitemap-news.xml")))
 write("/llms.txt", "# %s\n\n> %s\n\nCreated by %s. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter is an unsigned editorial in the manner of a leader in The Economist, and the special topics are longer pieces on a single question.\n\n## Sections\n\n- [Daily posts](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
       % (NAME, config["description"], AUTHOR, absurl("/posts/"), absurl("/letters/"), absurl("/specials/"), absurl("/watch/"), absurl("/dates/"), absurl("/where-things-stand/"), absurl("/topics/"), absurl("/about/"), absurl("/feed.xml"))
-      + ("- [Podcast](%s): each morning's post as an audio briefing; podcast feed %s\n" % (absurl("/podcast/"), POD["rss"]) if POD else ""))
+      + ("- [Podcast](%s): each morning's post as an audio briefing; podcast feed %s\n" % (absurl("/podcast/"), POD["rss"]) if POD else "") + LLMS_EXTRA)
 
 write("/favicon.svg", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2F63A8"/>'
       '<path d="M20 14v18a12 12 0 0 0 24 0V14" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="50" r="5" fill="#fff"/></svg>')
@@ -1293,4 +2009,6 @@ with open(os.path.join(ROOT, "netlify.toml"), "w") as f:
     f.write('[build]\n  publish = "public"\n  command = ""\n' + ('\n[functions]\n  directory = "netlify/functions"\n' if HAS_FUNCTIONS else ""))
 
 n_files = sum(len(fs) for _, _, fs in os.walk(OUT))
-print("ok: built %d pages (%d posts, %d letters, %d specials), %d files in %s; updated %s; analytics %s" % (len(urls), len(post_pages), len(letter_pages), len(special_pages), n_files, OUT, LAST_UPDATED, (config.get("analytics") or {}).get("provider") or "none"))
+print("ok: built %d pages (%d posts, %d letters, %d specials, %d patient letters, %d explainers, %d laws in %d states, %d program rows), %d files in %s; updated %s; analytics %s"
+      % (len(urls), len(post_pages), len(letter_pages), len(special_pages), EXP_COUNTS["patients"], EXP_COUNTS["explainers"], EXP_COUNTS["laws"], EXP_COUNTS["states"],
+         EXP_COUNTS["rhtp"], n_files, OUT, LAST_UPDATED, (config.get("analytics") or {}).get("provider") or "none"))

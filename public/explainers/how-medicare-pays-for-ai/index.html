@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How does Medicare pay for AI? | Physician in the Loop</title>
+<meta name="description" content="Software without its own billing code is paid within the service it supports, such as the scan or the hospital stay.">
+<meta name="author" content="Physician in the Loop">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="canonical" href="https://physicianintheloop.org/explainers/how-medicare-pays-for-ai/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Physician in the Loop">
+<meta property="og:title" content="How does Medicare pay for AI?">
+<meta property="og:description" content="Software without its own billing code is paid within the service it supports, such as the scan or the hospital stay.">
+<meta property="og:url" content="https://physicianintheloop.org/explainers/how-medicare-pays-for-ai/">
+<meta property="og:image" content="https://physicianintheloop.org/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How does Medicare pay for AI?">
+<meta name="twitter:description" content="Software without its own billing code is paid within the service it supports, such as the scan or the hospital stay.">
+<meta name="twitter:image" content="https://physicianintheloop.org/og-image.png">
+<meta property="article:published_time" content="2026-09-28T07:00:00-06:00">
+<meta property="article:modified_time" content="2026-09-28T07:00:00-06:00">
+<meta name="theme-color" content="#F5F8FC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1522" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="alternate" type="application/rss+xml" title="Physician in the Loop" href="https://physicianintheloop.org/feed.xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #F5F8FC;
+    --bg-2: #EAF0F8;
+    --surface: #FFFFFF;
+    --surface-2: #F0F4FA;
+    --ink: #172033;
+    --ink-2: #33415A;
+    --muted: #61718A;
+    --rule: #DCE4EF;
+    --rule-2: #C9D5E6;
+    --accent: #2F63A8;
+    --accent-2: #1F4B86;
+    --accent-ink: #FFFFFF;
+    --accent-soft: rgba(47, 99, 168, 0.09);
+    --accent-line: rgba(47, 99, 168, 0.28);
+    --link: #2A5C9E;
+    --warn: #A6660F;
+    --bad: #B23B3B;
+    --good: #2C7A55;
+    --shadow: 0 1px 2px rgba(23, 32, 51, 0.04), 0 8px 24px rgba(23, 32, 51, 0.06);
+    --display: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --body: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1522; --bg-2: #141C2D; --surface: #171F31; --surface-2: #1D2739; --ink: #E7ECF4; --ink-2: #C7D1E1; --muted: #98A6BC; --rule: #283449; --rule-2: #34435C;
+      --accent: #7FA9E9; --accent-2: #A9C6F2; --accent-ink: #0F1522; --accent-soft: rgba(127, 169, 233, 0.14); --accent-line: rgba(127, 169, 233, 0.35); --link: #93B8F0;
+      --warn: #E2A94F; --bad: #EA8C8C; --good: #7FCB9F; --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1522; --bg-2: #141C2D; --surface: #171F31; --surface-2: #1D2739; --ink: #E7ECF4; --ink-2: #C7D1E1; --muted: #98A6BC; --rule: #283449; --rule-2: #34435C;
+    --accent: #7FA9E9; --accent-2: #A9C6F2; --accent-ink: #0F1522; --accent-soft: rgba(127, 169, 233, 0.14); --accent-line: rgba(127, 169, 233, 0.35); --link: #93B8F0;
+    --warn: #E2A94F; --bad: #EA8C8C; --good: #7FCB9F; --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 112px; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.65; margin: 0; padding-inline: 16px; padding-block: 0 72px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--accent-line); transition: color .15s ease, text-decoration-color .15s ease; }
+  a:hover { color: var(--accent-2); text-decoration-color: currentColor; }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+  h1, h2, h3, h4 { font-family: var(--display); font-weight: 600; line-height: 1.15; text-wrap: balance; margin: 0; letter-spacing: -0.01em; color: var(--ink); }
+  h1 { font-size: clamp(2.1rem, 6vw, 3.1rem); line-height: 1.05; letter-spacing: -0.02em; }
+  h2 { font-size: 1.8rem; }
+  h3 { font-size: 1.32rem; }
+  h4 { font-size: 1.08rem; }
+  p { margin: 0 0 1.1em; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 600; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  .eyebrow { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); }
+  .mono { font-family: var(--mono); font-size: 0.78rem; }
+  .muted { color: var(--muted); }
+  .btn { display: inline-block; font-family: var(--body); font-weight: 600; font-size: 0.95rem; background: var(--accent); color: var(--accent-ink); padding: 10px 18px; border-radius: 999px; text-decoration: none; line-height: 1.2; white-space: nowrap; border: 0; cursor: pointer; box-shadow: 0 1px 2px rgba(23, 32, 51, 0.12); transition: background .15s ease, transform .15s ease; }
+  .btn:hover { background: var(--accent-2); color: var(--accent-ink); transform: translateY(-1px); }
+  .btn.small { font-size: 0.85rem; padding: 7px 14px; }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent-line); box-shadow: none; }
+  .btn.ghost:hover { background: var(--accent-soft); color: var(--accent-2); }
+
+  /* sticky header: brand row + tab row */
+  .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: saturate(1.2) blur(10px); -webkit-backdrop-filter: saturate(1.2) blur(10px); border-bottom: 1px solid var(--rule); margin-inline: -16px; padding-inline: 16px; }
+  .topbar::before { content: ""; display: block; height: 3px; margin-inline: -16px; background: linear-gradient(90deg, var(--accent-2), var(--accent) 55%, var(--bg-2)); }
+  .topbar-inner { max-width: 740px; margin: 0 auto; }
+  .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 11px 6px; }
+  .brand { font-family: var(--display); font-weight: 600; font-size: 1.22rem; color: var(--ink); text-decoration: none; white-space: nowrap; letter-spacing: -0.01em; }
+  .brand:hover { color: var(--accent-2); }
+  .tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin-inline: -4px; padding: 2px 4px 8px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { appearance: none; background: none; border: 0; font-family: var(--body); font-weight: 600; font-size: 0.9rem; color: var(--muted); padding: 7px 12px; border-radius: 999px; white-space: nowrap; cursor: pointer; line-height: 1.2; transition: background .15s ease, color .15s ease; }
+  .tab:hover { color: var(--accent-2); background: var(--accent-soft); }
+  .tab[aria-selected="true"] { color: var(--accent-ink); background: var(--accent); }
+  .tab .n { display: inline-block; min-width: 1.4em; margin-left: 6px; padding: 1px 6px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-family: var(--mono); font-size: 0.66rem; vertical-align: 1px; }
+  .tab[aria-selected="true"] .n { background: rgba(255,255,255,0.22); color: var(--accent-ink); }
+
+  /* masthead panel (Today tab) */
+  .masthead { margin: 22px 0 28px; padding: 30px 26px 26px; border-radius: 16px; background: linear-gradient(160deg, var(--bg-2) 0%, var(--surface) 70%); border: 1px solid var(--rule); box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .masthead::after { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(closest-side, var(--accent-soft), transparent); pointer-events: none; }
+  .masthead .dek { font-family: var(--display); font-size: 1.22rem; line-height: 1.45; color: var(--ink-2); max-width: 600px; margin-top: 12px; font-weight: 400; }
+  .byline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-top: 16px; font-size: 0.92rem; color: var(--muted); }
+  .byline .who { color: var(--ink); font-weight: 600; }
+  .subscribe { margin-top: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .subscribe .note { font-size: 0.9rem; color: var(--muted); max-width: 420px; }
+  @media (max-width: 480px) { .masthead { padding: 24px 18px 22px; } }
+
+  .panel { padding-block: 8px 24px; }
+  .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin: 20px 0 18px; }
+  .panel-head h2 { font-size: 1.6rem; position: relative; padding-left: 14px; }
+  .panel-head h2::before { content: ""; position: absolute; left: 0; top: 0.18em; width: 4px; height: 0.95em; border-radius: 2px; background: var(--accent); }
+  .panel-head .sub { font-size: 0.92rem; color: var(--muted); }
+  .lead { color: var(--ink-2); max-width: 640px; margin-bottom: 20px; font-size: 1.05rem; }
+
+  /* post card */
+  .post { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 26px 26px 22px; box-shadow: var(--shadow); }
+  @media (max-width: 480px) { .post { padding: 20px 18px 18px; } }
+  .post-date { font-family: var(--mono); font-size: 0.74rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+  .post h2.headline { font-size: clamp(1.55rem, 4.6vw, 2.15rem); margin-top: 8px; line-height: 1.15; }
+  .post .dek { font-family: var(--display); font-size: 1.15rem; color: var(--ink-2); margin-top: 10px; line-height: 1.45; }
+  .section-label { font-family: var(--display); font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-2); margin: 26px 0 0; padding-left: 0; position: relative; line-height: 1.3; }
+  .section-label.details-label { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--rule); }
+  .section-label + .items { margin-top: 14px; }
+  .section-label + .items .item:first-child { border-top: 0; padding-top: 4px; }
+  .post .intro { margin-top: 12px; }
+  .post .intro p:first-child::first-letter { font-family: var(--display); font-size: 3.1em; line-height: 0.82; float: left; padding-right: 9px; padding-top: 5px; color: var(--accent); font-weight: 600; }
+  .items { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 20px; }
+  .item { padding-top: 18px; border-top: 1px solid var(--rule); }
+  .item .cat { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); }
+  .item .cat .when { color: var(--muted); }
+  .item-title { font-family: var(--display); font-weight: 600; font-size: 1.22rem; line-height: 1.28; margin-top: 5px; }
+  .item-title a { color: var(--ink); text-decoration: none; }
+  .item-title a:hover { color: var(--accent-2); text-decoration: underline; text-decoration-color: var(--accent-line); }
+  .item-body { margin-top: 7px; color: var(--ink-2); }
+  .item-src { font-size: 0.86rem; color: var(--muted); margin-top: 7px; }
+  .item-src a { color: var(--muted); }
+  .takeaway { margin-top: 28px; padding: 18px 20px 18px 22px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; }
+  .takeaway h4 { color: var(--accent-2); margin-bottom: 8px; font-family: var(--mono); font-weight: 500; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; }
+  .more-row { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; }
+
+  /* recent list on Today */
+  .recent { list-style: none; margin: 8px 0 0; padding: 0; }
+  .recent li { padding-block: 12px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 96px 1fr; gap: 4px 14px; }
+  .recent li:last-child { border-bottom: 1px solid var(--rule); }
+  .recent .when { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); padding-top: 5px; }
+  .recent a { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; color: var(--ink); text-decoration: none; }
+  .recent a:hover { color: var(--accent-2); }
+  @media (max-width: 480px) { .recent li { grid-template-columns: 1fr; } }
+
+  /* expandable lists (posts, letters) */
+  details { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; margin-bottom: 10px; transition: box-shadow .15s ease; }
+  details:hover { box-shadow: var(--shadow); }
+  details[open] { box-shadow: var(--shadow); border-color: var(--rule-2); }
+  summary { cursor: pointer; list-style: none; padding: 16px 18px; display: grid; grid-template-columns: 96px 1fr; gap: 6px 14px; align-items: baseline; }
+  summary::-webkit-details-marker { display: none; }
+  summary .when { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); letter-spacing: 0.05em; padding-top: 5px; }
+  summary .t { font-family: var(--display); font-weight: 600; font-size: 1.16rem; line-height: 1.28; color: var(--ink); }
+  summary:hover .t { color: var(--accent-2); }
+  summary .d { grid-column: 2; font-size: 0.95rem; color: var(--muted); }
+  details[open] > summary { border-bottom: 1px solid var(--rule); }
+  @media (max-width: 480px) { summary { grid-template-columns: 1fr; padding: 14px 16px; } summary .d { grid-column: 1; } }
+  .details-body { padding: 6px 18px 22px; }
+  @media (max-width: 480px) { .details-body { padding: 6px 16px 18px; } }
+  .empty { color: var(--muted); font-style: italic; padding: 14px 18px; background: var(--surface); border: 1px dashed var(--rule-2); border-radius: 12px; }
+
+  /* letters */
+  .letter .body-copy { margin-top: 14px; }
+  .letter .section-label:first-child { margin-top: 20px; }
+  .letter .section-label + .body-copy { margin-top: 12px; }
+  .letter .outlook .section-label + div { margin-top: 12px; }
+  .letter-art { margin: 18px 0 20px; }
+  .letter-art img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 12px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); }
+  .letter .letter-art + .body-copy { margin-top: 0; }
+  .post-art { margin: 18px 0 0; }
+  .post-art img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 12px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); }
+  .post-art + .section-label { margin-top: 24px; }
+  /* podcast */
+  .btn.listen { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: var(--bg); }
+  .btn.listen:hover { background: var(--accent-2); color: var(--accent-ink); }
+  .btn .ico { width: 18px; height: 18px; flex: 0 0 auto; }
+  .tab .tab-ico { width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; }
+  .pod { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 22px 22px 20px; box-shadow: var(--shadow); display: grid; gap: 14px; justify-items: start; }
+  .pod-apps { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pod-feed { font-size: 0.9rem; color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+  .pod-feed code { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-2); user-select: all; }
+  .copyright { margin-top: 6px; font-size: 0.8rem; }
+  .special-body { max-width: 720px; }
+  .special-body p { margin: 0 0 14px; font-size: 1.04rem; line-height: 1.68; }
+  .special-body h3 { font-family: var(--display); font-size: 1.32rem; font-weight: 600; margin: 30px 0 10px; color: var(--ink); }
+  .special-body .pull { margin: 22px 0; }
+  .special-body p.step strong { color: var(--accent-2); }
+  .letter .outlook { margin-top: 0; }
+
+  /* watch list */
+  .watch { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .watch li { display: grid; grid-template-columns: 110px 1fr; gap: 8px 16px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; align-items: start; }
+  .status { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 5px 9px; border-radius: 999px; text-align: center; line-height: 1.3; font-weight: 500; }
+  .status.rising { color: var(--bad); background: rgba(178, 59, 59, 0.10); }
+  .status.active { color: var(--warn); background: rgba(166, 102, 15, 0.11); }
+  .status.quiet { color: var(--muted); background: var(--surface-2); }
+  .status.favorable { color: var(--good); background: rgba(44, 122, 85, 0.11); }
+  .watch .name { font-family: var(--display); font-weight: 600; font-size: 1.12rem; line-height: 1.28; }
+  .watch .note { font-size: 0.97rem; margin-top: 5px; color: var(--ink-2); }
+  .watch .last { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); margin-top: 7px; }
+  .watch .src { font-size: 0.84rem; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .watch .src a { color: var(--muted); }
+  @media (max-width: 480px) { .watch li { grid-template-columns: 1fr; } .status { justify-self: start; } }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 16px; font-size: 0.88rem; color: var(--muted); align-items: center; }
+
+  /* dates: timeline */
+  .cal-month { font-family: var(--display); font-weight: 600; font-size: 1.15rem; color: var(--accent-2); margin: 24px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--rule-2); }
+  .cal-month:first-child { margin-top: 0; }
+  .cal { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--rule-2); }
+  .cal li { display: grid; grid-template-columns: 92px 1fr; gap: 12px; padding: 10px 0 12px 14px; position: relative; }
+  .cal li::before { content: ""; position: absolute; left: -20px; top: 20px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--accent-line); }
+  .cal li.past::before { background: var(--rule-2); box-shadow: none; }
+  .cal .d { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); font-variant-numeric: tabular-nums; padding-top: 4px; }
+  .cal .t { font-weight: 600; color: var(--ink); }
+  .cal .n { font-size: 0.93rem; color: var(--muted); }
+  .cal li.past { opacity: 0.55; }
+  @media (max-width: 480px) { .cal li { grid-template-columns: 1fr; gap: 2px; } }
+
+  /* long-form */
+  .doc h2 { margin-top: 46px; padding-top: 26px; border-top: 1px solid var(--rule); font-size: 1.65rem; }
+  .doc h2.first { border-top: 0; padding-top: 0; margin-top: 8px; }
+  .doc h3 { margin-top: 28px; margin-bottom: 10px; color: var(--accent-2); }
+  .doc p, .doc li { max-width: 680px; color: var(--ink-2); }
+  .doc p strong { color: var(--ink); }
+  .doc ul, .doc ol { padding-left: 1.2em; margin: 0 0 1.05em; }
+  .doc li + li { margin-top: 8px; }
+  .doc .lede { font-family: var(--display); font-size: 1.18rem; color: var(--ink-2); line-height: 1.5; }
+  .toc { font-size: 0.96rem; list-style: none; padding: 16px 18px; margin: 18px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; box-shadow: var(--shadow); }
+  .toc a { text-decoration: none; font-weight: 600; }
+  .toc a:hover { text-decoration: underline; }
+  @media (max-width: 520px) { .toc { grid-template-columns: 1fr; } }
+  .pull { border-left: 3px solid var(--accent); padding: 12px 20px; margin: 26px 0; font-family: var(--display); font-size: 1.28rem; line-height: 1.4; color: var(--accent-2); max-width: 640px; background: var(--accent-soft); border-radius: 0 12px 12px 0; }
+  .tablewrap { overflow-x: auto; margin: 16px 0 24px; -webkit-overflow-scrolling: touch; border: 1px solid var(--rule); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; min-width: 600px; font-size: 0.93rem; background: var(--surface); }
+  th, td { text-align: left; vertical-align: top; padding: 11px 12px; border-bottom: 1px solid var(--rule); }
+  tr:last-child td { border-bottom: 0; }
+  th { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-2); font-weight: 500; background: var(--surface-2); }
+  .t-high { color: var(--bad); font-weight: 600; }
+  .t-mod { color: var(--warn); font-weight: 600; }
+  .t-low { color: var(--good); font-weight: 600; }
+  .totop { margin-top: 30px; }
+
+  .about { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 24px 24px; box-shadow: var(--shadow); }
+  .about h3 { margin-bottom: 8px; color: var(--accent-2); }
+  .about p { color: var(--ink-2); }
+  .about-head { display: flex; gap: 22px; align-items: flex-start; }
+  .about-photo { width: 176px; height: auto; flex: 0 0 auto; border-radius: 14px; border: 1px solid var(--rule); box-shadow: var(--shadow); }
+  .about-intro { min-width: 0; }
+  @media (max-width: 560px) { .about-head { flex-direction: column; } .about-photo { width: 150px; } }
+  .foot { padding-block: 30px; font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--rule); margin-top: 24px; }
+  .foot a { color: var(--muted); }
+  .foot .tablinks a { margin-right: 12px; font-weight: 600; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  @media (prefers-reduced-motion: reduce) { .btn, .tab, details, a { transition: none; } }
+
+  .tab { text-decoration: none; }
+  .letter-art { margin: 18px 0 20px; }
+  .post-art { margin: 18px 0 0; }
+  .post-art + .section-label { margin-top: 24px; }
+  .letter-art img, .letter-card img, .post-art img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 12px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); }
+  .letter .letter-art + .body-copy { margin-top: 0; }
+  .letter-card { display: block; margin: 8px 0 6px; }
+  .tab[aria-current="page"] { color: var(--accent-ink); background: var(--accent); }
+  .tab[aria-current="page"] .n { background: rgba(255,255,255,0.22); color: var(--accent-ink); }
+  main { display: block; }
+  .post h1.headline { font-size: clamp(1.55rem, 4.6vw, 2.15rem); margin-top: 8px; line-height: 1.15; letter-spacing: -0.01em; }
+  .post .standfirst { font-family: var(--display); font-size: 1.15rem; color: var(--ink-2); margin-top: 10px; line-height: 1.45; }
+  .post .body-copy { margin-top: 14px; }
+  .post .section-label + .body-copy { margin-top: 12px; }
+  .post .outlook .section-label + div { margin-top: 12px; }
+  .post .special-body { margin-top: 6px; }
+  .crumbs { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 18px 0 12px; }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--accent-2); }
+  .archive { list-style: none; margin: 8px 0 0; padding: 0; }
+  .archive li { padding-block: 12px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 96px 1fr; gap: 4px 14px; }
+  .archive li:last-child { border-bottom: 1px solid var(--rule); }
+  .archive .when { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); padding-top: 5px; }
+  .archive a { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; color: var(--ink); text-decoration: none; }
+  .archive a:hover { color: var(--accent-2); }
+  .archive .d { grid-column: 2; font-size: 0.95rem; color: var(--muted); }
+  @media (max-width: 480px) { .archive li { grid-template-columns: 1fr; } .archive .d { grid-column: 1; } }
+  .pager { display: flex; justify-content: space-between; gap: 16px; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 0.95rem; }
+  .pager a { font-weight: 600; text-decoration: none; max-width: 48%; }
+  .pager a:hover { text-decoration: underline; }
+  .pager .lbl { display: block; font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 3px; }
+  .subscribe-box { margin-top: 28px; padding: 20px 22px; background: var(--accent-soft); border-radius: 12px; }
+  .subscribe-box p { margin: 0 0 12px; color: var(--ink-2); }
+  .doc .doc-title { font-size: clamp(1.6rem, 4.6vw, 2rem); margin: 4px 0 14px; line-height: 1.15; }
+  .foot .tablinks { display: flex; flex-wrap: wrap; gap: 4px 0; }
+  .btn.listen { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: var(--bg); }
+  .btn.listen:hover { background: var(--accent-2); color: var(--accent-ink); }
+  .btn .ico { width: 18px; height: 18px; flex: 0 0 auto; }
+  .tab .tab-ico { width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; }
+  .pod-apps { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pod-feed { font-size: 0.9rem; color: var(--muted); margin: 14px 0 0; overflow-wrap: anywhere; }
+  .pod-feed code { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-2); user-select: all; }
+  .pod-player { border-radius: 12px; overflow: hidden; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--surface); }
+  .pod-player iframe { display: block; width: 100%; border: 0; }
+  .pod-player + .pod-apps { margin-top: 12px; }
+  .pod-follow { font-size: 1.3rem; margin: 30px 0 12px; }
+  .subscribe-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .copyright { margin-top: 6px; font-size: 0.8rem; }
+  .letter-audio { margin: 0 0 24px; }
+  .letter-audio-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 10px; }
+  .letter-audio-head h2 { font-size: 1.05rem; margin: 0; }
+  .letter-audio-head .sub { font-size: 0.85rem; color: var(--muted); }
+  .letter-audio + .body-copy { margin-top: 0; }
+  .post-episode { margin: 16px 0 0; }
+  .post-episode-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 10px; }
+  .post-episode-head h2 { font-size: 1.05rem; margin: 0; }
+  .post-episode-head .sub { font-size: 0.85rem; }
+  .post-episode + .section-label { margin-top: 24px; }
+  .letter-list { list-style: none; margin: 8px 0 0; padding: 0; }
+  .letter-list li { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 12px 22px; align-items: start; padding-block: 20px; border-top: 1px solid var(--rule); }
+  .letter-list li:last-child { border-bottom: 1px solid var(--rule); }
+  .letter-list li.no-thumb { grid-template-columns: minmax(0, 1fr); }
+  .letter-list .thumb { display: block; border-radius: 10px; }
+  .letter-list .thumb img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 10px; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--bg-2); transition: transform .15s ease; }
+  .letter-list .thumb:hover img { transform: translateY(-2px); }
+  .letter-list .txt { min-width: 0; }
+  .letter-list .when { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); letter-spacing: 0.04em; }
+  .letter-list .t { display: block; margin-top: 4px; font-family: var(--display); font-weight: 600; font-size: 1.25rem; line-height: 1.25; color: var(--ink); text-decoration: none; }
+  .letter-list .t:hover { color: var(--accent-2); }
+  .letter-list .d { margin: 8px 0 0; font-size: 0.97rem; line-height: 1.5; color: var(--ink-2); }
+  @media (max-width: 600px) { .letter-list li { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+  @media (prefers-reduced-motion: reduce) { .letter-list .thumb img { transition: none; } .letter-list .thumb:hover img { transform: none; } }
+  .ref-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { appearance: none; display: inline-block; font-family: var(--body); font-size: 0.85rem; font-weight: 600; color: var(--accent-2); background: var(--surface); border: 1px solid var(--accent-line); border-radius: 999px; padding: 6px 12px; cursor: pointer; line-height: 1.2; text-decoration: none; }
+  .chip:hover { background: var(--accent-soft); color: var(--accent-2); }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .lawmap-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px; }
+  .tilemap { display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 4px; max-width: 640px; margin: 6px 0 12px; }
+  .tile { aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-family: var(--mono); font-size: clamp(0.54rem, 1.9vw, 0.8rem); font-weight: 500; text-decoration: none; border: 1px solid transparent; line-height: 1; min-width: 0; }
+  .tile.nr, .tile-key.nr { background: var(--surface-2); color: var(--muted); border-color: var(--rule); }
+  .tile.nr { opacity: 0.8; }
+  .tile.lv-0, .tile-key.lv-0 { background: var(--surface); color: var(--ink-2); border-color: var(--accent-line); }
+  .tile.lv-1, .tile-key.lv-1 { background: var(--accent-soft); background: color-mix(in srgb, var(--accent) 28%, var(--surface)); color: var(--ink); }
+  .tile.lv-2, .tile-key.lv-2 { background: var(--accent-line); background: color-mix(in srgb, var(--accent) 58%, var(--surface)); color: var(--ink); }
+  .tile.lv-3, .tile-key.lv-3 { background: var(--accent-2); color: var(--accent-ink); }
+  a.tile:hover { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .tile-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.85rem; color: var(--muted); align-items: center; }
+  .tile-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .tile-key { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid transparent; }
+  .tile-cap { font-size: 0.85rem; color: var(--muted); margin: 6px 0 0; }
+  .tile-states { font-size: 0.95rem; margin: 12px 0 0; color: var(--ink-2); }
+  .lm-h { font-size: 1.3rem; margin: 30px 0 8px; }
+  .lm-note { color: var(--ink-2); font-size: 0.97rem; margin: 0 0 10px; }
+  .archive .rt a { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; }
+  .archive li > div { min-width: 0; }
+  .method { margin-top: 30px; padding: 18px 20px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; font-size: 0.95rem; color: var(--ink-2); }
+  .method h2 { font-size: 1.1rem; margin-bottom: 8px; }
+  .method p { margin: 0 0 10px; }
+  .method p:last-child { margin-bottom: 0; }
+  .law { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 18px 20px 16px; box-shadow: var(--shadow); margin: 14px 0; }
+  @media (max-width: 480px) { .law { padding: 16px 16px 14px; } }
+  .law-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .lstat { display: inline-block; font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 9px; border-radius: 999px; font-weight: 500; line-height: 1.3; vertical-align: 1px; }
+  .lstat.st-effective, .lstat.st-open { color: var(--good); background: rgba(44, 122, 85, 0.11); }
+  .lstat.st-enacted, .lstat.st-upcoming { color: var(--warn); background: rgba(166, 102, 15, 0.11); }
+  .lstat.st-passed, .lstat.st-introduced, .lstat.st-awarded { color: var(--accent-2); background: var(--accent-soft); }
+  .lstat.st-failed, .lstat.st-closed { color: var(--muted); background: var(--surface-2); }
+  .lstat.st-blocked { color: var(--bad); background: rgba(178, 59, 59, 0.10); }
+  .law-kind { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .law-name { font-size: 1.15rem; margin-top: 8px; line-height: 1.3; }
+  .law-dates { font-size: 0.92rem; color: var(--accent-2); margin-top: 4px; font-weight: 600; }
+  .law-sum { margin: 10px 0 0; color: var(--ink-2); }
+  .law-read { margin: 12px 0 0; padding: 10px 14px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; color: var(--ink); }
+  .law-meta { margin: 10px 0 0; font-size: 0.93rem; color: var(--ink-2); }
+  .law-src { font-size: 0.86rem; color: var(--muted); margin-top: 8px; }
+  .law-src a { color: var(--muted); }
+  .law-notes { font-size: 0.88rem; color: var(--muted); margin: 8px 0 0; }
+  .law-checked { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); margin-top: 8px; }
+  .law-cat { margin-top: 30px; }
+  .law-cat > h2 { font-size: 1.35rem; }
+  .law-cat-note { color: var(--muted); font-size: 0.93rem; margin: 4px 0 0; }
+  .law-also { font-size: 0.93rem; color: var(--ink-2); margin: 10px 0 0; }
+  .law-toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
+  .law-foot { margin-top: 26px; font-size: 0.9rem; color: var(--muted); }
+  .lawstate .standfirst { margin-bottom: 4px; }
+  .rhtp-state { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 20px 22px; box-shadow: var(--shadow); margin-top: 22px; }
+  @media (max-width: 480px) { .rhtp-state { padding: 18px 16px; } }
+  .rhtp-state h2 { font-size: 1.4rem; }
+  .facts { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 10px 18px; margin: 12px 0 0; }
+  .facts dt { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-2); padding-top: 5px; }
+  .facts dd { margin: 0; color: var(--ink-2); min-width: 0; overflow-wrap: anywhere; }
+  .facts ul { margin: 0; padding-left: 1.1em; }
+  .facts li + li { margin-top: 8px; }
+  @media (max-width: 560px) { .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; } .facts dd { margin-bottom: 12px; } }
+  .short-answer { margin: 18px 0 8px; padding: 16px 20px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; }
+  .short-answer h2, .changes h2, .one-question h2 { font-family: var(--mono); font-weight: 500; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-2); margin: 0 0 8px; }
+  .short-answer p { margin: 0; font-size: 1.06rem; color: var(--ink); }
+  .explainer-body h2, .patient-body h2 { font-family: var(--display); font-size: 1.32rem; font-weight: 600; margin: 30px 0 10px; }
+  .explainer-body ol, .explainer-body ul { padding-left: 1.3em; margin: 0 0 14px; }
+  .explainer-body li { margin: 0 0 8px; font-size: 1.02rem; line-height: 1.6; }
+  .changes { margin-top: 26px; padding: 16px 20px; background: var(--surface-2); border-radius: 12px; }
+  .changes p { margin: 0; color: var(--ink-2); }
+  .explainer-foot { font-size: 0.88rem; color: var(--muted); margin: 18px 0 0; }
+  .patient-note { font-size: 0.88rem; color: var(--muted); margin: 12px 0 0; padding: 10px 14px; border: 1px dashed var(--rule-2); border-radius: 10px; }
+  .patient-intro { font-style: italic; color: var(--ink-2); }
+  .special-body p.ask { background: var(--surface-2); border-radius: 10px; padding: 10px 14px; }
+  .special-body p.ask strong { color: var(--accent-2); }
+  .one-question { margin-top: 26px; padding: 18px 20px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; }
+  .one-question p { margin: 0; font-family: var(--display); font-size: 1.2rem; color: var(--ink); line-height: 1.45; }
+  .patient-closing { margin-top: 18px; color: var(--ink-2); }
+</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How does Medicare pay for AI?", "description": "Software without its own billing code is paid within the service it supports, such as the scan or the hospital stay.", "datePublished": "2026-09-28T07:00:00-06:00", "dateModified": "2026-09-28T07:00:00-06:00", "author": {"@type": "Organization", "name": "Physician in the Loop", "url": "https://physicianintheloop.org/"}, "publisher": {"@type": "Organization", "name": "Physician in the Loop", "url": "https://physicianintheloop.org/", "logo": {"@type": "ImageObject", "url": "https://physicianintheloop.org/logo.png", "width": 512, "height": 512}}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://physicianintheloop.org/explainers/how-medicare-pays-for-ai/"}, "image": ["https://physicianintheloop.org/og-image.png"], "isAccessibleForFree": true, "inLanguage": "en-US"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Physician in the Loop", "item": "https://physicianintheloop.org/"}, {"@type": "ListItem", "position": 2, "name": "Explainers", "item": "https://physicianintheloop.org/explainers/"}, {"@type": "ListItem", "position": 3, "name": "How does Medicare pay for AI?"}]}</script>
+</head>
+<body>
+<div class="topbar" id="topbar"><div class="topbar-inner"><div class="brand-row"><a class="brand" href="/">Physician in the Loop</a><a class="btn small" href="https://physicianintheloop.substack.com/subscribe" target="_blank" rel="noopener">Subscribe</a></div><nav class="tabs" aria-label="Sections"><a class="tab" href="/">Today</a><a class="tab" href="/podcast/"><svg class="tab-ico" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M4 15v-3a8 8 0 0 1 16 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="13" width="5" height="8" rx="2" fill="currentColor"/><rect x="16" y="13" width="5" height="8" rx="2" fill="currentColor"/></svg>Podcast</a><a class="tab" href="/posts/">Daily posts<span class="n">15</span></a><a class="tab" href="/letters/">Friday letter</a><a class="tab" href="/patients/">For patients</a><a class="tab" href="/specials/">Special topics</a><a class="tab" href="/law-map/">Law map</a><a class="tab" href="/rhtp/">RHTP tracker</a><a class="tab" href="/explainers/" aria-current="page">Explainers</a><a class="tab" href="/watch/">Watch list</a><a class="tab" href="/dates/">Dates</a><a class="tab" href="/where-things-stand/">Where things stand</a><a class="tab" href="/about/">About</a></nav></div></div>
+<div class="wrap">
+<main>
+<section class="panel"><nav class="crumbs" aria-label="Breadcrumb"><a href="/">Physician in the Loop</a> / <a href="/explainers/">Explainers</a> / <span>How does Medicare pay for AI?</span></nav><article class="post explainer"><div class="post-date">Explainer · Reviewed <time datetime="2026-09-28">Sept 28, 2026</time></div><h1 class="headline">How does Medicare pay for AI?</h1><div class="short-answer"><h2>Short answer</h2><p>Software without its own billing code is paid within the service it supports, such as the scan or the hospital stay. A handful of AI services have their own codes and payment rates; in hospital outpatient departments, Medicare has paid separately for such coded software since 2023, according to MedPAC (<a href="https://www.medpac.gov/wp-content/uploads/2024/06/Jun24_Ch4_MedPAC_Report_To_Congress_SEC.pdf" target="_blank" rel="noopener">MedPAC</a>). Hospitals can receive temporary add-on payments for some new inpatient technology, and Medicare has proposed, but not finalized, a new outpatient payment category for &quot;Software as a Medical Service.&quot;</p></div><div class="special-body explainer-body"><h2>Bundled unless it has its own code</h2><p>CMS describes packaging as the historical rule: before 2018, software used in outpatient services &quot;was packaged into the payment for the underlying clinical service,&quot; such as image-enhancing software paid within the MRI (<a href="https://www.federalregister.gov/documents/2025/11/25/2025-20907/medicare-program-hospital-outpatient-prospective-payment-and-ambulatory-surgical-center-payment" target="_blank" rel="noopener">Federal Register</a>). For inpatient care, Medicare &quot;covers and pays for software as part of the broader bundled payment made for each hospital stay,&quot; according to the Medicare Payment Advisory Commission, which also notes that software is not an explicit benefit category in the Medicare statute (<a href="https://www.medpac.gov/wp-content/uploads/2024/06/Jun24_Ch4_MedPAC_Report_To_Congress_SEC.pdf" target="_blank" rel="noopener">MedPAC</a>).</p><h2>The few AI services with their own payment</h2><p>Autonomous diabetic eye screening (CPT 92229) was assigned no physician work value when Medicare set its payment for 2021 (<a href="https://www.federalregister.gov/documents/2020/12/28/2020-26815/medicare-program-cy-2021-payment-policies-under-the-physician-fee-schedule-and-other-changes-to-part" target="_blank" rel="noopener">Federal Register</a>); MedPAC reported 2024 rates of $41 in the physician fee schedule and $58 in hospital outpatient departments. Noninvasive fractional flow reserve from coronary CT (75580) paid $903 and $997 (<a href="https://www.medpac.gov/wp-content/uploads/2024/06/Jun24_Ch4_MedPAC_Report_To_Congress_SEC.pdf" target="_blank" rel="noopener">MedPAC</a>). AI coronary plaque analysis became a Category I code, 75577, on Jan. 1, 2026, and hospital outpatient departments are paid for it in a new-technology payment band of $901 to $1,000 (<a href="https://www.federalregister.gov/documents/2025/11/25/2025-20907/medicare-program-hospital-outpatient-prospective-payment-and-ambulatory-surgical-center-payment" target="_blank" rel="noopener">Federal Register</a>). For most software services in the physician fee schedule, CMS has not set national rates, and the regional Medicare contractors set prices case by case (<a href="https://www.medpac.gov/wp-content/uploads/2024/06/Jun24_Ch4_MedPAC_Report_To_Congress_SEC.pdf" target="_blank" rel="noopener">MedPAC</a>).</p><p>A code is not a payment. The AMA says its CPT panel has accepted 43 codes classified as AI across code years 2021 through 2028 (<a href="https://www.ama-assn.org/practice-management/cpt/cpt-editorial-panel-strengthens-ai-taxonomy-keep-pace-tech" target="_blank" rel="noopener">AMA</a>), but Medicare decides separately whether and how much to pay for each.</p><h2>Hospital stays: new technology add-on payments</h2><p>Medicare can add a temporary payment for a new technology used in an inpatient stay, capped at the lesser of 65% of the technology&#x27;s cost or 65% of the case&#x27;s costs above the DRG payment (<a href="https://www.federalregister.gov/documents/2023/08/28/2023-16252/medicare-program-hospital-inpatient-prospective-payment-systems-for-acute-care-hospitals-and-the" target="_blank" rel="noopener">Federal Register</a>). Examples: up to $1,040 per case for Viz.ai&#x27;s stroke-detection software ContaCT in fiscal 2022 (<a href="https://www.federalregister.gov/documents/2021/08/13/2021-16519/medicare-program-hospital-inpatient-prospective-payment-systems-for-acute-care-hospitals-and-the" target="_blank" rel="noopener">Federal Register</a>), and for fiscal 2027, up to $137.53 for Aidoc&#x27;s BriefCase-Triage CT tool and up to $61.84 for Bayesian Health&#x27;s sepsis software (<a href="https://www.federalregister.gov/documents/2026/08/04/2026-15833/medicare-program-hospital-inpatient-prospective-payment-systems-for-acute-care-hospitals-ipps-and" target="_blank" rel="noopener">Federal Register</a>). Applications for fiscal 2028 are due Oct. 5, 2026 (<a href="https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/new-medical-services-and-new-technologies" target="_blank" rel="noopener">CMS</a>).</p><h2>What CMS has proposed for 2027</h2><p>The proposed 2027 hospital outpatient rule would rename software services &quot;Software as a Medical Service,&quot; designate 36 codes as such, move them into new-technology payment groups and give them a new status indicator, &quot;O1,&quot; for separate payment (<a href="https://www.federalregister.gov/documents/2026/07/07/2026-13656/medicare-program-hospital-outpatient-prospective-payment-and-ambulatory-surgical-center-payment" target="_blank" rel="noopener">Federal Register</a>). The proposed physician fee schedule would have contractors price 10 software analyses of lab tests. It asks how &quot;technology and clinical AI&quot; are affecting primary care and how CMS might change how it pays for technology-enabled care, and what barriers current annual wellness visit rules create for models in which &quot;an AI technology company develops or operates these clinical AI tools and affiliates with a Medicare enrolled provider or supplier&quot; (<a href="https://www.federalregister.gov/documents/2026/07/16/2026-14327/medicare-and-medicaid-programs-cy-2027-payment-policies-under-the-physician-fee-schedule-and-other" target="_blank" rel="noopener">Federal Register</a>). Both are proposals; the final rules usually come out in November.</p><h2>Remote monitoring</h2><p>Remote patient monitoring and remote therapeutic monitoring codes pay for the device supply, by days of data, and for management time; none of the code descriptors includes separate payment for an algorithm&#x27;s analysis. For 2026, Medicare began paying for new CPT codes for two to 15 days of data and for the first 10 minutes of management (<a href="https://www.federalregister.gov/documents/2025/11/05/2025-19787/medicare-and-medicaid-programs-cy-2026-payment-policies-under-the-physician-fee-schedule-and-other" target="_blank" rel="noopener">Federal Register</a>). For 2027 it has proposed requiring an initiating visit and paying only when the practice&#x27;s own employed clinical staff furnish the service (<a href="https://www.cms.gov/newsroom/fact-sheets/calendar-year-cy-2027-medicare-physician-fee-schedule-proposed-rule" target="_blank" rel="noopener">CMS</a>).</p><h2>Coverage comes before payment</h2><p>Medicare pays only for services that fit a benefit category Congress created: &quot;CMS does not have authority to establish new Part B benefit categories&quot; (<a href="https://www.federalregister.gov/documents/2024/08/12/2024-17603/medicare-program-transitional-coverage-for-emerging-technologies" target="_blank" rel="noopener">Federal Register</a>). Regional contractors&#x27; coverage policies can add conditions. Noridian&#x27;s policy on AI plaque analysis, for example, covers it only for certain chest pain presentations, with FDA-cleared or -approved software, interpreted by a physician with advanced training or credentialing in coronary CT and AI plaque analysis (<a href="https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39881" target="_blank" rel="noopener">Noridian LCD L39881</a>).</p><h2>New payment models</h2><p>The ACCESS model, which began July 5, 2026, sets maximum annual allowed amounts of $180 to $420 per patient for technology-supported chronic care in the first year, by condition track ($90 to $210 in follow-on years). The amounts include the patient&#x27;s 20% coinsurance, and Medicare withholds half of its share until reconciliation after the 12-month care period (<a href="https://www.cms.gov/priorities/innovation/files/access-payments-amts-perf-targets.pdf" target="_blank" rel="noopener">CMS</a>). In the WISeR model, Medicare pays companies that use AI and clinicians to review prior authorization requests a share of the spending they avert (<a href="https://www.cms.gov/priorities/innovation/innovation-models/wiser" target="_blank" rel="noopener">CMS</a>). The New York Times reported in September that officials had discussed whether AI physicians run by technology companies should be paid as much as 60% to 80% of what human physicians earn, citing a person involved in the discussions, according to Becker&#x27;s (<a href="https://www.beckershospitalreview.com/healthcare-information-technology/ai/federal-officials-weigh-how-medicare-could-pay-for-ai-doctors/" target="_blank" rel="noopener">Becker&#x27;s</a>). CMS had published no such proposal in the rules and notices checked as of Sept. 28, 2026.</p><h2>What to check before assuming an AI tool pays for itself</h2><ol><li>Is there a code, and is it paid separately in the setting where it will be used, or bundled?</li><li>Who sets the rate: a national fee schedule amount or the regional contractor?</li><li>Does a local coverage policy limit the indications, the software or who interprets?</li><li>For inpatient tools, is there an add-on payment, for how much, and for how long?</li><li>Is the payment final or only proposed?</li><li>For Medicare Advantage patients, what does the plan&#x27;s contract pay?</li></ol></div><div class="changes"><h2>What would change this answer</h2><p>The final 2027 physician fee schedule and outpatient rules; the AMA&#x27;s summary of its September CPT panel actions, due Oct. 2, 2026 (<a href="https://www.ama-assn.org/about/cpt-editorial-panel/cpt-editorial-panel-process-calendar" target="_blank" rel="noopener">AMA</a>); new add-on payment decisions for fiscal 2028; and any CMS proposal to pay for AI acting as the practitioner.</p></div><p class="explainer-foot">General information, not legal or medical advice. Every fact links to its source, and the page shows the date it was last reviewed.</p></article><nav class="pager" aria-label="More"><a href="/explainers/ai-scribe-liability/"><span class="lbl">Newer</span>Who is liable when an AI scribe makes an error?</a><span></span></nav><div class="subscribe-box"><p>The Friday letter: the week that mattered and specific recommendations, free, in your inbox.</p><div class="subscribe-actions"><a class="btn" href="https://physicianintheloop.substack.com/subscribe" target="_blank" rel="noopener">Get the Friday letter</a><a class="btn listen" href="/podcast/"><svg class="ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M4 15v-3a8 8 0 0 1 16 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="13" width="5" height="8" rx="2" fill="currentColor"/><rect x="16" y="13" width="5" height="8" rx="2" fill="currentColor"/></svg>Listen to the podcast</a></div></div></section>
+</main>
+<footer class="foot"><div class="tablinks"><a href="/">Today</a><a href="/podcast/">Podcast</a><a href="/posts/">Daily posts</a><a href="/letters/">Friday letter</a><a href="/patients/">For patients</a><a href="/specials/">Special topics</a><a href="/law-map/">Law map</a><a href="/rhtp/">RHTP tracker</a><a href="/explainers/">Explainers</a><a href="/watch/">Watch list</a><a href="/dates/">Dates</a><a href="/where-things-stand/">Where things stand</a><a href="/about/">About</a></div><p style="margin-top:10px">Not medical, legal, or financial advice. <a href="/topics/">Topics</a>. <a href="/feed.xml">RSS</a>.</p><p class="copyright">&copy; 2026 Nomad Medical Group, LLC. All rights reserved.</p></footer>
+</div>
+</body>
+</html>

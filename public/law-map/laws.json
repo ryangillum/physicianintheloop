@@ -1,0 +1,379 @@
+{
+ "name": "AI health law map",
+ "url": "https://physicianintheloop.org/law-map/",
+ "updated": "2026-09-28",
+ "categories": {
+  "payer": "Payer and utilization review AI",
+  "disclosure": "Patient disclosure of AI use",
+  "clinical": "Clinical decision and chatbot limits",
+  "mental-health": "Mental health AI",
+  "privacy": "Data and privacy"
+ },
+ "statuses": {
+  "introduced": "Introduced",
+  "passed": "Passed",
+  "enacted": "Enacted",
+  "effective": "In force",
+  "failed": "Failed",
+  "blocked": "Blocked"
+ },
+ "laws": [
+  {
+   "id": "co-hb26-1263",
+   "state": "CO",
+   "category": "clinical",
+   "also": [
+    "disclosure",
+    "mental-health"
+   ],
+   "kind": "law",
+   "name": "HB26-1263, Conversational Artificial Intelligence Service Operator Requirements",
+   "status": "enacted",
+   "signed": "2026-05-29",
+   "effective": "2027-01-01",
+   "applies_to": "Operators of chatbots available to the public",
+   "summary": "Requires chatbot operators to disclose that the service is AI, keep a protocol for prompts about suicidal ideation or self-harm, report on it annually to the Attorney General and add protections for users under 18, and bars stating that output is provided by, endorsed by or equivalent to the services of certain licensed or certified professionals.",
+   "physician_read": "From Jan. 1, 2027, an operator of a chatbot available to the public may not state that its output is provided by, endorsed by or equivalent to the services of certain licensed or certified professionals, and must disclose that the service is AI and keep a protocol for prompts about suicidal ideation or self-harm. The act counts anyone who offers such a service to a consumer as an operator, and its official summary lists no exception for health care organizations.",
+   "sources": [
+    {
+     "label": "Bill page",
+     "url": "https://leg.colorado.gov/bills/HB26-1263"
+    },
+    {
+     "label": "Attorney General",
+     "url": "https://coag.gov/ai/"
+    },
+    {
+     "label": "Healthier Colorado (secondary)",
+     "url": "https://healthiercolorado.org/press-release/governor-polis-signs-bill-to-protect-users-from-harms-of-conversational-ai-technology/"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "The act took effect Aug. 12, 2026; operator duties begin Jan. 1, 2027. It was signed May 29, 2026, according to the bill page, the Legislative Digest and Healthier Colorado; the Attorney General's page says July 1. The introduced bill's summary made violations deceptive trade practices under the Colorado Consumer Protection Act, and Healthier Colorado, an advocacy group, says they carry that act's penalty of $20,000 per violation; the enacted summary does not address enforcement.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "co-ag-admt-chatbot-rules",
+   "state": "CO",
+   "category": "disclosure",
+   "also": [
+    "clinical",
+    "mental-health"
+   ],
+   "kind": "rule",
+   "name": "Automated Decision-Making Technology & Conversational Artificial Intelligence Service rules (the ADMT and Chatbot Safety Rules), proposed by the Attorney General",
+   "status": "introduced",
+   "signed": "",
+   "effective": "",
+   "applies_to": "Developers and deployers of automated decision-making technology, and operators of public chatbots",
+   "summary": "Proposed rules on developers' disclosures to deployers, disclosures after an adverse outcome, correction and meaningful human review, age assurance, disclosures to chatbot users, protections for minors and claims that chatbot output comes from licensed professionals; written comments accepted until Oct. 26, 2026.",
+   "physician_read": "Nothing here binds anyone yet; the final rules will set the content of explanations and human review under SB26-189 and how HB26-1263's duties work, and proposed Rule 12 would bar claims that chatbot outputs come from, are endorsed by or equal the services of licensed health care, mental health, legal or dietitian professionals, according to a law firm summary. Written comments are accepted until 11:59 p.m. on Oct. 26, 2026.",
+   "sources": [
+    {
+     "label": "Attorney General",
+     "url": "https://coag.gov/ai/"
+    },
+    {
+     "label": "Wiley (secondary)",
+     "url": "https://www.wiley.law/alert-Colorado-Proposes-Detailed-Rules-Implementing-New-ADMT-and-Chatbot-Laws"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "Filed with the Secretary of State Aug. 11, 2026. On the Attorney General's page the proposed rules are posted only as a Word file, which could not be read here; the topics, the Oct. 26 hearing date and a planned Jan. 1, 2027 effective date come from a law firm alert.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "co-sb26-189",
+   "state": "CO",
+   "category": "disclosure",
+   "also": [
+    "clinical"
+   ],
+   "kind": "law",
+   "name": "SB26-189, Automated Decision-Making Technology",
+   "status": "enacted",
+   "signed": "2026-05-14",
+   "effective": "2027-01-01",
+   "applies_to": "Developers and deployers of automated decision-making technology used in consequential decisions, including health care services",
+   "summary": "Replaces the 2024 Colorado AI Act with notice-based duties: deployers must tell consumers when they interact with automated decision-making technology and, after an adverse outcome, give an explanation, a chance to correct data and a right to request meaningful human review; enforced by the Attorney General.",
+   "physician_read": "From Jan. 1, 2027, HIPAA covered entities doing business in Colorado (providers must operate from a Colorado location) and their business associates are exempt from most duties but must give patients a general notice of how they use advanced technologies and, when such technology determines eligibility for financial assistance, specified disclosures, according to law firm summaries. Employment decisions carry the full duties, and organizations that are neither covered entities nor business associates get no carve-out.",
+   "sources": [
+    {
+     "label": "Bill page",
+     "url": "https://leg.colorado.gov/bills/SB26-189"
+    },
+    {
+     "label": "Governor's signing release",
+     "url": "https://governorsoffice.colorado.gov/governor/news/governor-polis-signs-bills-law-making-colorado-even-better-place-do-business-breaking-down"
+    },
+    {
+     "label": "Attorney General",
+     "url": "https://coag.gov/ai/"
+    },
+    {
+     "label": "Ropes & Gray (secondary)",
+     "url": "https://www.ropesgray.com/en/insights/alerts/2026/05/colorado-scales-back-ai-law-with-targeted-implications-for-health-care"
+    },
+    {
+     "label": "McDermott (secondary)",
+     "url": "https://www.mcdermottlaw.com/insights/colorado-ai-law-in-flux-comprehensive-replacement-bill-signed-after-federal-court-blocks-predecessors-enforcement/"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "The act took effect May 14, 2026, repealing and reenacting SB24-205 (the 2024 Colorado AI Act), which never became operative: SB25B-004 delayed it, and its enforcement was paused under a stipulated federal court order in xAI v. Weiser on April 27, 2026, according to a law firm summary. Its duties begin Jan. 1, 2027. The health care carve-out comes from law firm summaries, not the act's text. The Legislative Digest lists a portion effective July 1, 2027 that could not be identified.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "co-hb26-1195",
+   "state": "CO",
+   "category": "mental-health",
+   "also": [
+    "disclosure",
+    "clinical"
+   ],
+   "kind": "law",
+   "name": "HB26-1195, Psychotherapy Artificial Intelligence Restrictions",
+   "status": "effective",
+   "signed": "2026-06-03",
+   "effective": "2026-08-12",
+   "applies_to": "Mental health licensees and others lawfully providing psychotherapy",
+   "summary": "Allows AI for administrative or supplementary tasks, with the professional keeping full responsibility for reviewing its output; requires written notice and written consent before AI records or transcribes a session; and bars AI from therapeutic communication except in real time with the therapist and client, and from generating treatment plans or therapeutic recommendations without the therapist's review and approval.",
+   "physician_read": "Since Aug. 12, 2026, Colorado mental health licensees may have AI record or transcribe a session only after telling the client in writing of its use and purpose and getting written consent, and may not deny services to a client who refuses or revokes consent. AI may take part in therapeutic communication only in real time with the therapist and client, and may not generate treatment plans or therapeutic recommendations without the therapist's review and approval.",
+   "sources": [
+    {
+     "label": "Bill page",
+     "url": "https://leg.colorado.gov/bills/HB26-1195"
+    },
+    {
+     "label": "Division of Professions and Occupations",
+     "url": "https://dpo.colorado.gov/LegUpdates"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "The Division of Professions and Occupations applies the duties to mental health licensees; whether psychiatrists and other physicians fall within the act's list of professionals could not be confirmed. A ban on offering or advertising psychotherapy through AI, enforced under the Colorado Consumer Protection Act, appears in the introduced bill's summary and a law firm summary but not in the official summaries written after signing.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "co-3ccr702-10",
+   "state": "CO",
+   "category": "payer",
+   "also": [],
+   "kind": "rule",
+   "name": "Regulation 10-1-1 (3 CCR 702-10), Governance and Risk Management Framework Requirements for Life Insurers', Private Passenger Automobile Insurers', and Health Benefit Plan Insurers' Use of External Consumer Data and Information Sources, Algorithms, and Predictive Models",
+   "status": "effective",
+   "signed": "2025-08-19",
+   "effective": "2025-10-15",
+   "applies_to": "Life, private passenger auto and health benefit plan insurers that use external consumer data, or models built on it; those that do not use it file an annual attestation",
+   "summary": "Requires insurers that use external consumer data, or algorithms and predictive models that use it, to test them for unfair discrimination under a risk-based governance framework, and requires health plans to make a provider acting for the plan ultimately responsible for decisions to modify or deny prior authorization or concurrent review requests that such data or models inform.",
+   "physician_read": "Since Oct. 15, 2025, when external consumer data (such as credit scores, location, purchasing or social media data, but not a patient's medical records), or an algorithm or model that uses such data, informs a health plan's decision to modify or deny a prior authorization or concurrent review request, a provider acting for the plan must be ultimately responsible for the decision. Plans that use such data file a compliance report with the Division of Insurance each July 1 from 2026; plans that do not file an officer's attestation each Dec. 1.",
+   "sources": [
+    {
+     "label": "Rule text",
+     "url": "https://www.sos.state.co.us/CCR/GenerateRulePdf.do?ruleVersionId=12182"
+    },
+    {
+     "label": "Rule history",
+     "url": "https://www.sos.state.co.us/CCR/DisplayRule.do?action=ruleinfo&ruleId=3421&deptID=18&agencyID=57&deptName=Department%20of%20Regulatory%20Agencies&agencyName=Division%20of%20Insurance&seriesNum=3%20CCR%20702-10"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "The current version was adopted Aug. 19, 2025, according to the Secretary of State; the original rule took effect Nov. 14, 2023.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "co-hb26-1139",
+   "state": "CO",
+   "category": "payer",
+   "also": [
+    "mental-health"
+   ],
+   "kind": "law",
+   "name": "HB26-1139, Use of Artificial Intelligence in Health Care",
+   "status": "enacted",
+   "signed": "2026-06-02",
+   "effective": "2027-01-01",
+   "applies_to": "Carriers, pharmacy benefit managers, private utilization review organizations, behavioral health administrative services organizations and managed care entities that use AI in utilization review; the payment ban binds carriers and payers under Medicaid and the Children's Basic Health Plan",
+   "summary": "Requires AI used in utilization review to base decisions on the individual patient's clinical circumstances, bars a denial based in whole or in part on medical necessity issued solely on an AI system's output without review by a licensed clinician or other competent regulated professional, requires disclosure to state regulators of where AI is used in utilization review, and bars payment for psychotherapy conducted by an AI system.",
+   "physician_read": "From Jan. 1, 2027, a carrier or other entity using AI in utilization review cannot issue a denial based in whole or in part on medical necessity solely on an AI system's output; a licensed clinician or other competent regulated professional must review it, while AI-assisted approvals remain allowed. Psychotherapy conducted directly by an AI system is not payable by carriers, Medicaid or the Children's Basic Health Plan; the Legislative Council summary also says the review rule covers delays and that a mental health provider may not bill for services an AI system provides, points the bill page's summary does not mention.",
+   "sources": [
+    {
+     "label": "Bill page",
+     "url": "https://leg.colorado.gov/bills/HB26-1139"
+    },
+    {
+     "label": "Legislative Council summary",
+     "url": "https://content.leg.colorado.gov/sites/default/files/r26-581-health-care-and-insurance-summaries-of-major-legislation-2026-accessible.pdf"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "The signed act could not be opened by automated reading; the entry rests on the official bill summary and the Legislative Council summary, which differ on delays and billing.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "co-sb21-169",
+   "state": "CO",
+   "category": "payer",
+   "also": [],
+   "kind": "law",
+   "name": "SB21-169, Restrict Insurers' Use of External Consumer Data",
+   "status": "effective",
+   "signed": "2021-07-06",
+   "effective": "2021-09-07",
+   "applies_to": "Insurers, including health insurers",
+   "summary": "Bars insurers from unfairly discriminating by race, disability and other protected traits in any insurance practice, including utilization management and claims, and, under rules set by the Commissioner of Insurance, from using external consumer data, or algorithms and predictive models that use such data, in ways that unfairly discriminate.",
+   "physician_read": "The law's definition of insurance practice includes utilization management and claims management, and Regulation 10-1-1, adopted under it, applies to health plans' prior authorization decisions informed by external consumer data. It places no duty on physicians.",
+   "sources": [
+    {
+     "label": "Signed act",
+     "url": "https://content.leg.colorado.gov/sites/default/files/2021a_169_signed.pdf"
+    },
+    {
+     "label": "Bill page",
+     "url": "https://leg.colorado.gov/bills/SB21-169"
+    },
+    {
+     "label": "Division of Insurance",
+     "url": "https://doi.colorado.gov/for-consumers/sb21-169-protecting-consumers-from-unfair-discrimination-in-insurance-practices"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "Long title: Concerning protecting consumers from unfair discrimination in insurance practices. Carried out through Regulation 10-1-1, the next entry.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "co-4ccr904-3",
+   "state": "CO",
+   "category": "privacy",
+   "also": [],
+   "kind": "rule",
+   "name": "Colorado Privacy Act Rules (4 CCR 904-3)",
+   "status": "effective",
+   "signed": "2025-10-08",
+   "effective": "2025-12-01",
+   "applies_to": "Businesses covered by the Colorado Privacy Act",
+   "summary": "Treats inferences about health drawn from ordinary personal data as sensitive data needing consent, defines levels of human involvement in automated processing, and requires a clear opt-out for profiling used in decisions that provide or deny health care services.",
+   "physician_read": "A health inference that software draws from ordinary personal data, such as an app concluding a user is likely depressed, needs consent unless the user is over 13, the purpose is obvious from context, and the inference is deleted within 24 hours, not shared with any processor, affiliate or third party, and used only for the disclosed purpose. Businesses covered by the act that use profiling in decisions that provide or deny health care services must offer a clear and conspicuous opt-out at or before the profiling.",
+   "sources": [
+    {
+     "label": "Rule text",
+     "url": "https://www.sos.state.co.us/CCR/GenerateRulePdf.do?ruleVersionId=11819&fileName=4+CCR+904-3"
+    },
+    {
+     "label": "Rule history",
+     "url": "https://www.sos.state.co.us/CCR/DisplayRule.do?action=ruleinfo&ruleId=3396&deptID=11&agencyID=11&deptName=Department+of+Law&agencyName=Attorney+General-Consumer+Protection+Section&seriesNum=4+CCR+904-3"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "First version effective July 1, 2023. Part 9, on profiling disclosures, could not be read in full.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "co-hb24-1058",
+   "state": "CO",
+   "category": "privacy",
+   "also": [],
+   "kind": "law",
+   "name": "HB24-1058, Protect Privacy of Biological Data",
+   "status": "effective",
+   "signed": "2024-04-17",
+   "effective": "2024-08-07",
+   "applies_to": "Businesses covered by the Colorado Privacy Act",
+   "summary": "Adds biological data, including neural data measured by devices, to the Colorado Privacy Act's sensitive data when it is used or intended for identification.",
+   "physician_read": "Neural and other biological data from consumer devices count as sensitive data when used or intended for identification, so covered businesses need opt-in consent to process them. Data held as protected health information by a covered entity stays under HIPAA.",
+   "sources": [
+    {
+     "label": "Bill page",
+     "url": "https://leg.colorado.gov/bills/HB24-1058"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "co-hb24-1130",
+   "state": "CO",
+   "category": "privacy",
+   "also": [],
+   "kind": "law",
+   "name": "HB24-1130, Privacy of Biometric Identifiers & Data",
+   "status": "effective",
+   "signed": "2024-05-31",
+   "effective": "2025-07-01",
+   "applies_to": "Anyone who controls or processes any amount of biometric identifiers",
+   "summary": "Requires a written retention and deletion policy and an incident-response protocol for biometric identifiers and disclosure and consent before collecting them, and limits the purposes for which an employer may require employees' consent as a condition of employment.",
+   "physician_read": "Since July 1, 2025, any organization that controls or processes biometric identifiers, including fingerprints or face scans used for staff time clocks or building access outside HIPAA-protected records, needs a written retention and deletion policy with an incident-response protocol and must meet disclosure and consent requirements before collecting them. An employer may make consent a condition of employment only for listed purposes, such as secure access, recording the work day and workplace safety, and needs the employee's consent for any other use.",
+   "sources": [
+    {
+     "label": "Signed act",
+     "url": "https://content.leg.colorado.gov/sites/default/files/2024a_1130_signed.pdf"
+    },
+    {
+     "label": "Bill page",
+     "url": "https://leg.colorado.gov/bills/HB24-1130"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "co-sb21-190",
+   "state": "CO",
+   "category": "privacy",
+   "also": [],
+   "kind": "law",
+   "name": "SB21-190, Protect Personal Data Privacy (the Colorado Privacy Act)",
+   "status": "effective",
+   "signed": "2021-07-07",
+   "effective": "2023-07-01",
+   "applies_to": "Businesses that handle the personal data of 100,000 or more Colorado consumers a year, or sell data and handle that of 25,000 or more",
+   "summary": "Requires consent before processing sensitive data, including data revealing a health condition or diagnosis, and lets consumers opt out of profiling used in decisions with legal or similarly significant effects, including decisions about health care services; enforced by the Attorney General and district attorneys.",
+   "physician_read": "Protected health information collected, stored and processed by HIPAA covered entities and their business associates is outside the act, so it reaches health data held by others, such as consumer apps and wearables, when the business meets the act's thresholds. Where it applies, a business needs consent before processing health-condition data, which the act defines to include its collection, use and analysis.",
+   "sources": [
+    {
+     "label": "Signed act",
+     "url": "https://content.leg.colorado.gov/sites/default/files/2021a_190_signed.pdf"
+    },
+    {
+     "label": "Bill page",
+     "url": "https://leg.colorado.gov/bills/SB21-190"
+    },
+    {
+     "label": "Attorney General",
+     "url": "https://coag.gov/resources/colorado-privacy-act/"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "No private right of action; the 60-day cure period ended Jan. 1, 2025.",
+   "added": "2026-09-29"
+  },
+  {
+   "id": "co-sb25-276",
+   "state": "CO",
+   "category": "privacy",
+   "also": [],
+   "kind": "law",
+   "name": "SB25-276, Protect Civil Rights Immigration Status",
+   "status": "effective",
+   "signed": "2025-05-23",
+   "effective": "2025-05-23",
+   "applies_to": "Businesses covered by the Colorado Privacy Act",
+   "summary": "Among other changes, amends the Colorado Privacy Act to make precise geolocation data sensitive data and to bar selling any consumer's sensitive data without consent.",
+   "physician_read": "Since May 23, 2025, precise geolocation data is sensitive data under the Colorado Privacy Act, so businesses that meet the act's thresholds need consent to process it, and consent before selling any sensitive data, including health-condition data. Location-targeted advertising near a clinic, for example, would fall under the consent rule for a business that meets the thresholds.",
+   "sources": [
+    {
+     "label": "Bill page",
+     "url": "https://leg.colorado.gov/bills/SB25-276"
+    },
+    {
+     "label": "Attorney General rulemaking",
+     "url": "https://coag.gov/colorado-privacy-act-rulemaking/"
+    }
+   ],
+   "checked": "2026-09-28",
+   "notes": "Its privacy amendments are what place it on this map.",
+   "added": "2026-09-29"
+  }
+ ]
+}

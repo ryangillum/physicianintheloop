@@ -16,3 +16,7 @@ Created by Ryan Gillum, MD. Daily posts are third-person news wire copy about ar
 - [About](https://physicianintheloop.org/about/)
 - [RSS feed](https://physicianintheloop.org/feed.xml)
 - [Podcast](https://physicianintheloop.org/podcast/): each morning's post as an audio briefing; podcast feed https://feeds.transistor.fm/physician-in-the-loop
+- [For patients](https://physicianintheloop.org/patients/): a weekly letter for patients and families, in plain language
+- [AI health law map](https://physicianintheloop.org/law-map/): state laws on AI in health care, each with a physician's read; data at https://physicianintheloop.org/law-map/laws.json
+- [Rural Health Transformation Program tracker](https://physicianintheloop.org/rhtp/): the federal program state by state, with awards, funding rounds and deadlines
+- [Explainers](https://physicianintheloop.org/explainers/): plain answers to common questions about AI in medicine, each dated when reviewed
