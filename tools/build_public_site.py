@@ -83,6 +83,24 @@ and /patients/latest.json. The home page adds the newest letter for patients and
 marked "hidden": true is left out; a malformed entry is left out with a warning, and a section whose data breaks is skipped
 with a warning, so a bad entry never stops the publish. "deployments" and "explainer_flags" are records for the daily task
 and are not shown. feed.xml is unchanged.
+Version 2.13 (Sept 29, 2026): the federal law page and reviewed states. The law map keeps entries with "state": "US". They use
+the five state categories plus "devices", "payment" and "general" (FED_CATS, in the federal page's order: devices, clinical,
+payer, payment, privacy, mental-health, disclosure, general) and the kinds "law", "rule", "guidance", "order" and "policy", with
+their own status labels (Proposed, Draft, Final, Issued, In effect, In force, Revoked, Withdrawn) and date lines; state entries
+render exactly as before. Federal entries get /law-map/federal/ (a count by status, the dates ahead, one section per federal
+category with its cards and cross-references, and a last section for items withdrawn, revoked or failed), built when there is
+at least one. The page's JSON may also carry "law_reviews", one record per reviewed jurisdiction (the 50 states and "US"):
+{state, reviewed, note?, empty?: {category: text}}. A reviewed state with no entries gets its own page, saying nothing in the
+map's scope was found in that review, and a linked, unshaded tile. On a state page (and the federal page) a category with no
+entries of its own shows the review's "empty" text for it; with no such text, a state's empty category names the review's date.
+A review's "note" follows the page's standfirst, and every state page ends with a line pointing to the federal page. /law-map/
+now says it covers state and federal law and, once all 50 states are reviewed or on the map, that every state has been reviewed;
+a state not yet reviewed keeps its gray tile, and the legend's "Not yet reviewed" key shows only while one remains. The page adds
+a callout to the federal page and a line naming the states reviewed with none found, lists federal entries among the dates ahead
+and the recent changes (when more than 8 entries were added on one day, they show as one line), and its "How the map works" box
+describes the federal section. laws.json adds the federal entries, "federal_categories" and "reviews" (state and date), and
+llms.txt lists the federal page. A malformed review is left out with a warning like a malformed entry, and the federal page, like
+each section, is skipped with a warning if it breaks; nothing then links to it.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -188,6 +206,14 @@ LAW_CATS = [("payer", "Payer and utilization review AI", "Insurers', benefit man
             ("mental-health", "Mental health AI", "AI in therapy and mental health care."),
             ("privacy", "Data and privacy", "Health and consumer data, biometrics, and data used to train AI.")]
 LAW_CAT_LABEL = {k: l for k, l, _ in LAW_CATS}
+# 2.13: federal entries ("state": "US") use the five state categories and three of their own, in this order on /law-map/federal/
+_STATE_CAT = {c[0]: c for c in LAW_CATS}
+FED_CATS = [("devices", "Devices and FDA oversight", "FDA's oversight of AI-enabled medical devices and software, including clinical decision support and change control plans."),
+            _STATE_CAT["clinical"], _STATE_CAT["payer"],
+            ("payment", "Payment for AI", "How Medicare pays for AI-enabled services, software and devices."),
+            _STATE_CAT["privacy"], _STATE_CAT["mental-health"], _STATE_CAT["disclosure"],
+            ("general", "Government-wide AI policy", "Executive orders, OMB memoranda and federal strategies that reach AI in health care, including preemption of state AI laws.")]
+FED_CAT_LABEL = {k: l for k, l, _ in FED_CATS}
 
 
 def _iso(s):
@@ -225,9 +251,30 @@ def _keep(label, rows, ok, key):
     return kept
 
 
-LAWS = _keep("law map entries", data.get("laws"),
-             lambda e: e.get("state") in STATE_NAME and e.get("category") in LAW_CAT_LABEL and (e.get("name") or e.get("id")),
-             lambda e: e.get("id") or e.get("name"))
+def _law_ok(e):
+    """A usable law map entry: a state entry in one of the five categories, or a federal one ("US") in one of the eight, with a
+    name or id. The fields the pages sort on or read as text must be text (or missing)."""
+    if not all(e.get(f) is None or isinstance(e.get(f), str) for f in ("id", "name", "status", "kind", "effective")):
+        return False
+    if e.get("state") in STATE_NAME:
+        in_scope = e.get("category") in LAW_CAT_LABEL
+    else:
+        in_scope = e.get("state") == "US" and e.get("category") in FED_CAT_LABEL
+    return in_scope and (e.get("name") or e.get("id"))
+
+
+def _review_ok(r):
+    """A usable law_reviews record: {state (one of the 50, or "US"), reviewed (YYYY-MM-DD), note?, empty?: {category: text}}."""
+    em = r.get("empty")
+    return ((r.get("state") in STATE_NAME or r.get("state") == "US") and _iso(r.get("reviewed"))
+            and (r.get("note") is None or isinstance(r.get("note"), str))
+            and (em is None or (isinstance(em, dict) and all(v is None or isinstance(v, str) for v in em.values()))))
+
+
+LAWS = _keep("law map entries", data.get("laws"), _law_ok, lambda e: e.get("id") or e.get("name"))   # state and federal entries
+STATE_LAWS = [e for e in LAWS if e["state"] != "US"]
+FED_LAWS = [e for e in LAWS if e["state"] == "US"]
+LAW_REVIEWS = {r["state"]: r for r in _keep("law map reviews", data.get("law_reviews"), _review_ok, lambda r: r.get("state"))}
 RHTP = _keep("program tracker rows", data.get("rhtp"), lambda r: r.get("state") in STATE_NAME, lambda r: r.get("state"))
 EXPLAINERS = _keep("explainers", data.get("explainers"),
                    lambda x: x.get("title") and re.match(r"^[a-z0-9][a-z0-9-]{0,79}$", x.get("slug") or ""), lambda x: x.get("slug"))
@@ -392,7 +439,8 @@ def post_url(slug): return "/posts/%s/" % slug
 def letter_url(slug): return "/letters/%s/" % slug
 def special_url(slug): return "/specials/%s/" % slug
 def absurl(path): return SITE.rstrip("/") + path
-def law_state_url(code): return "/law-map/%s/" % slugify(STATE_NAME.get(code, code))
+FED_URL = "/law-map/federal/"
+def law_state_url(code): return FED_URL if code == "US" else "/law-map/%s/" % slugify(STATE_NAME.get(code, code))
 def explainer_url(slug): return "/explainers/%s/" % slug
 def patient_url(week): return "/patients/%s/" % week
 
@@ -1286,11 +1334,17 @@ for _r, _row in enumerate(TILE_ROWS):
             TILES[_code] = (_c + 1, _r + 1)
 LAW_STATUS = {"introduced": "Introduced", "passed": "Passed", "enacted": "Enacted", "effective": "In force", "failed": "Failed", "blocked": "Blocked"}
 LAW_ORDER = {"effective": 0, "enacted": 1, "passed": 2, "introduced": 3, "blocked": 4, "failed": 5}
-LAW_KIND = {"law": "Law", "rule": "Rule", "policy": "Policy"}
+LAW_KIND = {"law": "Law", "rule": "Rule", "policy": "Policy", "guidance": "Guidance", "order": "Executive order"}
+# 2.13: a federal entry's status label depends on its kind ("*": any other kind); a status or kind not listed falls back to LAW_STATUS
+FED_STATUS = {"introduced": {"rule": "Proposed", "guidance": "Draft", "policy": "Proposed", "law": "Introduced"},
+              "enacted": {"rule": "Final", "law": "Enacted", "*": "Issued"},
+              "effective": {"guidance": "Final", "order": "In effect", "policy": "In effect", "law": "In force", "rule": "In force"},
+              "failed": {"order": "Revoked", "guidance": "Withdrawn", "rule": "Withdrawn", "law": "Failed", "policy": "Failed"}}
 TODAY_ISO = LAST_UPDATED[:10] if _iso(LAST_UPDATED[:10]) else datetime.date.today().isoformat()
 TODAY_D = datetime.date.fromisoformat(TODAY_ISO)
 LLMS_EXTRA = ""
-EXP_COUNTS = {"laws": 0, "states": 0, "rhtp": 0, "explainers": 0, "patients": 0}
+EXP_COUNTS = {"laws": 0, "states": 0, "federal": 0, "reviewed_none": 0, "rhtp": 0, "explainers": 0, "patients": 0}
+NUM_WORD = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine"}
 
 
 def join_and(bits):
@@ -1304,8 +1358,22 @@ def cat_lower(label):
     return label[:1].lower() + label[1:]
 
 
+def is_fed(e):
+    return e.get("state") == "US"
+
+
+def cat_labels(e):
+    """The category labels an entry uses: the eight federal ones for "US", the five state ones otherwise."""
+    return FED_CAT_LABEL if is_fed(e) else LAW_CAT_LABEL
+
+
 def law_status_label(e):
     st = (e.get("status") or "").lower()
+    if is_fed(e):
+        by_kind = FED_STATUS.get(st, {})
+        kind = (e.get("kind") or "law").lower()
+        if kind in by_kind or "*" in by_kind:
+            return by_kind.get(kind, by_kind.get("*"))
     if st == "introduced" and (e.get("kind") or "").lower() == "rule":
         return "Proposed"
     return LAW_STATUS.get(st, st.capitalize() or "Status unknown")
@@ -1316,10 +1384,57 @@ def law_anchor(e):
 
 
 def law_cats(e):
-    return [e.get("category")] + [c for c in (e.get("also") or []) if c in LAW_CAT_LABEL and c != e.get("category")]
+    labels = cat_labels(e)
+    also = e.get("also") if isinstance(e.get("also"), list) else []
+    return [e.get("category")] + [c for c in also if isinstance(c, str) and c in labels and c != e.get("category")]
+
+
+def _clauses(*parts):
+    """Date-line clauses joined with semicolons, the first capitalized; missing ones are left out."""
+    s = "; ".join(p for p in parts if p)
+    return s[:1].upper() + s[1:]
+
+
+def fed_law_dates(e):
+    """The date line under a federal entry's name."""
+    st, kind = (e.get("status") or "").lower(), (e.get("kind") or "law").lower()
+    signed_iso = e["signed"] if _iso(e.get("signed")) else ""
+    eff_iso = e["effective"] if _iso(e.get("effective")) else ""
+    signed, eff, ahead = fmt(signed_iso), fmt(eff_iso), eff_iso > TODAY_ISO
+    if st == "effective":
+        if kind == "guidance":
+            return ("Issued %s" % signed) if signed else "Final guidance"
+        if kind == "order":
+            return ("Signed %s" % signed) if signed else ""
+        if kind == "policy":
+            return ("In effect since %s" % eff) if eff else (("Issued %s" % signed) if signed else "")
+        s = ("In force since %s" % eff) if eff else "In force"
+        return s + ((" (%s %s)" % ("published" if kind == "rule" else "signed", signed)) if signed and signed_iso != eff_iso else "")
+    if st == "enacted":
+        takes = (("takes effect %s" if ahead else "took effect %s") % eff) if eff else ""
+        if kind == "rule":
+            return _clauses(("Final rule published %s" % signed) if signed else "Final rule", takes)
+        if kind == "law":
+            return _clauses(("Signed %s" % signed) if signed else "", (("main duties begin %s" if ahead else "main duties began %s") % eff) if eff else "")
+        return _clauses(("Issued %s" % signed) if signed else "", takes)
+    if st == "passed":
+        return "Passed both chambers of Congress; awaiting the president"
+    if st == "introduced":
+        first = {"rule": ("Proposed rule published %s" % signed) if signed else "Proposed rule",
+                 "guidance": ("Draft issued %s" % signed) if signed else "Draft guidance",
+                 "law": "Bill in Congress",
+                 "policy": ("Proposed %s" % signed) if signed else ""}.get(kind, "")
+        return _clauses(first, ("would take effect %s" % eff) if eff else "")
+    if st == "failed":
+        return {"order": "Revoked", "guidance": "Withdrawn", "rule": "Withdrawn"}.get(kind, "Failed or withdrawn")
+    if st == "blocked":
+        return "Blocked by a court"
+    return ""
 
 
 def law_dates(e):
+    if is_fed(e):
+        return fed_law_dates(e)
     st, kind = (e.get("status") or "").lower(), (e.get("kind") or "law").lower()
     signed = e.get("signed") if _iso(e.get("signed")) else ""
     eff = e.get("effective") if _iso(e.get("effective")) else ""
@@ -1360,7 +1475,8 @@ def law_card(e):
     meta = []
     if e.get("applies_to"):
         meta.append("<strong>Applies to:</strong> %s" % rich(e["applies_to"]))
-    also = [LAW_CAT_LABEL[c] for c in law_cats(e)[1:]]
+    labels = cat_labels(e)
+    also = [labels[c] for c in law_cats(e)[1:]]
     if also:
         meta.append("<strong>Also touches:</strong> %s" % esc("; ".join(also)))
     if meta:
@@ -1402,11 +1518,127 @@ def state_summary(entries):
     return s + (": " + join_and(bits) + "." if bits else ".")
 
 
+def fed_summary(entries):
+    """The federal page's standfirst: its entries counted by status, failed ones left out."""
+    live = [e for e in entries if (e.get("status") or "") != "failed"]
+    count = {}
+    for e in live:
+        count[e.get("status")] = count.get(e.get("status"), 0) + 1
+    bits = []
+    if count.get("effective"):
+        bits.append("%d in force or in effect" % count["effective"])
+    if count.get("enacted"):
+        effs = sorted(set(e["effective"] for e in live if e.get("status") == "enacted" and _iso(e.get("effective")) and e["effective"] > TODAY_ISO))
+        bits.append("%d final or enacted and not yet in force%s" % (count["enacted"], (" (main duties begin %s)" % join_and([fmt(x) for x in effs])) if effs else ""))
+    if count.get("passed"):
+        bits.append("%d passed by Congress and awaiting the president" % count["passed"])
+    for kind, one, many in (("rule", "proposed rule", "proposed rules"), ("guidance", "draft guidance document", "draft guidance documents"), ("law", "bill in Congress", "bills in Congress")):
+        n = sum(1 for e in live if e.get("status") == "introduced" and (e.get("kind") or "law").lower() == kind)
+        if n:
+            bits.append("%d %s" % (n, one if n == 1 else many))
+    if count.get("blocked"):
+        bits.append("%d blocked by a court" % count["blocked"])
+    n = len(live)
+    s = "%d %s on the map" % (n, "entry" if n == 1 else "entries")
+    return s + (": " + join_and(bits) + "." if bits else ".")
+
+
 def law_line(e, when):
     """One entry in a list on the /law-map/ page."""
     return ('<li><span class="when">%s</span><div><a href="%s#%s">%s</a><div class="d">%s · %s · %s</div></div></li>'
-            % (esc(when), law_state_url(e["state"]), esc(law_anchor(e)), esc(e.get("name") or e.get("id")), esc(STATE_NAME[e["state"]]),
-               esc(LAW_CAT_LABEL[e["category"]]), esc(law_status_label(e))))
+            % (esc(when), law_state_url(e["state"]), esc(law_anchor(e)), esc(e.get("name") or e.get("id")), esc("Federal" if is_fed(e) else STATE_NAME[e["state"]]),
+               esc(cat_labels(e)[e["category"]]), esc(law_status_label(e))))
+
+
+def law_is_update(e):
+    """True when a recent entry shows as "Updated" rather than "Added" on /law-map/."""
+    return bool(e.get("changed") and e.get("changed") != e.get("added"))
+
+
+def law_bulk_line(d, entries):
+    """One line on /law-map/ for the many entries added on one day."""
+    states = sorted(set(e["state"] for e in entries if not is_fed(e)))
+    fed = any(is_fed(e) for e in entries)
+    if states:
+        main = "%d entries added in %d %s%s" % (len(entries), len(states), "state" if len(states) == 1 else "states", " and the federal section" if fed else "")
+        see = "See each state's page, or the federal page." if fed else "See each state's page."
+    else:
+        main = "%d entries added in the federal section" % len(entries)
+        see = "See the federal page."
+    return '<li><span class="when">%s</span><div><span class="lm-bulk">%s</span><div class="d">%s</div></div></li>' % (esc("Added " + fmt(d)), esc(main), esc(see))
+
+
+def law_dates_ahead(live, labels):
+    """The "Dates ahead" list on a state or the federal page."""
+    upcoming = [e for e in live if e.get("status") in ("enacted", "passed") and _iso(e.get("effective")) and e["effective"] > TODAY_ISO]
+    if not upcoming:
+        return ""
+    return '<h2 class="lm-h">Dates ahead</h2><ul class="archive">%s</ul>' % "".join(
+        '<li><span class="when">%s</span><div><a href="#%s">%s</a><div class="d">%s</div></div></li>'
+        % (esc(fmt(e["effective"])), esc(law_anchor(e)), esc(e.get("name") or ""), esc(labels[e["category"]])) for e in sorted(upcoming, key=lambda e: e["effective"]))
+
+
+def law_sections(live, cats, review, fallback):
+    """The category chips and one section per category on a state or the federal page. A category with no entries of its own
+    shows the review's "empty" text for it, if any; otherwise, when nothing at all is in the section, the fallback text."""
+    empty = (review or {}).get("empty") or {}
+    labels = {k: l for k, l, _ in cats}
+    out = ['<nav class="law-toc" aria-label="Categories">%s</nav>' % "".join('<a class="chip" href="#%s">%s</a>' % (k, esc(l)) for k, l, _ in cats)]
+    for key, label, blurb in cats:
+        main = [e for e in live if e.get("category") == key]
+        also = [e for e in live if e.get("category") != key and key in law_cats(e)]
+        out.append('<section class="law-cat" id="%s"><h2>%s</h2><p class="law-cat-note">%s</p>' % (key, esc(label), esc(blurb)))
+        for e in main:
+            try:
+                out.append(law_card(e))
+            except Exception as ex:
+                print("warning: law map entry %s left out: %s" % (e.get("id"), ex), file=sys.stderr)
+        said = "" if main else (empty.get(key) or "").strip()
+        if said:
+            out.append('<p class="empty">%s</p>' % rich(said))
+        if also:
+            out.append('<p class="law-also">Also relevant here: %s.</p>' % "; ".join(
+                '<a href="#%s">%s</a> (under %s)' % (esc(law_anchor(e)), esc(e.get("name") or ""), esc(cat_lower(labels[e["category"]]))) for e in also))
+        if not main and not also and not said:
+            out.append('<p class="empty">%s</p>' % esc(fallback))
+        out.append("</section>")
+    return "".join(out)
+
+
+def law_failed_section(failed, title):
+    """The last section of a state or the federal page: entries that failed, were withdrawn or were revoked."""
+    cards = []
+    for e in failed:
+        try:
+            cards.append(law_card(e))
+        except Exception as ex:
+            print("warning: law map entry %s left out: %s" % (e.get("id"), ex), file=sys.stderr)
+    return '<section class="law-cat" id="failed"><h2>%s</h2>%s</section>' % (esc(title), "".join(cards)) if cards else ""
+
+
+LAW_FOOT = ('<p class="law-foot">%sGeneral information, not legal advice. <a href="/law-map/">How the map works</a>, and the '
+            '<a href="/law-map/laws.json">data</a>.</p>')
+FED_LINE = '<p class="law-also law-fed">Federal law also applies in every state: see <a href="%s">federal law and policy</a>.</p>' % FED_URL
+# 2.13's few extra styles, put in the head of a law map page only when the page uses them, so every other page is unchanged
+LAW_CSS = (("lm-fed", ".lm-fed { margin: 16px 0 0; padding: 10px 14px; background: var(--surface); border: 1px solid var(--rule); "
+                      "border-radius: 10px; font-size: 0.95rem; color: var(--ink-2); } .lm-fed a { font-weight: 600; }"),
+           ("lm-bulk", ".archive .lm-bulk { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; color: var(--ink); }"),
+           ("law-intro", ".lawstate .law-intro { margin-top: 12px; }"),
+           ("law-fed", ".lawstate .law-fed { margin-top: 26px; } .lawstate .law-fed + .law-foot { margin-top: 8px; }"))
+
+
+def law_css(body):
+    rules = [css for cls, css in LAW_CSS if re.search(r'class="(?:[^"]* )?%s[ "]' % re.escape(cls), body)]
+    return "<style>%s</style>" % " ".join(rules) if rules else ""
+
+
+def law_checked_foot(ents):
+    checked = max([e.get("checked") for e in ents if _iso(e.get("checked"))] or [""])
+    return LAW_FOOT % (("Most recently checked %s. " % fmt(checked)) if checked else "")
+
+
+def law_sorted(entries):
+    return sorted(entries, key=lambda e: (LAW_ORDER.get(e.get("status"), 9), e.get("effective") or "", e.get("name") or ""))
 
 
 LAWMAP_SCRIPT = ('<script>(function(){var g=document.querySelector(".lawmap-filter");if(!g)return;g.hidden=false;'
@@ -1419,13 +1651,88 @@ LAWMAP_SCRIPT = ('<script>(function(){var g=document.querySelector(".lawmap-filt
                  '"Shaded by the number enacted or in force in one category: "+this.textContent+"."}})}})();</script>')
 
 
+def build_federal_page(entries, review):
+    """/law-map/federal/: every federal entry, by category, with the counts, the dates ahead and the withdrawn ones last."""
+    ents = law_sorted(entries)
+    live = [e for e in ents if e.get("status") != "failed"]
+    failed = [e for e in ents if e.get("status") == "failed"]
+    summary = fed_summary(ents)
+    crumb_ld, crumb_html = breadcrumbs([(NAME, "/"), ("Law map", "/law-map/"), ("Federal", None)])
+    art = [crumb_html, '<article class="post lawstate"><div class="post-date">AI health law map</div>',
+           '<h1 class="headline">Federal: AI health law and policy</h1>', '<p class="standfirst">%s</p>' % esc(summary),
+           '<p class="lm-note law-intro">The federal section records statutes, final and proposed rules, agency guidance, executive orders and CMS programs '
+           'that govern or directly shape the use of AI in health care, and lists a bill in Congress once it has passed a committee.</p>']
+    note = ((review or {}).get("note") or "").strip()
+    if note:
+        art.append('<p class="lm-note">%s</p>' % rich(note))
+    art.append(law_dates_ahead(live, FED_CAT_LABEL))
+    art.append(law_sections(live, FED_CATS, review, "Nothing in this category on the map yet."))
+    if failed:
+        art.append(law_failed_section(failed, "Withdrawn, revoked or failed"))
+    art.append(law_checked_foot(ents))
+    art.append("</article>")
+    desc = describe(["Federal laws, rules, guidance and executive orders on artificial intelligence in health care, with what each changes for physicians "
+                     "and a link to its text.", summary])
+    ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": "Federal: AI health law and policy", "url": absurl(FED_URL), "description": desc,
+          "dateModified": TODAY_ISO, "about": {"@type": "Country", "name": "United States"}, "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}}
+    body = '<section class="panel">' + "".join(art) + subscribe_box() + "</section>"
+    page(FED_URL, "Federal AI health law and policy", desc, body, active="/law-map/", jsonld=[ld, crumb_ld], head_extra=law_css(body))
+
+
+def reviewed_state_page(code, review, fed_line):
+    """The page for a state that was reviewed with nothing in scope found: the arguments for page()."""
+    name = STATE_NAME[code]
+    path = law_state_url(code)
+    summary = "No state law, rule, insurance bulletin or bill in the map's scope was found in the review of %s." % fmt(review["reviewed"])
+    crumb_ld, crumb_html = breadcrumbs([(NAME, "/"), ("Law map", "/law-map/"), (name, None)])
+    art = [crumb_html, '<article class="post lawstate"><div class="post-date">AI health law map</div>',
+           '<h1 class="headline">%s: AI health laws</h1>' % esc(name), '<p class="standfirst">%s</p>' % esc(summary)]
+    note = (review.get("note") or "").strip()
+    if note:
+        art.append('<p class="lm-note law-intro">%s</p>' % rich(note))
+    art.append('<p class="lm-note law-intro">The map looks for laws, rules, insurance-department and licensing-board policies, and bills that have passed '
+               'a committee, in five categories: %s.</p>' % esc(join_and([cat_lower(l) for k, l, _ in LAW_CATS])))
+    art.append(fed_line)
+    art.append(LAW_FOOT % "")
+    art.append("</article>")
+    desc = describe(["%s: %s" % (name, summary), note])
+    ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": "%s: AI health laws" % name, "url": absurl(path), "description": desc,
+          "dateModified": TODAY_ISO, "about": {"@type": "State", "name": name}, "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}}
+    body = '<section class="panel">' + "".join(art) + subscribe_box() + "</section>"
+    return dict(path=path, title="%s AI health laws" % name, desc=desc, body=body, active="/law-map/", jsonld=[ld, crumb_ld], head_extra=law_css(body))
+
+
 def build_law_map():
     global LLMS_EXTRA
     by_state = {}
-    for e in LAWS:
+    for e in STATE_LAWS:
         by_state.setdefault(e["state"], []).append(e)
     states = sorted(by_state, key=lambda c: STATE_NAME[c])
-    EXP_COUNTS["laws"], EXP_COUNTS["states"] = len(LAWS), len(states)
+    reviewed = {c: r for c, r in LAW_REVIEWS.items() if c in STATE_NAME}
+    EXP_COUNTS["laws"], EXP_COUNTS["states"] = len(STATE_LAWS), len(states)
+    # the federal page comes first, so that nothing links to it unless it was built
+    fed, fed_row = [], None
+    if FED_LAWS:
+        try:
+            build_federal_page(FED_LAWS, LAW_REVIEWS.get("US"))
+            fed, fed_row = FED_LAWS, (FED_URL, TODAY_ISO, "weekly", "0.7")
+        except Exception as ex:  # the federal page must not take the state map down with it
+            import traceback
+            traceback.print_exc()
+            print("warning: the federal law page was not built: %s" % ex, file=sys.stderr)
+    EXP_COUNTS["federal"] = len(fed)
+    fed_live = [e for e in fed if e.get("status") != "failed"]
+    shown = [e for e in LAWS if not is_fed(e) or fed]  # every entry the /law-map/ lists may name, in the page's JSON order
+    fed_line = FED_LINE if fed else ""
+    # reviewed states with no entries: their pages are made ready first, so the map links only to pages that exist
+    none_pages = {}
+    for code in sorted((c for c in reviewed if c not in by_state), key=lambda c: STATE_NAME[c]):
+        try:
+            none_pages[code] = reviewed_state_page(code, reviewed[code], fed_line)
+        except Exception as ex:
+            print("warning: the law map page for %s was not built: %s" % (STATE_NAME[code], ex), file=sys.stderr)
+    none_found = sorted(none_pages, key=lambda c: STATE_NAME[c])
+    EXP_COUNTS["reviewed_none"] = len(none_found)
 
     def live_count(entries, cat):
         return sum(1 for e in entries if e.get("status") in ("enacted", "effective") and (cat == "all" or cat in law_cats(e)))
@@ -1443,27 +1750,51 @@ def build_law_map():
             tiles.append('<a class="tile lv-%d" href="%s" style="%s" %s title="%s" aria-label="%s: %d %s enacted or in force"><span>%s</span></a>'
                          % (lv(n), law_state_url(code), pos, " ".join('data-%s="%d"' % kv for kv in counts), esc(STATE_NAME[code]),
                             esc(STATE_NAME[code]), n, "law or rule" if n == 1 else "laws and rules", code))
+        elif code in none_pages:
+            label = "%s: reviewed, none found" % STATE_NAME[code]
+            tiles.append('<a class="tile lv-0" href="%s" style="%s" %s title="%s" aria-label="%s"><span>%s</span></a>'
+                         % (law_state_url(code), pos, " ".join('data-%s="0"' % k for k in ["all"] + [k for k, _, _ in LAW_CATS]), esc(label), esc(label), code))
         else:
             tiles.append('<span class="tile nr" style="%s" title="%s: not yet reviewed" aria-hidden="true"><span>%s</span></span>' % (pos, esc(STATE_NAME[code]), code))
     names = [STATE_NAME[c] for c in states]
-    if len(states) == 1:
+    covered = set(by_state) | set(reviewed)
+    if len(covered) == len(STATE_NAME):
+        latest = max([r["reviewed"] for r in reviewed.values()] or [""])
+        reach = ("Every state has been reviewed; the most recent review was %s." % fmt(latest)) if latest else "Every state has been reviewed."
+    elif reviewed:
+        reach = ("It covers %d states so far; others are added as they are reviewed." % len(covered)) if len(covered) > 1 else \
+                ("The map starts with %s; other states are added as they are reviewed." % STATE_NAME[next(iter(covered))])
+    elif len(states) == 1:
         reach = "The map starts with %s; other states are added as they are reviewed." % names[0]
-    else:
+    elif states:
         reach = "It covers %d states so far (%s); others are added as they are reviewed." % (len(states), join_and(names))
-    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">AI health law map</h1><span class="sub">state laws on AI in health care</span></div>',
-            '<p class="lead">State laws, rules and bills on artificial intelligence in health care, each with what it changes in practice for a physician '
-            'and a link to its own text. %s</p>' % esc(reach)]
+    else:
+        reach = ""
+    what = "State and federal laws, rules and bills" if fed else "State laws, rules and bills"
+    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">AI health law map</h1><span class="sub">%s laws on AI in health care</span></div>' % ("state and federal" if fed else "state"),
+            '<p class="lead">%s on artificial intelligence in health care, each with what it changes in practice for a physician '
+            'and a link to its own text.%s</p>' % (what, (" " + esc(reach)) if reach else "")]
     body.append('<div class="lawmap-filter" role="group" aria-label="Shade the map by category" hidden>'
                 '<button type="button" class="chip" data-cat="all" aria-pressed="true">All categories</button>'
                 + "".join('<button type="button" class="chip" data-cat="%s" aria-pressed="false">%s</button>' % (k, esc(l)) for k, l, _ in LAW_CATS) + "</div>")
     body.append('<div class="tilemap">%s</div>' % "".join(tiles))
-    body.append('<div class="tile-legend"><span><i class="tile-key nr"></i>Not yet reviewed</span><span><i class="tile-key lv-0"></i>None in force</span>'
+    unreviewed = any(c not in by_state and c not in none_pages for c in STATE_NAME)
+    body.append('<div class="tile-legend">%s<span><i class="tile-key lv-0"></i>None in force</span>'
                 '<span><i class="tile-key lv-1"></i>1</span><span><i class="tile-key lv-2"></i>2 to 3</span><span><i class="tile-key lv-3"></i>4 or more</span></div>'
-                '<p class="tile-cap" id="lawmap-cap">Shaded by the number of laws and rules enacted or in force.</p>')
-    body.append('<p class="tile-states">States on the map: %s.</p>' % ", ".join(
-        '<a href="%s">%s</a> (%d)' % (law_state_url(c), esc(STATE_NAME[c]), len([e for e in by_state[c] if e.get("status") != "failed"])) for c in states))
+                '<p class="tile-cap" id="lawmap-cap">Shaded by the number of laws and rules enacted or in force.</p>'
+                % ('<span><i class="tile-key nr"></i>Not yet reviewed</span>' if unreviewed else ""))
+    if fed:
+        on = join_and([cat_lower(l) for k, l, _ in FED_CATS if any(e.get("category") == k for e in fed_live)])
+        body.append('<p class="lm-fed"><a href="%s">Federal law and policy</a>: %d %s%s.</p>'
+                    % (FED_URL, len(fed_live), "entry" if len(fed_live) == 1 else "entries", (" on " + esc(on)) if on else ""))
+    if states:
+        body.append('<p class="tile-states">States on the map: %s.</p>' % ", ".join(
+            '<a href="%s">%s</a> (%d)' % (law_state_url(c), esc(STATE_NAME[c]), len([e for e in by_state[c] if e.get("status") != "failed"])) for c in states))
+    if none_found:
+        body.append('<p class="tile-states">Reviewed, none found: %s.</p>' % ", ".join(
+            '<a href="%s">%s</a>' % (law_state_url(c), esc(STATE_NAME[c])) for c in none_found))
     # dates ahead
-    ahead = sorted([e for e in LAWS if e.get("status") in ("enacted", "passed") and _iso(e.get("effective")) and e["effective"] > TODAY_ISO],
+    ahead = sorted([e for e in shown if e.get("status") in ("enacted", "passed") and _iso(e.get("effective")) and e["effective"] > TODAY_ISO],
                    key=lambda e: (e["effective"], e["state"], e.get("name") or ""))
     soon = [e for e in ahead if (datetime.date.fromisoformat(e["effective"]) - TODAY_D).days <= 90]
     if soon:
@@ -1471,84 +1802,108 @@ def build_law_map():
     elif ahead:
         body.append('<h2 class="lm-h">Taking effect next</h2><p class="lm-note">Nothing on the map takes effect in the next 90 days. The next dates:</p>'
                     '<ul class="archive">%s</ul>' % "".join(law_line(e, fmt(e["effective"])) for e in ahead[:8]))
-    # new or changed
+    # new or changed: a day with more than 8 entries added (and not changed since) shows as one line
     recent = []
-    for e in LAWS:
+    for e in shown:
         d = e.get("changed") if _iso(e.get("changed")) else (e.get("added") if _iso(e.get("added")) else "")
         if d and 0 <= (TODAY_D - datetime.date.fromisoformat(d)).days <= 30:
             recent.append((d, e))
     recent.sort(key=lambda x: (x[0], x[1]["state"]), reverse=True)
     if recent:
-        body.append('<h2 class="lm-h">New or changed in the last 30 days</h2><ul class="archive">%s</ul>' % "".join(
-            law_line(e, ("Updated " if (e.get("changed") and e.get("changed") != e.get("added")) else "Added ") + fmt(d)) for d, e in recent[:12]))
+        added_on = {}
+        for d, e in recent:
+            if not law_is_update(e):
+                added_on.setdefault(d, []).append(e)
+        bulk = {d: es for d, es in added_on.items() if len(es) > 8}
+        rows, lines = [], 0
+        for day in sorted(set(d for d, _ in recent), reverse=True):
+            if day in bulk:
+                rows.append(law_bulk_line(day, bulk[day]))
+            for d, e in recent:
+                if d != day or (day in bulk and not law_is_update(e)) or lines >= 12:
+                    continue
+                rows.append(law_line(e, ("Updated " if law_is_update(e) else "Added ") + fmt(d)))
+                lines += 1
+        body.append('<h2 class="lm-h">New or changed in the last 30 days</h2><ul class="archive">%s</ul>' % "".join(rows))
+    all_reviewed = not unreviewed  # every state has entries or a page saying none were found
     body.append('<div class="method"><h2>How the map works</h2>'
-                '<p>The map records state statutes, agency and attorney general rules, and licensing-board policies on AI in health care, in five categories: '
-                + esc(join_and([cat_lower(l) for k, l, _ in LAW_CATS])) + '. '
-                'A bill goes on the map once it has passed at least one committee, and a failed bill keeps its entry, marked failed. Federal rules are covered in the '
-                '<a href="/posts/">daily posts</a> and on the <a href="/watch/">watch list</a>.</p>'
-                '<p>Statuses: <strong>introduced</strong> (a bill filed, or a rule proposed), <strong>passed</strong> (passed the legislature, awaiting the governor), '
+                '<p>The map records state statutes, agency and attorney general rules, and licensing-board and insurance-department policies on AI in health care, '
+                'in five categories: ' + esc(join_and([cat_lower(l) for k, l, _ in LAW_CATS])) + '. '
+                'A bill goes on the map once it has passed at least one committee, and a failed bill keeps its entry, marked failed.'
+                + (' A state with no entries was reviewed and nothing in scope was found; its page says so.' if all_reviewed else '')
+                + ('' if fed else ' Federal rules are covered in the <a href="/posts/">daily posts</a> and on the <a href="/watch/">watch list</a>.') + '</p>'
+                + (('<p>The <a href="%s">federal section</a> records statutes, final and proposed rules, agency guidance, executive orders and CMS programs, '
+                    'in %s categories: %s, and lists a bill in Congress once it has passed a committee.</p>'
+                    % (FED_URL, NUM_WORD.get(len(FED_CATS), str(len(FED_CATS))), esc(join_and([cat_lower(l) for k, l, _ in FED_CATS])))) if fed else '')
+                + '<p>Statuses: <strong>introduced</strong> (a bill filed, or a rule proposed), <strong>passed</strong> (passed the legislature, awaiting the governor), '
                 '<strong>enacted</strong> (signed, or a rule adopted, with its main duties not yet in force), <strong>in force</strong> (its main duties apply now), '
-                '<strong>failed</strong> (died, vetoed or withdrawn) and <strong>blocked</strong> (enjoined, stayed, or delayed with no new date).</p>'
+                '<strong>failed</strong> (died, vetoed or withdrawn) and <strong>blocked</strong> (enjoined, stayed, or delayed with no new date).'
+                + (' Federal items use the same statuses, shown as proposed or draft, final, in force or in effect, and withdrawn or revoked.' if fed else '') + '</p>'
                 '<p>Every entry links to its primary text first: the enacted bill or its page on the legislature\'s site, the rule, or the agency\'s page. A law firm\'s '
                 'summary may follow, labeled secondary, but never stands alone. The physician read says what changes in practice and from when; it states duties '
                 'and dates, not advice. The map is updated from the site\'s daily research, each entry shows the date its sources were last checked, and a mistake is '
                 'corrected in place with a note.</p>'
                 '<p>This is general information, not legal advice. The whole map is available as data at <a href="/law-map/laws.json">/law-map/laws.json</a>.</p></div>')
     ld = {"@context": "https://schema.org", "@type": "Dataset", "name": "AI health law map", "url": absurl("/law-map/"),
-          "description": "State laws, rules and bills on artificial intelligence in health care, each with what it changes in practice for a physician and a link to its text.",
+          "description": "%s on artificial intelligence in health care, each with what it changes in practice for a physician and a link to its text." % what,
           "dateModified": TODAY_ISO, "creator": PUBLISHER, "isAccessibleForFree": True, "inLanguage": "en-US",
           "spatialCoverage": {"@type": "Place", "name": "United States"},
           "distribution": {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": absurl("/law-map/laws.json")}}
-    page("/law-map/", "AI health law map", "State laws on AI in health care, with what each changes for physicians and a link to its text: payer AI, patient disclosure, chatbots, mental health and privacy.",
-         '<section class="panel">' + "".join(body) + subscribe_box() + "</section>" + LAWMAP_SCRIPT, active="/law-map/", jsonld=ld)
+    desc = ("State and federal laws on AI in health care, with what each changes for physicians and a link to its text: payer AI, disclosure, chatbots, "
+            "mental health, privacy and FDA." if fed else
+            "State laws on AI in health care, with what each changes for physicians and a link to its text: payer AI, patient disclosure, chatbots, mental health and privacy.")
+    main_body = '<section class="panel">' + "".join(body) + subscribe_box() + "</section>"
+    page("/law-map/", "AI health law map", desc, main_body + LAWMAP_SCRIPT, active="/law-map/", jsonld=ld, head_extra=law_css(main_body))
     urls.append(("/law-map/", TODAY_ISO, "weekly", "0.8"))
-    write("/law-map/laws.json", json.dumps({"name": "AI health law map", "url": absurl("/law-map/"), "updated": TODAY_ISO,
-                                            "categories": {k: l for k, l, _ in LAW_CATS}, "statuses": LAW_STATUS,
-                                            "laws": sorted(LAWS, key=lambda e: (e["state"], e["category"], e.get("id") or ""))}, ensure_ascii=False, indent=1) + "\n")
-    # one page per state
+    if fed_row:
+        urls.append(fed_row)
+    data_out = {"name": "AI health law map", "url": absurl("/law-map/"), "updated": TODAY_ISO, "categories": {k: l for k, l, _ in LAW_CATS}}
+    if fed:
+        data_out["federal_categories"] = {k: l for k, l, _ in FED_CATS}
+    data_out["statuses"] = LAW_STATUS
+    data_out["laws"] = sorted(shown, key=lambda e: (e["state"], e["category"], e.get("id") or ""))
+    if LAW_REVIEWS:
+        data_out["reviews"] = [{"state": c, "reviewed": LAW_REVIEWS[c]["reviewed"]} for c in sorted(LAW_REVIEWS)]
+    write("/law-map/laws.json", json.dumps(data_out, ensure_ascii=False, indent=1) + "\n")
+    # one page per state with entries
     for code in states:
-        ents = sorted(by_state[code], key=lambda e: (LAW_ORDER.get(e.get("status"), 9), e.get("effective") or "", e.get("name") or ""))
+        ents = law_sorted(by_state[code])
         name = STATE_NAME[code]
         path = law_state_url(code)
+        review = reviewed.get(code)
         live = [e for e in ents if e.get("status") != "failed"]
         failed = [e for e in ents if e.get("status") == "failed"]
         summary = state_summary(ents)
         crumb_ld, crumb_html = breadcrumbs([(NAME, "/"), ("Law map", "/law-map/"), (name, None)])
         art = [crumb_html, '<article class="post lawstate"><div class="post-date">AI health law map</div>',
                '<h1 class="headline">%s: AI health laws</h1>' % esc(name), '<p class="standfirst">%s</p>' % esc(summary)]
-        upcoming = [e for e in live if e.get("status") in ("enacted", "passed") and _iso(e.get("effective")) and e["effective"] > TODAY_ISO]
-        if upcoming:
-            art.append('<h2 class="lm-h">Dates ahead</h2><ul class="archive">%s</ul>' % "".join(
-                '<li><span class="when">%s</span><div><a href="#%s">%s</a><div class="d">%s</div></div></li>'
-                % (esc(fmt(e["effective"])), esc(law_anchor(e)), esc(e.get("name") or ""), esc(LAW_CAT_LABEL[e["category"]])) for e in sorted(upcoming, key=lambda e: e["effective"])))
-        art.append('<nav class="law-toc" aria-label="Categories">%s</nav>' % "".join('<a class="chip" href="#%s">%s</a>' % (k, esc(l)) for k, l, _ in LAW_CATS))
-        for key, label, blurb in LAW_CATS:
-            main = [e for e in live if e.get("category") == key]
-            also = [e for e in live if e.get("category") != key and key in law_cats(e)]
-            art.append('<section class="law-cat" id="%s"><h2>%s</h2><p class="law-cat-note">%s</p>' % (key, esc(label), esc(blurb)))
-            for e in main:
-                try:
-                    art.append(law_card(e))
-                except Exception as ex:
-                    print("warning: law map entry %s left out: %s" % (e.get("id"), ex), file=sys.stderr)
-            if also:
-                art.append('<p class="law-also">Also relevant here: %s.</p>' % "; ".join(
-                    '<a href="#%s">%s</a> (under %s)' % (esc(law_anchor(e)), esc(e.get("name") or ""), esc(cat_lower(LAW_CAT_LABEL[e["category"]]))) for e in also))
-            if not main and not also:
-                art.append('<p class="empty">Nothing in this category on the map yet.</p>')
-            art.append("</section>")
+        note = ((review or {}).get("note") or "").strip()
+        if note:
+            art.append('<p class="lm-note law-intro">%s</p>' % rich(note))
+        art.append(law_dates_ahead(live, LAW_CAT_LABEL))
+        art.append(law_sections(live, LAW_CATS, review, ("Nothing in this category was found in the review of %s." % fmt(review["reviewed"]))
+                                if review else "Nothing in this category on the map yet."))
         if failed:
-            art.append('<section class="law-cat" id="failed"><h2>Failed or withdrawn</h2>%s</section>' % "".join(law_card(e) for e in failed))
-        checked = max([e.get("checked") for e in ents if _iso(e.get("checked"))] or [""])
-        art.append('<p class="law-foot">%sGeneral information, not legal advice. <a href="/law-map/">How the map works</a>, and the <a href="/law-map/laws.json">data</a>.</p>'
-                   % (("Most recently checked %s. " % fmt(checked)) if checked else ""))
+            art.append(law_failed_section(failed, "Failed or withdrawn"))
+        art.append(fed_line)
+        art.append(law_checked_foot(ents))
         art.append("</article>")
         desc = describe(["%s's laws and rules on artificial intelligence in health care, with what each changes for physicians and a link to its text. %s" % (name, summary)])
         ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": "%s: AI health laws" % name, "url": absurl(path), "description": desc,
               "dateModified": TODAY_ISO, "about": {"@type": "State", "name": name}, "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}}
-        page(path, "%s AI health laws" % name, desc, '<section class="panel">' + "".join(art) + subscribe_box() + "</section>", active="/law-map/", jsonld=[ld, crumb_ld])
+        state_body = '<section class="panel">' + "".join(art) + subscribe_box() + "</section>"
+        page(path, "%s AI health laws" % name, desc, state_body, active="/law-map/", jsonld=[ld, crumb_ld], head_extra=law_css(state_body))
         urls.append((path, TODAY_ISO, "weekly", "0.7"))
-    LLMS_EXTRA += "- [AI health law map](%s): state laws on AI in health care, each with a physician's read; data at %s\n" % (absurl("/law-map/"), absurl("/law-map/laws.json"))
+    # one page per reviewed state with nothing in scope found
+    for code in none_found:
+        page(**none_pages[code])
+        urls.append((none_pages[code]["path"], TODAY_ISO, "weekly", "0.7"))
+    if fed:
+        LLMS_EXTRA += "- [AI health law map](%s): state and federal laws on AI in health care, each with a physician's read; data at %s\n" % (absurl("/law-map/"), absurl("/law-map/laws.json"))
+        LLMS_EXTRA += ("- [Federal AI health law and policy](%s): federal statutes, rules, guidance and executive orders on AI in health care, each with a physician's read\n"
+                       % absurl(FED_URL))
+    else:
+        LLMS_EXTRA += "- [AI health law map](%s): state laws on AI in health care, each with a physician's read; data at %s\n" % (absurl("/law-map/"), absurl("/law-map/laws.json"))
 
 
 def money(v):
@@ -2009,6 +2364,7 @@ with open(os.path.join(ROOT, "netlify.toml"), "w") as f:
     f.write('[build]\n  publish = "public"\n  command = ""\n' + ('\n[functions]\n  directory = "netlify/functions"\n' if HAS_FUNCTIONS else ""))
 
 n_files = sum(len(fs) for _, _, fs in os.walk(OUT))
-print("ok: built %d pages (%d posts, %d letters, %d specials, %d patient letters, %d explainers, %d laws in %d states, %d program rows), %d files in %s; updated %s; analytics %s"
+print("ok: built %d pages (%d posts, %d letters, %d specials, %d patient letters, %d explainers, %d laws in %d states, %d federal entries, "
+      "%d states reviewed with none found, %d program rows), %d files in %s; updated %s; analytics %s"
       % (len(urls), len(post_pages), len(letter_pages), len(special_pages), EXP_COUNTS["patients"], EXP_COUNTS["explainers"], EXP_COUNTS["laws"], EXP_COUNTS["states"],
-         EXP_COUNTS["rhtp"], n_files, OUT, LAST_UPDATED, (config.get("analytics") or {}).get("provider") or "none"))
+         EXP_COUNTS["federal"], EXP_COUNTS["reviewed_none"], EXP_COUNTS["rhtp"], n_files, OUT, LAST_UPDATED, (config.get("analytics") or {}).get("provider") or "none"))
