@@ -23,5 +23,8 @@
     "spotify": "https://open.spotify.com/show/6F9zsXoKZGAvqPx2GmDSqh",
     "youtube": null,
     "playlist_height": 390
+  },
+  "contact": {
+    "live": true
   }
 }

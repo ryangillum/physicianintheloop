@@ -20,3 +20,4 @@ Published by Nomad Medical Group, LLC. Daily posts are third-person news wire co
 - [AI health law map](https://physicianintheloop.org/law-map/): state and federal laws on AI in health care, each with a physician's read; data at https://physicianintheloop.org/law-map/laws.json
 - [Federal AI health law and policy](https://physicianintheloop.org/law-map/federal/): federal statutes, rules, guidance and executive orders on AI in health care, each with a physician's read
 - [Explainers](https://physicianintheloop.org/explainers/): plain answers to common questions about AI in medicine, each dated when reviewed
+- [Contact](https://physicianintheloop.org/contact/): questions, corrections, news tips and press requests
