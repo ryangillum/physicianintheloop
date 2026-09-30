@@ -145,6 +145,12 @@ panel under the header listing every page in four groups: Read (Today, Daily pos
 Where things stand, For patients), Track (Law map, Watch list, Dates, Topics), Listen (Podcast, Apple Podcasts, Spotify) and
 About (About, Contact us, RSS feed, Subscribe); the current page is marked. It is a <details> element, so it opens and closes
 without JavaScript; a small script closes it on Escape or a click outside it. The tab bar under the site name is unchanged.
+Version 2.18 (Sept 30, 2026): a theme switch. The site opens in the dark theme. A small switch in the upper right corner of every
+page's header chooses Dark, Light or System (follow the device's setting); the choice is kept in the reader's browser
+(localStorage "pitl-theme") and applies on every page and in other open tabs. On screens narrower than 520px the switch is one
+button, showing the current choice, that opens the three options. A script at the top of <head> applies the stored choice before
+the page draws, so there is no flash; without JavaScript the site is dark and the switch is hidden. The podcast players, the
+contact form's Turnstile widget and the browser's theme color follow the choice, and pages always print in the light theme.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -708,7 +714,59 @@ EXTRA_CSS = """
   .menu-h { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin: 0 0 6px; padding-left: 8px; }
   .menu-panel a { display: block; padding: 8px; margin: 0 0 2px; border-radius: 8px; font-weight: 600; font-size: 0.98rem; line-height: 1.3; color: var(--ink); text-decoration: none; }
   .menu-panel a:hover, .menu-panel a[aria-current="page"] { background: var(--accent-soft); color: var(--accent-2); }
+  :root[data-theme="dark"] { color-scheme: dark; }
+  :root[data-theme="light"] { color-scheme: light; }
+  :root:not([data-theme]) { color-scheme: light dark; }
+  iframe { color-scheme: normal; }
+  .theme-switching, .theme-switching *, .theme-switching *::before, .theme-switching *::after { transition: none !important; }
+  .brand { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .head-right { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+  .theme-switch { display: none; position: relative; }
+  .theme-js .theme-switch { display: block; }
+  .theme-current { display: none; }
+  .theme-options { display: inline-flex; align-items: center; gap: 2px; padding: 2px; border: 1px solid var(--rule-2); border-radius: 999px; background: var(--surface); vertical-align: middle; }
+  .theme-options button, .theme-current { align-items: center; justify-content: center; margin: 0; padding: 0; border: 0; background: transparent; color: var(--muted); font: inherit; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .theme-options button { display: inline-flex; width: 28px; height: 28px; border-radius: 999px; }
+  .theme-options button:hover { color: var(--ink); background: var(--accent-soft); }
+  .theme-options svg, .theme-current svg { width: 16px; height: 16px; flex: 0 0 auto; }
+  .theme-options .tl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+  :root[data-theme-choice="dark"] .theme-options [data-choice="dark"], :root[data-theme-choice="light"] .theme-options [data-choice="light"], :root[data-theme-choice="system"] .theme-options [data-choice="system"] { background: var(--accent); color: var(--accent-ink); }
+  .theme-options button:focus-visible, .theme-current:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .theme-current .ti { display: none; }
+  :root[data-theme-choice="dark"] .theme-current .ti-dark, :root[data-theme-choice="light"] .theme-current .ti-light, :root[data-theme-choice="system"] .theme-current .ti-system { display: block; }
+  @media (max-width: 519px) {
+    .brand-row { gap: 8px; }
+    .brand { font-size: 1.1rem; }
+    .head-right { gap: 4px; }
+    .head-right .btn.small { padding: 7px 12px; }
+    .theme-current { display: inline-flex; width: 36px; height: 36px; margin-right: -6px; border-radius: 10px; color: var(--ink); }
+    .theme-current:hover, .theme-switch.open .theme-current { background: var(--accent-soft); color: var(--accent-2); }
+    .theme-current svg { width: 20px; height: 20px; }
+    .theme-options { display: none; position: absolute; right: -6px; top: calc(100% + 8px); z-index: 30; flex-direction: column; align-items: stretch; gap: 2px; min-width: 160px; padding: 6px; border-radius: 12px; box-shadow: var(--shadow); }
+    .theme-switch.open .theme-options { display: flex; }
+    .theme-options button { width: auto; height: auto; justify-content: flex-start; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--ink); font-weight: 600; font-size: 0.95rem; line-height: 1.2; }
+    .theme-options .tl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; clip-path: none; }
+    :root[data-theme-choice="dark"] .theme-options [data-choice="dark"], :root[data-theme-choice="light"] .theme-options [data-choice="light"], :root[data-theme-choice="system"] .theme-options [data-choice="system"] { background: var(--accent-soft); color: var(--accent-2); }
+  }
+  @media (max-width: 359px) {
+    .brand { font-size: 0.94rem; }
+    .head-right .btn.small { padding: 6px 9px; font-size: 0.78rem; }
+    .theme-current { width: 32px; height: 32px; }
+  }
 """
+
+
+def theme_print_css():
+    """2.18: pages print in the light theme whatever the screen shows (dark text on paper). The light values are the page's own
+    :root custom properties, so they follow any change to the page's palette."""
+    m = re.search(r":root\s*\{(.*?)\}", SITE_CSS, re.S)
+    decls = [d.strip() for d in (m.group(1).split(";") if m else []) if d.strip().startswith("--")]
+    if not decls:
+        return ""
+    return ("\n  @media print { :root:root, :root:root[data-theme] { %s; color-scheme: light; } .theme-switch { display: none !important; } }\n"
+            % "; ".join(decls))
+
+EXTRA_CSS += theme_print_css()
 
 def analytics_snippet():
     a = config.get("analytics") or {}
@@ -764,16 +822,67 @@ def menu_html(active):
     return ('<details class="menu"><summary aria-label="Menu" title="Menu">%s</summary>'
             '<nav class="menu-panel" aria-label="All pages"><div class="menu-grid">%s</div></nav></details>' % (MENU_ICONS, "".join(cols)))
 
+# 2.18: the theme. Dark by default; the reader's choice (dark, light or system) is kept in localStorage "pitl-theme".
+# THEME_HEAD_SCRIPT runs first thing in <head>, before the styles, so the page never draws in the wrong theme.
+THEME_COLORS = {"dark": "#0F1522", "light": "#F5F8FC"}
+THEME_HEAD_SCRIPT = ('<script>(function(){var r=document.documentElement,t=null;try{t=localStorage.getItem("pitl-theme")}catch(e){}'
+                     'if(t!=="light"&&t!=="system")t="dark";if(t==="system")r.removeAttribute("data-theme");else r.setAttribute("data-theme",t);'
+                     'r.setAttribute("data-theme-choice",t);r.classList.add("theme-js");var d=t==="dark";'
+                     'if(t==="system"){try{d=window.matchMedia("(prefers-color-scheme: dark)").matches}catch(e){}}'
+                     'var m=document.querySelector(\'meta[name="theme-color"]\');if(m)m.setAttribute("content",d?"%s":"%s")})();</script>'
+                     % (THEME_COLORS["dark"], THEME_COLORS["light"]))
+_TI = '<svg class="ti ti-%s" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">%s</svg>'
+THEME_ICONS = {"dark": _TI % ("dark", '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'),
+               "light": _TI % ("light", '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>'),
+               "system": _TI % ("system", '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>')}
+THEME_CHOICES = (("dark", "Dark", "Dark theme"), ("light", "Light", "Light theme"), ("system", "System", "Match your device"))
+THEME_SCRIPT = ('<script>(function(){var w=document.getElementById("theme-switch");if(!w)return;'
+                'var r=document.documentElement,b=w.querySelector(".theme-current"),o=[].slice.call(w.querySelectorAll("[data-choice]")),'
+                'N={dark:"Dark",light:"Light",system:"System"},mq=null;try{mq=window.matchMedia("(prefers-color-scheme: dark)")}catch(e){}'
+                'function stored(){var t=null;try{t=localStorage.getItem("pitl-theme")}catch(e){}return N.hasOwnProperty(t)?t:"dark"}'
+                'function apply(t,save){if(!N.hasOwnProperty(t))t="dark";var chg=r.getAttribute("data-theme-choice")!==t;if(chg)r.classList.add("theme-switching");'
+                'if(t==="system")r.removeAttribute("data-theme");else r.setAttribute("data-theme",t);'
+                'r.setAttribute("data-theme-choice",t);if(chg){void document.body.offsetHeight;r.classList.remove("theme-switching")}if(save){try{localStorage.setItem("pitl-theme",t)}catch(e){}}'
+                'var d=t==="dark"||(t==="system"&&!!mq&&mq.matches),m=document.querySelector(\'meta[name="theme-color"]\');if(m)m.setAttribute("content",d?"%s":"%s");'
+                'for(var i=0;i<o.length;i++){var on=o[i].getAttribute("data-choice")===t;o[i].setAttribute("aria-checked",on?"true":"false");o[i].tabIndex=on?0:-1}'
+                'if(b)b.setAttribute("aria-label","Theme: "+N[t])}'
+                'function isOpen(){return w.classList.contains("open")}'
+                'function show(v){if(v)w.classList.add("open");else w.classList.remove("open");if(b)b.setAttribute("aria-expanded",v?"true":"false")}'
+                'if(b)b.addEventListener("click",function(){var v=!isOpen();show(v);if(v){var c=w.querySelector(\'[aria-checked="true"]\');if(c)c.focus()}});'
+                'o.forEach(function(x){x.addEventListener("click",function(){apply(x.getAttribute("data-choice"),true);if(isOpen()){show(false);if(b)b.focus()}})});'
+                'w.addEventListener("keydown",function(e){if(e.key==="Escape"&&isOpen()){show(false);if(b)b.focus();return}'
+                'var i=o.indexOf(document.activeElement),j=-1;if(i<0)return;'
+                'if(e.key==="ArrowRight"||e.key==="ArrowDown")j=(i+1)%%o.length;else if(e.key==="ArrowLeft"||e.key==="ArrowUp")j=(i+o.length-1)%%o.length;'
+                'else if(e.key==="Home")j=0;else if(e.key==="End")j=o.length-1;if(j<0)return;e.preventDefault();apply(o[j].getAttribute("data-choice"),true);o[j].focus()});'
+                'document.addEventListener("click",function(e){if(isOpen()&&!w.contains(e.target))show(false)});'
+                'w.addEventListener("focusout",function(e){if(isOpen()&&e.relatedTarget&&!w.contains(e.relatedTarget))show(false)});'
+                'if(mq){var f=function(){if(r.getAttribute("data-theme-choice")==="system")apply("system",false)};'
+                'if(mq.addEventListener)mq.addEventListener("change",f);else if(mq.addListener)mq.addListener(f)}'
+                'window.addEventListener("storage",function(e){if(e.key==="pitl-theme")apply(stored(),false)});'
+                'window.addEventListener("pageshow",function(e){if(e.persisted)apply(stored(),false)});'
+                'apply(r.getAttribute("data-theme-choice")||stored(),false)})();</script>' % (THEME_COLORS["dark"], THEME_COLORS["light"]))
+
+def theme_switch_html():
+    """The switch: a row of three buttons (a radio group) on wide screens; on phones one button showing the current choice
+    that opens the three as a small list. Hidden without JavaScript (CSS shows it once THEME_HEAD_SCRIPT marks <html>)."""
+    opts = "".join('<button type="button" role="radio" data-choice="%s" aria-checked="%s" tabindex="%s" title="%s">%s<span class="tl">%s</span></button>'
+                   % (k, "true" if k == "dark" else "false", "0" if k == "dark" else "-1", tip, THEME_ICONS[k], label)
+                   for k, label, tip in THEME_CHOICES)
+    return ('<div class="theme-switch" id="theme-switch">'
+            '<button type="button" class="theme-current" aria-expanded="false" aria-controls="theme-options" aria-label="Theme" title="Theme">%s</button>'
+            '<div class="theme-options" id="theme-options" role="radiogroup" aria-label="Theme">%s</div></div>'
+            % ("".join(THEME_ICONS[k] for k, _, _ in THEME_CHOICES), opts))
+
 def nav_html(active):
     out = ['<div class="topbar" id="topbar"><div class="topbar-inner"><div class="brand-row">',
            '<div class="brand-left">%s<a class="brand" href="/">%s</a></div>' % (menu_html(active), esc(NAME)),
-           '<a class="btn small" href="%s" target="_blank" rel="noopener">Subscribe</a></div>' % esc(SUBSCRIBE),
+           '<div class="head-right"><a class="btn small" href="%s" target="_blank" rel="noopener">Subscribe</a>%s</div></div>' % (esc(SUBSCRIBE), theme_switch_html()),
            '<nav class="tabs" aria-label="Sections">']
     for path, label in NAV:
         cur = ' aria-current="page"' if path == active else ""
         count = '<span class="n">%d</span>' % len(posts) if (path == "/posts/" and posts) else ""
         out.append('<a class="tab" href="%s"%s>%s%s%s</a>' % (path, cur, TAB_ICON if path == "/podcast/" else "", esc(label), count))
-    out.append("</nav></div></div>" + MENU_SCRIPT)
+    out.append("</nav></div></div>" + MENU_SCRIPT + THEME_SCRIPT)
     return "".join(out)
 
 FOOT = ('<footer class="foot"><div class="tablinks">' + "".join('<a href="%s">%s</a>' % (p, esc(l)) for p, l in NAV) +
@@ -786,8 +895,9 @@ def page(path, title, desc, body, active=None, kind="website", jsonld=None, publ
     url = absurl(path)
     og_img = (absurl(image) if image.startswith("/") else image) if image else absurl("/og-image.png")
     full_title = title if (title.startswith(NAME) or title.endswith(NAME)) else "%s | %s" % (title, NAME)
-    head = ['<!DOCTYPE html>', '<html lang="en">', '<head>', '<meta charset="utf-8">',
+    head = ['<!DOCTYPE html>', '<html lang="en" data-theme="dark" data-theme-choice="dark">', '<head>', '<meta charset="utf-8">',
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
+            '<meta name="theme-color" content="%s">' % THEME_COLORS["dark"], THEME_HEAD_SCRIPT,
             '<title>%s</title>' % esc(full_title),
             '<meta name="description" content="%s">' % esc(desc),
             '<meta name="author" content="%s">' % esc(NAME),
@@ -817,9 +927,7 @@ def page(path, title, desc, body, active=None, kind="website", jsonld=None, publ
         head.append('<meta name="google-site-verification" content="%s">' % esc(config["google_site_verification"]))
     if config.get("bing_verification"):
         head.append('<meta name="msvalidate.01" content="%s">' % esc(config["bing_verification"]))
-    head += ['<meta name="theme-color" content="#F5F8FC" media="(prefers-color-scheme: light)">',
-             '<meta name="theme-color" content="#0F1522" media="(prefers-color-scheme: dark)">',
-             '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
+    head += ['<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
              '<link rel="apple-touch-icon" href="/logo.png">',
              '<link rel="alternate" type="application/rss+xml" title="%s" href="%s">' % (esc(NAME), esc(absurl("/feed.xml"))),
              '<link rel="preconnect" href="https://fonts.googleapis.com">',
@@ -869,7 +977,7 @@ def subscribe_box():
             '<div class="subscribe-actions"><a class="btn" href="%s" target="_blank" rel="noopener">Get the Friday letter</a>%s</div></div>' % (esc(SUBSCRIBE), pod))
 
 POD_BLURB = "Each morning's post as an audio briefing, published every day."
-POD_SCRIPT = ('<script>(function(){var d=false;try{d=window.matchMedia("(prefers-color-scheme: dark)").matches}catch(e){}'
+POD_SCRIPT = ('<script>(function(){var d=false;try{var th=document.documentElement.getAttribute("data-theme");d=th?th==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches}catch(e){}'
               'var f=document.querySelectorAll("iframe.pod-frame");for(var i=0;i<f.length;i++){f[i].src=f[i].getAttribute(d?"data-dark":"data-light")}})();</script>')
 
 def pod_embed(kind, height, title, lazy=False):
@@ -886,7 +994,7 @@ def pod_apps():
 EPISODE_SCRIPT = ('<script>(function(){var s=document.getElementById("post-episode");if(!s||!window.fetch)return;'
                   'fetch("/api/episode/"+s.getAttribute("data-date")).then(function(r){return r.ok?r.json():null})'
                   '.then(function(e){if(!e||!e.found||!/^[a-z0-9]+$/i.test(e.id||""))return;var d=false;'
-                  'try{d=window.matchMedia("(prefers-color-scheme: dark)").matches}catch(x){}'
+                  'try{var th=document.documentElement.getAttribute("data-theme");d=th?th==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches}catch(x){}'
                   's.querySelector("iframe").src="https://share.transistor.fm/e/"+e.id+(d?"/dark":"");s.hidden=false})'
                   '.catch(function(){})})();</script>')
 
@@ -902,14 +1010,14 @@ def episode_block(date):
 LETTER_AUDIO_SCRIPT = ('<script>(function(){var s=document.getElementById("letter-audio");if(!s||!window.fetch)return;'
                        'fetch("/api/letter/"+s.getAttribute("data-week")).then(function(r){return r.ok?r.json():null})'
                        '.then(function(e){if(!e||!e.found||!/^[a-z0-9]+$/i.test(e.id||""))return;var d=false;'
-                       'try{d=window.matchMedia("(prefers-color-scheme: dark)").matches}catch(x){}'
+                       'try{var th=document.documentElement.getAttribute("data-theme");d=th?th==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches}catch(x){}'
                        's.querySelector("iframe").src="https://share.transistor.fm/e/"+e.id+(d?"/dark":"");s.hidden=false})'
                        '.catch(function(){})})();</script>')
 
 SPECIAL_AUDIO_SCRIPT = ('<script>(function(){var s=document.getElementById("special-audio");if(!s||!window.fetch)return;'
                         'fetch("/api/special/"+s.getAttribute("data-slug")).then(function(r){return r.ok?r.json():null})'
                         '.then(function(e){if(!e||!e.found||!/^[a-z0-9]+$/i.test(e.id||""))return;var d=false;'
-                        'try{d=window.matchMedia("(prefers-color-scheme: dark)").matches}catch(x){}'
+                        'try{var th=document.documentElement.getAttribute("data-theme");d=th?th==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches}catch(x){}'
                         's.querySelector("iframe").src="https://share.transistor.fm/e/"+e.id+(d?"/dark":"");s.hidden=false})'
                         '.catch(function(){})})();</script>')
 
@@ -2785,6 +2893,8 @@ if CONTACT:
             '<div class="field"><label for="cf-message">Message</label><textarea id="cf-message" name="message" maxlength="5000" required></textarea></div>',
             '<div class="hp" aria-hidden="true"><label for="cf-website">Leave this field empty</label><input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>',
             '<div class="cf-turnstile" data-sitekey="%s" data-theme="auto" data-action="contact"></div>' % esc(CONTACT["turnstile_sitekey"]),
+            '<script>(function(){var th=document.documentElement.getAttribute("data-theme"),c=document.querySelectorAll(".cf-turnstile");'
+            'for(var i=0;i<c.length;i++)c[i].setAttribute("data-theme",th==="dark"||th==="light"?th:"auto")})();</script>',
             '<div class="actions"><button class="btn" type="submit">Send message</button></div>',
             '</form>',
             '<p class="form-note">For a correction, tell us the page and what the source says; corrections are made on the page and marked. '
