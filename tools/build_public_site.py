@@ -130,6 +130,14 @@ config contact.live is true; until then /contact/ is built but unlinked and mark
 The podcast lookup now accepts every title in podcast.episode_titles ("Daily Briefing for <date>", the new name, and "Daily
 Update for <date>", the old one), so the post pages find episodes under either name.
 Version 2.15.1 (Sept 30, 2026): the contact Worker turns away any request body over 64 KB before reading it.
+Version 2.16 (Sept 30, 2026): sharing and pictures. Every daily post, Friday letter, special topic and explainer page, the long
+read (/where-things-stand/) and today's post on the home page carry a "Share story" link just under the standfirst (under the
+headline where a piece has none) and above the picture. It opens the reader's share sheet where the browser has one
+(navigator.share), otherwise copies the page's address and says "Link copied", and without JavaScript opens an email with the
+title and address. /posts/ lists the daily posts the way /letters/ and /specials/ list theirs, each beside its picture.
+Explainers may carry "image" ({src, alt}, the same form as a letter's): archived under assets/images/explainers/, served from
+/images/explainers/<slug>.<ext>, shown under the share link on the explainer's page, used as its social image, and shown beside
+the entry on /explainers/.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -673,6 +681,14 @@ EXTRA_CSS = """
   .one-question { margin-top: 26px; padding: 18px 20px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; }
   .one-question p { margin: 0; font-family: var(--display); font-size: 1.2rem; color: var(--ink); line-height: 1.45; }
   .patient-closing { margin-top: 18px; color: var(--ink-2); }
+  .share-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 14px 0 0; }
+  .btn.share-link { display: inline-flex; align-items: center; gap: 7px; }
+  .btn.share-link svg { width: 16px; height: 16px; flex: 0 0 auto; }
+  .share-note { font-size: 0.85rem; color: var(--muted); }
+  .share-note:empty { display: none; }
+  .doc .share-row { margin: 0 0 22px; }
+  .explainer .letter-art + .short-answer { margin-top: 0; }
+  .post-list .t { font-size: 1.12rem; line-height: 1.3; }
 """
 
 def analytics_snippet():
@@ -1389,6 +1405,7 @@ def collect_images(kind, pages):
 LETTER_IMG = collect_images("letters", letter_pages)
 POST_IMG = collect_images("posts", post_pages)
 SPECIAL_IMG = collect_images("specials", special_pages)
+EXPLAINER_IMG = collect_images("explainers", [(x["slug"], x) for x in EXPLAINERS])  # 2.16
 
 def figure_html(img_map, slug, cls, lazy=False):
     if slug not in img_map:
@@ -1410,6 +1427,35 @@ def og_for(img_map, slug):
 def letter_og(slug):
     return og_for(LETTER_IMG, slug)
 
+# 2.16: "Share story". The share sheet where the browser has one, else copy the address; without JavaScript, an email.
+SHARE_ICON = ('<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">'
+              '<path d="M12 15V3.5M7.5 8L12 3.5 16.5 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+              '<path d="M5 11.5V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+SHARE_SCRIPT = ('<script>(function(){if(window.__pitlShare)return;window.__pitlShare=1;document.addEventListener("click",function(e){'
+                'var a=e.target&&e.target.closest?e.target.closest("a.share-link"):null;if(!a)return;'
+                'var u=a.getAttribute("data-share-url")||location.href,t=a.getAttribute("data-share-title")||document.title,'
+                'n=a.parentNode&&a.parentNode.querySelector(".share-note");'
+                'function say(s){if(!n)return;n.textContent=s;clearTimeout(n._t);n._t=setTimeout(function(){n.textContent=""},3000);}'
+                'if(navigator.share){e.preventDefault();navigator.share({title:t,url:u}).catch(function(){});return;}'
+                'if(navigator.clipboard&&window.isSecureContext){e.preventDefault();'
+                'navigator.clipboard.writeText(u).then(function(){say("Link copied")},function(){location.href=a.href;});}'
+                '});})();</script>')
+
+def share_html(path, title):
+    url = absurl(path)
+    title = plain(title) or NAME
+    mail = "mailto:?subject=%s&body=%s" % (urllib.parse.quote(title), urllib.parse.quote(title + "\n\n" + url))
+    return ('<div class="share-row"><a class="btn ghost small share-link" href="%s" data-share-url="%s" data-share-title="%s">%sShare story</a>'
+            '<span class="share-note" role="status" aria-live="polite"></span></div>%s' % (esc(mail), esc(url), esc(title), SHARE_ICON, SHARE_SCRIPT))
+
+def list_thumb(img_map, slug, href, k):
+    """The picture beside an entry in a list page (/letters/, /specials/, /posts/, /explainers/), linked to the piece."""
+    if slug not in img_map:
+        return ""
+    src, alt, _ = img_map[slug]
+    return ('<a class="thumb" href="%s" tabindex="-1" aria-hidden="true"><img src="%s" alt="%s" width="1200" height="630" decoding="async"%s></a>'
+            % (href, esc(src), esc(alt), ' loading="lazy"' if k > 1 else ""))
+
 # ------------------------------------------------------------------ home
 masthead = re.search(r'<header class="masthead">.*?</header>', section_html("today"), re.S)
 masthead = masthead.group(0) if masthead else ('<header class="masthead"><div class="eyebrow">%s</div><h1>%s</h1><p class="dek">%s</p></header>' % (esc(config["tagline"]), esc(NAME), esc(config["description"])))
@@ -1421,6 +1467,7 @@ if posts:
     slug0, p0 = post_pages[0]
     body.append('<div class="eyebrow">Today\'s post</div>')
     body.append('<article class="post"><div class="post-date"><time datetime="%s">%s</time></div><h2 class="headline"><a href="%s" style="color:inherit;text-decoration:none">%s</a></h2>' % (esc(p0.get("date", "")), esc(fmt(p0.get("date"))), post_url(slug0), esc(p0.get("headline", ""))))
+    body.append(share_html(post_url(slug0), p0.get("headline") or "Daily post, " + fmt(p0.get("date"))))
     body.append(post_body(p0, fig=post_figure(slug0), under_fig="" if p0.get("baseline") else episode_block(p0.get("date"))))
     body.append('<div class="more-row"><a class="btn ghost small" href="%s">Link to this post</a><a class="btn ghost small" href="/posts/">All posts</a><a class="btn ghost small" href="/where-things-stand/">Where things stand</a>%s</div></article>'
                 % (post_url(slug0), '<a class="btn ghost small" href="/specials/">Special topics</a>' if specials else ""))
@@ -1466,6 +1513,7 @@ for i, (slug, p) in enumerate(post_pages):
     headline = p.get("headline") or "Daily post, " + fmt(p.get("date"))
     desc = describe(p.get("intro") or p.get("summary") or [p.get("dek") or headline])
     art = ['<article class="post"><div class="post-date"><time datetime="%s">%s</time>%s</div><h1 class="headline">%s</h1>' % (esc(p.get("date", "")), esc(fmt(p.get("date"))), " · Pinned" if p.get("baseline") else "", esc(headline))]
+    art.append(share_html(path, headline))
     art.append(post_body(p, anchors=True, fig=post_figure(slug), under_fig="" if p.get("baseline") else episode_block(p.get("date"))))
     art.append("</article>")
     older = (post_pages[i + 1][1].get("headline", ""), post_url(post_pages[i + 1][0])) if i + 1 < len(post_pages) else None
@@ -1477,9 +1525,11 @@ for i, (slug, p) in enumerate(post_pages):
 body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Daily posts</h1><span class="sub">newest first</span></div>',
         '<p class="lead">One post every morning: what happened in AI and medicine the day before, written as straight news with every source linked.</p>']
 if post_pages:
-    body.append('<ul class="archive">')
-    for slug, p in post_pages:
-        body.append('<li><span class="when">%s</span><a href="%s">%s%s</a></li>' % (esc(fmt(p.get("date"))), post_url(slug), "Pinned. " if p.get("baseline") else "", esc(p.get("headline", ""))))
+    body.append('<ul class="letter-list post-list">')
+    for k, (slug, p) in enumerate(post_pages):
+        thumb = list_thumb(POST_IMG, slug, post_url(slug), k)
+        body.append('<li%s>%s<div class="txt"><span class="when">%s</span><a class="t" href="%s">%s%s</a></div></li>' % (
+            "" if thumb else ' class="no-thumb"', thumb, esc(fmt(p.get("date"))), post_url(slug), "Pinned. " if p.get("baseline") else "", esc(p.get("headline", ""))))
     body.append("</ul>")
 else:
     body.append('<p class="empty">No posts yet.</p>')
@@ -1520,6 +1570,7 @@ for i, (slug, w) in enumerate(letter_pages):
     art = ['<article class="post letter"><div class="post-date">The Friday letter · <time datetime="%s">%s</time></div><h1 class="headline">%s</h1>' % (esc(w.get("weekOf", "")), esc(w.get("dateRange") or fmt(w.get("weekOf"))), esc(headline))]
     if w.get("dek"):
         art.append('<p class="standfirst">%s</p>' % rich(w["dek"]))
+    art.append(share_html(path, headline))
     art.append(letter_figure(slug))
     art.append(letter_audio_block(w.get("weekOf")))
     copy = w.get("body") or w.get("summary")
@@ -1601,6 +1652,7 @@ for i, (slug, sp) in enumerate(special_pages):
     art = ['<article class="post special"><div class="post-date">Special topic · <time datetime="%s">%s</time></div><h1 class="headline">%s</h1>' % (esc(sp.get("date", "")), esc(fmt(sp.get("date"))), esc(title))]
     if sp.get("dek"):
         art.append('<p class="standfirst">%s</p>' % rich(sp["dek"]))
+    art.append(share_html(path, title))
     art.append(figure_html(SPECIAL_IMG, slug, "letter-art"))
     art.append(special_audio_block(slug))
     art.append('<div class="special-body">')
@@ -2373,6 +2425,8 @@ def build_explainers():
         title = x["title"]
         rev = x.get("reviewed") if _iso(x.get("reviewed")) else (x.get("published") if _iso(x.get("published")) else TODAY_ISO)
         art = ['<article class="post explainer"><div class="post-date">Explainer · Reviewed <time datetime="%s">%s</time></div><h1 class="headline">%s</h1>' % (esc(rev), esc(fmt(rev)), esc(title))]
+        art.append(share_html(path, title))
+        art.append(figure_html(EXPLAINER_IMG, slug, "letter-art"))
         if x.get("short"):
             art.append('<div class="short-answer"><h2>Short answer</h2><p>%s</p></div>' % rich(x["short"]))
         art.append('<div class="special-body explainer-body">')
@@ -2395,15 +2449,18 @@ def build_explainers():
         older = (items[i + 1]["title"], explainer_url(items[i + 1]["slug"])) if i + 1 < len(items) else None
         newer = (items[i - 1]["title"], explainer_url(items[i - 1]["slug"])) if i > 0 else None
         desc = describe([x.get("short") or title])
-        entry_page("Article", path, [(NAME, "/"), ("Explainers", "/explainers/"), (title, None)], title, desc, rev, "".join(art), older, newer, unsigned=True)
+        og_i, og_alt = og_for(EXPLAINER_IMG, slug)
+        entry_page("Article", path, [(NAME, "/"), ("Explainers", "/explainers/"), (title, None)], title, desc, rev, "".join(art), older, newer,
+                   image=og_i, image_alt=og_alt, unsigned=True)
         urls.append((path, rev, "monthly", "0.8"))
     body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Explainers</h1><span class="sub">plain answers, with the sources</span></div>',
             '<p class="lead">Plain answers to questions physicians and practice leaders ask about AI in medicine. Every fact links to its source, each page shows the date it was '
             'last reviewed, and each ends with what would change the answer.</p><ul class="letter-list">']
-    for x in items:
+    for k, x in enumerate(items):
         rev = x.get("reviewed") if _iso(x.get("reviewed")) else ""
-        body.append('<li class="no-thumb"><div class="txt"><span class="when">%s</span><a class="t" href="%s">%s</a>%s</div></li>'
-                    % (esc(("Reviewed " + fmt(rev)) if rev else "Explainer"), explainer_url(x["slug"]), esc(x["title"]),
+        thumb = list_thumb(EXPLAINER_IMG, x["slug"], explainer_url(x["slug"]), k)
+        body.append('<li%s>%s<div class="txt"><span class="when">%s</span><a class="t" href="%s">%s</a>%s</div></li>'
+                    % ("" if thumb else ' class="no-thumb"', thumb, esc(("Reviewed " + fmt(rev)) if rev else "Explainer"), explainer_url(x["slug"]), esc(x["title"]),
                        ('<p class="d">%s</p>' % esc(describe([x["short"]], 230))) if x.get("short") else ""))
     body.append("</ul>")
     page("/explainers/", "Explainers", "Plain answers to common questions about AI in medicine, from HIPAA and chatbots to AI scribe liability and Medicare payment, each linked to its sources and dated.",
@@ -2605,6 +2662,9 @@ if m:
     land = land[:m.start()] + '<h1 class="doc-title">%s</h1>' % m.group(1) + land[m.end():]
 m = re.search(r'<p class="lede">(.*?)</p>', land, re.S)
 land_desc = describe([re.sub(r"<[^>]+>", "", H.unescape(m.group(1)))]) if m else "A map of where AI in medicine stands: what the models can do, what runs without a doctor, the rules, the money, and what physicians should do."
+_m = re.search(r'<p class="lede">.*?</p>', land, re.S) or re.search(r'</h1>', land)  # 2.16
+if _m:
+    land = land[:_m.end()] + share_html("/where-things-stand/", land_title) + land[_m.end():]
 ld_land = article_ld("Article", absurl("/where-things-stand/"), land_title, land_desc, LAST_UPDATED)
 page("/where-things-stand/", land_title, land_desc, '<section class="panel doc">' + land + subscribe_box() + "</section>", active="/where-things-stand/", kind="article", jsonld=ld_land)
 urls.append(("/where-things-stand/", LAST_UPDATED, "monthly", "0.8"))
