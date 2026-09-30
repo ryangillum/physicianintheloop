@@ -1,0 +1,27 @@
+// Wrangler configuration for the contact form Worker. Written by tools/build_public_site.py on every site build;
+// edit the generator, not this file. Cloudflare Workers Builds deploys this folder to the Worker named below whenever it
+// changes on main (Worker settings: root directory contact-worker, deploy command "npx wrangler deploy", build watch path
+// contact-worker/*). The Turnstile secret key is the Worker secret TURNSTILE_SECRET, set in the dashboard; secrets are kept
+// across deploys and never belong in this file.
+{
+  "name": "physicianintheloop-contact",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-30",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "physicianintheloop.org/api/contact",
+      "zone_name": "physicianintheloop.org"
+    }
+  ],
+  "send_email": [
+    {
+      "name": "SEND_EMAIL",
+      "destination_address": "ryangillum@nomadmedical.org"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

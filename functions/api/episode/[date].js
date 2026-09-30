@@ -1,7 +1,7 @@
 // Podcast episode lookup for physicianintheloop.org. Written by tools/build_public_site.py on every
 // site build; edit the generator, not this file.
 //
-// GET /api/episode/YYYY-MM-DD finds the episode titled for that date in the show's feed and answers
+// GET /api/episode/YYYY-MM-DD finds the episode titled for that date (under any name in TITLES) in the show's feed and answers
 // {"found": true, "id": "...", "embed": "https://share.transistor.fm/e/<id>", ...}, or {"found": false}
 // before the episode exists. Daily post pages call it when they load and show the player only when found.
 // This is the Cloudflare Pages version of netlify/functions/episode.mjs: the same lookup, with the feed fetched
@@ -15,14 +15,15 @@
 // SPECIAL_PREFIX and whose show notes link to /specials/<slug>/.
 
 const FEED = "https://feeds.transistor.fm/physician-in-the-loop";
-const TITLE = "Daily Update for {date}";
+const TITLES = ["Daily Briefing for {date}", "Daily Update for {date}"];
 const LETTER_PREFIX = "Friday Letter";
 const SPECIAL_PREFIX = "Special Topic";
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-function titleFor(date) {
+function titlesFor(date) {
   const [y, m, d] = date.split("-").map(Number);
-  return TITLE.replace("{date}", MONTHS[m - 1] + " " + d + ", " + y);
+  const when = MONTHS[m - 1] + " " + d + ", " + y;
+  return TITLES.map((t) => t.replace("{date}", when));
 }
 
 function plain(s) {
@@ -124,11 +125,13 @@ async function handle(req, params) {
     }
     return reply({ found: false, week: date }, 200, "public, max-age=60", "public, s-maxage=120");
   }
-  const want = plain(titleFor(date));
+  const wanted = titlesFor(date);
+  const wants = wanted.map(plain);
   for (const chunk of xml.split(/<item[\s>]/i).slice(1)) {
     const item = chunk.split(/<\/item>/i)[0];
     const titles = [...item.matchAll(/<(?:itunes:)?title>([\s\S]*?)<\/(?:itunes:)?title>/gi)].map((t) => plain(t[1]));
-    if (!titles.includes(want)) continue;
+    const hit = wants.findIndex((w) => titles.includes(w));
+    if (hit === -1) continue;
     const link =
       /<link>\s*https:\/\/share\.transistor\.fm\/s\/([a-z0-9]+)/i.exec(item) ||
       /<enclosure[^>]+https:\/\/media\.transistor\.fm\/([a-z0-9]+)\//i.exec(item) ||
@@ -136,7 +139,7 @@ async function handle(req, params) {
     if (!link) continue;
     const id = link[1];
     return reply(
-      { found: true, date, title: titleFor(date), id, share: "https://share.transistor.fm/s/" + id, embed: "https://share.transistor.fm/e/" + id },
+      { found: true, date, title: wanted[hit], id, share: "https://share.transistor.fm/s/" + id, embed: "https://share.transistor.fm/e/" + id },
       200,
       "public, max-age=600",
       "public, s-maxage=3600, stale-while-revalidate=86400"

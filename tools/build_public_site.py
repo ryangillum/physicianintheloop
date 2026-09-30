@@ -115,6 +115,20 @@ link on the home page and its llms.txt line are no longer built, and "rhtp" rows
 Version 2.14.2 (Sept 29, 2026): retired pages. Cloudflare Pages can keep serving a deleted page from a data center's cache for
 up to a week after a deploy, so every path in RETIRED_PATHS (/rhtp/ and /specials/rural-health-transformation-program/) gets a
 Pages Function (functions/<path>/index.js and [[path]].js) that answers with the site's not-found page and status 410 (Gone).
+Version 2.15 (Sept 30, 2026): the publication speaks for itself. Every piece is credited to the publication: the meta author,
+the structured-data author (an Organization) and the feed's dc:creator name Physician in the Loop, the home page no longer
+carries a Person, llms.txt says the site is published by the copyright holder (Nomad Medical Group, LLC), and only the About page
+names the founder (config "author", with "founder_title"), in its structured data as the founder of the copyright holder. The
+navigation puts For patients last before About. A contact page: /contact/ has a form (name, email, topic, message, a hidden
+honeypot field and a Cloudflare Turnstile check, site key from config contact.turnstile_sitekey) that posts to /api/contact, and
+/contact/thanks/ thanks the sender. /api/contact is not a Pages Function: it is the Worker contact.worker, which checks the
+Turnstile token and emails the message through an Email Routing send_email binding to the verified address contact.to. The script
+writes that Worker's source and Wrangler configuration to <repo root>/contact-worker/ (src/index.js and wrangler.jsonc), which
+Cloudflare Workers Builds deploys when that folder changes; the Turnstile secret key is a Worker secret (TURNSTILE_SECRET) set in the
+dashboard and never kept in the repository. The form is linked (footer, About page, sitemap, llms.txt) and indexable only when
+config contact.live is true; until then /contact/ is built but unlinked and marked noindex, so it can be tested before launch.
+The podcast lookup now accepts every title in podcast.episode_titles ("Daily Briefing for <date>", the new name, and "Daily
+Update for <date>", the old one), so the post pages find episodes under either name.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -147,9 +161,21 @@ DEFAULT_CONFIG = {
         "spotify": "https://open.spotify.com/show/6F9zsXoKZGAvqPx2GmDSqh",
         "youtube": None,
         "playlist_height": 390,
-        "episode_title": "Daily Update for {date}",
+        "episode_title": "Daily Briefing for {date}",
+        "episode_titles": ["Daily Briefing for {date}", "Daily Update for {date}"],
         "letter_title_prefix": "Friday Letter",
         "special_title_prefix": "Special Topic",
+    },
+    "founder_title": "Founder and CEO",
+    "contact": {
+        "live": False,
+        "to": "ryangillum@nomadmedical.org",
+        "from": "contact-form@physicianintheloop.org",
+        "turnstile_sitekey": "0x4AAAAAAFKXs504E3xIEBVc",
+        "worker": "physicianintheloop-contact",
+        "zone": "physicianintheloop.org",
+        "path": "/api/contact",
+        "compatibility_date": "2026-09-30",
     },
 }
 config = dict(DEFAULT_CONFIG)
@@ -171,6 +197,19 @@ if config.get("podcast") is not False:
         POD.update({k: v for k, v in config["podcast"].items() if v})
     if not (POD.get("transistor_slug") and POD.get("rss")):
         POD = None
+if POD:
+    # 2.15: every title a daily episode may carry; the configured episode_title first, then the rest in order
+    _titles = [POD.get("episode_title")] + list(POD.get("episode_titles") or [])
+    POD["episode_titles"] = [t for i, t in enumerate(_titles) if isinstance(t, str) and "{date}" in t and t not in _titles[:i]] or ["Daily Briefing for {date}", "Daily Update for {date}"]
+CONTACT = None
+if config.get("contact") is not False:
+    CONTACT = dict(DEFAULT_CONFIG["contact"])
+    if isinstance(config.get("contact"), dict):
+        CONTACT.update({k: v for k, v in config["contact"].items() if v is not None and v != ""})
+    if not (CONTACT.get("to") and CONTACT.get("from") and CONTACT.get("turnstile_sitekey") and CONTACT.get("worker") and CONTACT.get("zone")):
+        CONTACT = None
+CONTACT_LIVE = bool(CONTACT and CONTACT.get("live") is True)
+PUBLISHED_BY = config.get("copyright_holder") or NAME
 
 # ------------------------------------------------------------------ read the artifact page
 raw = open(SRC, encoding="utf-8").read()
@@ -461,9 +500,10 @@ def explainer_url(slug): return "/explainers/%s/" % slug
 def patient_url(week): return "/patients/%s/" % week
 
 NAV = ([("/", "Today")] + ([("/podcast/", "Podcast")] if POD else []) + [("/posts/", "Daily posts"), ("/letters/", "Friday letter")]
-       + ([("/patients/", "For patients")] if PATIENTS else []) + [("/specials/", "Special topics")]
+       + [("/specials/", "Special topics")]
        + ([("/law-map/", "Law map")] if LAWS else []) + ([("/rhtp/", "RHTP tracker")] if RHTP else []) + ([("/explainers/", "Explainers")] if EXPLAINERS else [])
-       + [("/watch/", "Watch list"), ("/dates/", "Dates"), ("/where-things-stand/", "Where things stand"), ("/about/", "About")])
+       + [("/watch/", "Watch list"), ("/dates/", "Dates"), ("/where-things-stand/", "Where things stand")]
+       + ([("/patients/", "For patients")] if PATIENTS else []) + [("/about/", "About")])
 HASH_MAP = {"today": "/", "podcast": "/podcast/", "posts": "/posts/", "letters": "/letters/", "specials": "/specials/", "watch": "/watch/", "dates": "/dates/", "landscape": "/where-things-stand/", "about": "/about/"}
 HASH_MAP.update({k: v for k, v, have in (("patients", "/patients/", PATIENTS), ("lawmap", "/law-map/", LAWS), ("rhtp", "/rhtp/", RHTP), ("explainers", "/explainers/", EXPLAINERS)) if have})
 ICON = ('<svg class="ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">'
@@ -671,10 +711,12 @@ def nav_html(active):
     return "".join(out)
 
 FOOT = ('<footer class="foot"><div class="tablinks">' + "".join('<a href="%s">%s</a>' % (p, esc(l)) for p, l in NAV) +
-        '</div><p style="margin-top:10px">Not medical, legal, or financial advice. <a href="/topics/">Topics</a>. <a href="/feed.xml">RSS</a>.</p>'
+        '</div><p style="margin-top:10px">Not medical, legal, or financial advice. <a href="/topics/">Topics</a>. <a href="/feed.xml">RSS</a>.'
+        + (' <a href="/contact/">Contact us</a>.' if CONTACT_LIVE else "") + '</p>'
         '<p class="copyright">&copy; %d %s. All rights reserved.</p></footer>' % (datetime.date.today().year, esc(config.get("copyright_holder") or AUTHOR)))
 
-def page(path, title, desc, body, active=None, kind="website", jsonld=None, published=None, modified=None, head_extra="", image=None, image_alt=None, unsigned=False):
+def page(path, title, desc, body, active=None, kind="website", jsonld=None, published=None, modified=None, head_extra="", image=None, image_alt=None, unsigned=True, noindex=False):
+    # 2.15: every page is credited to the publication; "unsigned" is kept for callers but no page names a person as author
     url = absurl(path)
     og_img = (absurl(image) if image.startswith("/") else image) if image else absurl("/og-image.png")
     full_title = title if (title.startswith(NAME) or title.endswith(NAME)) else "%s | %s" % (title, NAME)
@@ -682,8 +724,8 @@ def page(path, title, desc, body, active=None, kind="website", jsonld=None, publ
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
             '<title>%s</title>' % esc(full_title),
             '<meta name="description" content="%s">' % esc(desc),
-            '<meta name="author" content="%s">' % esc(NAME if unsigned else AUTHOR),
-            '<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">',
+            '<meta name="author" content="%s">' % esc(NAME),
+            '<meta name="robots" content="%s">' % ("noindex, follow" if noindex else "index, follow, max-image-preview:large, max-snippet:-1"),
             '<link rel="canonical" href="%s">' % esc(url),
             '<meta property="og:type" content="%s">' % esc(kind),
             '<meta property="og:site_name" content="%s">' % esc(NAME),
@@ -703,8 +745,6 @@ def page(path, title, desc, body, active=None, kind="website", jsonld=None, publ
         head.append('<meta name="twitter:site" content="%s">' % esc(config["twitter_handle"]))
     if published:
         head.append('<meta property="article:published_time" content="%s">' % esc(published))
-        if not unsigned:
-            head.append('<meta property="article:author" content="%s">' % esc(absurl("/about/")))
     if modified:
         head.append('<meta property="article:modified_time" content="%s">' % esc(modified))
     if config.get("google_site_verification"):
@@ -738,13 +778,16 @@ def write(path, content, binary=False):
     with open(full, "wb" if binary else "w", **({} if binary else {"encoding": "utf-8"})) as f:
         f.write(content)
 
-PUBLISHER = {"@type": "Organization", "name": NAME, "url": SITE, "logo": {"@type": "ImageObject", "url": absurl("/logo.png"), "width": 512, "height": 512}}
-PERSON = {"@type": "Person", "name": AUTHOR, "url": absurl("/about/"), "jobTitle": "Physician", "sameAs": [SUBSTACK]}
+PUBLISHER = {"@type": "Organization", "name": NAME, "url": SITE, "logo": {"@type": "ImageObject", "url": absurl("/logo.png"), "width": 512, "height": 512},
+             **({"parentOrganization": {"@type": "Organization", "name": PUBLISHED_BY}} if PUBLISHED_BY != NAME else {})}
+ORG_AUTHOR = {"@type": "Organization", "name": NAME, "url": SITE}
+# 2.15: the founder appears only on the About page, as the founder of the copyright holder
+FOUNDER = {"@type": "Person", "name": AUTHOR, "jobTitle": config.get("founder_title") or "Founder and CEO"}
 
-def article_ld(kind, url, headline, desc, date, image=None, unsigned=False):
+def article_ld(kind, url, headline, desc, date, image=None, unsigned=True):
     return {"@context": "https://schema.org", "@type": kind, "headline": headline[:110], "description": desc,
             "datePublished": iso_dt(date), "dateModified": iso_dt(date if date != LAST_UPDATED else LAST_UPDATED),
-            "author": ({"@type": "Organization", "name": NAME, "url": SITE} if unsigned else PERSON), "publisher": PUBLISHER, "mainEntityOfPage": {"@type": "WebPage", "@id": url},
+            "author": ORG_AUTHOR, "publisher": PUBLISHER, "mainEntityOfPage": {"@type": "WebPage", "@id": url},
             "image": [(absurl(image) if image.startswith("/") else image) if image else absurl("/og-image.png")], "isAccessibleForFree": True, "inLanguage": "en-US"}
 
 def breadcrumbs(items):
@@ -825,7 +868,7 @@ def letter_audio_block(week):
 EPISODE_FN = r'''// Podcast episode lookup for physicianintheloop.org. Written by tools/build_public_site.py on every
 // site build; edit the generator, not this file.
 //
-// GET /api/episode/YYYY-MM-DD finds the episode titled for that date in the show's feed and answers
+// GET /api/episode/YYYY-MM-DD finds the episode titled for that date (under any name in TITLES) in the show's feed and answers
 // {"found": true, "id": "...", "embed": "https://share.transistor.fm/e/<id>", ...}, or {"found": false}
 // before the episode exists. Daily post pages call it when they load and show the player only when found.
 // Answers are cached on Netlify's CDN: a found episode for an hour, a missing one for two minutes, so a
@@ -839,14 +882,15 @@ EPISODE_FN = r'''// Podcast episode lookup for physicianintheloop.org. Written b
 // SPECIAL_PREFIX and whose show notes link to /specials/<slug>/.
 
 const FEED = __FEED__;
-const TITLE = __TITLE__;
+const TITLES = __TITLES__;
 const LETTER_PREFIX = __LETTER__;
 const SPECIAL_PREFIX = __SPECIAL__;
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-function titleFor(date) {
+function titlesFor(date) {
   const [y, m, d] = date.split("-").map(Number);
-  return TITLE.replace("{date}", MONTHS[m - 1] + " " + d + ", " + y);
+  const when = MONTHS[m - 1] + " " + d + ", " + y;
+  return TITLES.map((t) => t.replace("{date}", when));
 }
 
 function plain(s) {
@@ -948,11 +992,13 @@ export default async (req, context) => {
     }
     return reply({ found: false, week: date }, 200, "public, max-age=60", "public, s-maxage=120");
   }
-  const want = plain(titleFor(date));
+  const wanted = titlesFor(date);
+  const wants = wanted.map(plain);
   for (const chunk of xml.split(/<item[\s>]/i).slice(1)) {
     const item = chunk.split(/<\/item>/i)[0];
     const titles = [...item.matchAll(/<(?:itunes:)?title>([\s\S]*?)<\/(?:itunes:)?title>/gi)].map((t) => plain(t[1]));
-    if (!titles.includes(want)) continue;
+    const hit = wants.findIndex((w) => titles.includes(w));
+    if (hit === -1) continue;
     const link =
       /<link>\s*https:\/\/share\.transistor\.fm\/s\/([a-z0-9]+)/i.exec(item) ||
       /<enclosure[^>]+https:\/\/media\.transistor\.fm\/([a-z0-9]+)\//i.exec(item) ||
@@ -960,7 +1006,7 @@ export default async (req, context) => {
     if (!link) continue;
     const id = link[1];
     return reply(
-      { found: true, date, title: titleFor(date), id, share: "https://share.transistor.fm/s/" + id, embed: "https://share.transistor.fm/e/" + id },
+      { found: true, date, title: wanted[hit], id, share: "https://share.transistor.fm/s/" + id, embed: "https://share.transistor.fm/e/" + id },
       200,
       "public, max-age=600",
       "public, s-maxage=3600, stale-while-revalidate=86400"
@@ -1013,7 +1059,7 @@ export async function onRequest(context) {
 def cloudflare_function_source():
     """The Netlify function's lookup, adapted to a Cloudflare Pages Function (onRequest(context)); the same text serves all three routes."""
     src = (EPISODE_FN.replace("__FEED__", json.dumps(POD["rss"]))
-           .replace("__TITLE__", json.dumps(POD.get("episode_title") or "Daily Update for {date}"))
+           .replace("__TITLES__", json.dumps(POD["episode_titles"]))
            .replace("__LETTER__", json.dumps(POD.get("letter_title_prefix") or "Friday Letter"))
            .replace("__SPECIAL__", json.dumps(POD.get("special_title_prefix") or "Special Topic")))
     swaps = [
@@ -1063,6 +1109,176 @@ def write_retired_functions():
     return written
 
 
+CONTACT_WORKER_JS = r"""// Contact form Worker for physicianintheloop.org (route __ROUTE__). Written by tools/build_public_site.py on every
+// site build; edit the generator, not this file. Cloudflare Workers Builds deploys this folder when it changes.
+//
+// The form at /contact/ posts here. The Worker checks the Cloudflare Turnstile token (secret TURNSTILE_SECRET, set in
+// the dashboard and never kept in the repository), emails the message through the Email Routing binding SEND_EMAIL to the
+// verified destination address, and sends the visitor back to /contact/thanks/ or to /contact/?error=fields|check|send.
+import { EmailMessage } from "cloudflare:email";
+
+const SITE = __SITE__;
+const HOST = __HOST__;
+const TO = __TO__;
+const FROM = __FROM__;
+const NAME = __NAME__;
+
+function back(path) {
+  return new Response(null, { status: 303, headers: { Location: SITE + path, "Cache-Control": "no-store" } });
+}
+
+function oneLine(value, max) {
+  return String(value || "").replace(/[\r\n\t]+/g, " ").replace(/[<>"\\]/g, "").trim().slice(0, max);
+}
+
+function b64(text) {
+  const bytes = new TextEncoder().encode(text);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+
+function headerText(text) {
+  // RFC 2047: plain ASCII as is, anything else as UTF-8 encoded words of at most 45 bytes each
+  if (/^[\x20-\x7E]*$/.test(text)) return text;
+  const words = [];
+  let chunk = "";
+  for (const ch of text) {
+    if (new TextEncoder().encode(chunk + ch).length > 45) {
+      words.push("=?UTF-8?B?" + b64(chunk) + "?=");
+      chunk = "";
+    }
+    chunk += ch;
+  }
+  if (chunk) words.push("=?UTF-8?B?" + b64(chunk) + "?=");
+  return words.join(" ");
+}
+
+export default {
+  async fetch(request, env) {
+    if (request.method !== "POST") {
+      return new Response("This address only accepts the contact form at " + SITE + "/contact/.", {
+        status: 405, headers: { Allow: "POST", "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
+    }
+    let form;
+    try {
+      form = await request.formData();
+    } catch (err) {
+      return back("/contact/?error=fields");
+    }
+    if (String(form.get("website") || "").trim()) return back("/contact/thanks/"); // honeypot field, hidden from people
+
+    const name = oneLine(form.get("name"), 120);
+    const email = oneLine(form.get("email"), 254);
+    const topic = oneLine(form.get("topic"), 80);
+    const message = String(form.get("message") || "").replace(/\r\n?/g, "\n").trim().slice(0, 5000);
+    if (!name || !/^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(email) || message.length < 2) {
+      return back("/contact/?error=fields");
+    }
+
+    if (!env.TURNSTILE_SECRET) {
+      console.log("contact form: the secret TURNSTILE_SECRET is not set");
+      return back("/contact/?error=send");
+    }
+    const token = String(form.get("cf-turnstile-response") || "");
+    if (!token) return back("/contact/?error=check");
+    const check = new FormData();
+    check.append("secret", env.TURNSTILE_SECRET);
+    check.append("response", token);
+    const ip = request.headers.get("CF-Connecting-IP");
+    if (ip) check.append("remoteip", ip);
+    let outcome = { success: false };
+    try {
+      const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: check });
+      outcome = await res.json();
+    } catch (err) {
+      outcome = { success: false };
+    }
+    if (!outcome.success || (outcome.hostname && outcome.hostname !== HOST) || (outcome.action && outcome.action !== "contact")) {
+      return back("/contact/?error=check");
+    }
+
+    const text = ["Name: " + name, "Email: " + email]
+      .concat(topic ? ["Topic: " + topic] : [])
+      .concat(["", message, "", "Sent from the contact form at " + HOST + "."])
+      .join("\r\n");
+    const raw = [
+      "From: " + NAME + " <" + FROM + ">",
+      "To: <" + TO + ">",
+      "Reply-To: " + (/^[\x20-\x7E]*$/.test(name) ? "\"" + name + "\"" : headerText(name)) + " <" + email + ">",
+      "Subject: " + headerText("Contact form" + (topic ? " (" + topic + ")" : "") + ": " + name.slice(0, 60)),
+      "Date: " + new Date().toUTCString(),
+      "Message-ID: <" + crypto.randomUUID() + "@" + HOST + ">",
+      "MIME-Version: 1.0",
+      "Content-Type: text/plain; charset=utf-8",
+      "Content-Transfer-Encoding: base64",
+      "",
+      b64(text).replace(/.{1,76}/g, "$&\r\n"),
+    ].join("\r\n");
+    try {
+      await env.SEND_EMAIL.send(new EmailMessage(FROM, TO, raw));
+    } catch (err) {
+      console.log("contact form: send failed: " + (err && err.message));
+      return back("/contact/?error=send");
+    }
+    return back("/contact/thanks/");
+  },
+};
+"""
+
+CONTACT_WRANGLER = """// Wrangler configuration for the contact form Worker. Written by tools/build_public_site.py on every site build;
+// edit the generator, not this file. Cloudflare Workers Builds deploys this folder to the Worker named below whenever it
+// changes on main (Worker settings: root directory contact-worker, deploy command "npx wrangler deploy", build watch path
+// contact-worker/*). The Turnstile secret key is the Worker secret TURNSTILE_SECRET, set in the dashboard; secrets are kept
+// across deploys and never belong in this file.
+__JSON__
+"""
+
+CONTACT_README = """# Contact form Worker
+
+Written by tools/build_public_site.py on every site build; edit the generator, not these files.
+
+The form at https://__HOST__/contact/ posts to __ROUTE__, which this Worker answers. It checks the Cloudflare Turnstile
+token, emails the message through the Email Routing binding SEND_EMAIL to the verified destination address, and sends the
+visitor back to /contact/thanks/ (or to /contact/?error=...).
+
+Cloudflare Workers Builds deploys this folder to the Worker "__WORKER__" when anything in it changes on main
+(root directory `contact-worker`, deploy command `npx wrangler deploy`, build watch path `contact-worker/*`).
+
+One secret is set in the Cloudflare dashboard and never kept here: TURNSTILE_SECRET, the contact form widget's secret key
+(Workers & Pages, __WORKER__, Settings, Variables and Secrets). Wrangler keeps it across deploys.
+"""
+
+
+def write_contact_worker():
+    """Write <repo root>/contact-worker/ (src/index.js, wrangler.jsonc, README.md) for Cloudflare Workers Builds. True when written.
+    With the contact form turned off (config "contact": false) nothing is written and an existing folder is left alone."""
+    if not CONTACT:
+        return False
+    host = CONTACT["zone"]
+    path = CONTACT.get("path") or "/api/contact"
+    route = host + path
+    cfg = {"name": CONTACT["worker"], "main": "src/index.js", "compatibility_date": CONTACT.get("compatibility_date") or "2026-09-30",
+           "workers_dev": False, "preview_urls": False,
+           "routes": [{"pattern": route, "zone_name": host}],
+           "send_email": [{"name": "SEND_EMAIL", "destination_address": CONTACT["to"]}],
+           "observability": {"enabled": True}}
+    files = {
+        os.path.join("src", "index.js"): (CONTACT_WORKER_JS.replace("__ROUTE__", route).replace("__SITE__", json.dumps("https://" + host))
+                                          .replace("__HOST__", json.dumps(host)).replace("__TO__", json.dumps(CONTACT["to"]))
+                                          .replace("__FROM__", json.dumps(CONTACT["from"])).replace("__NAME__", json.dumps(NAME))),
+        "wrangler.jsonc": CONTACT_WRANGLER.replace("__JSON__", json.dumps(cfg, indent=2)),
+        "README.md": CONTACT_README.replace("__HOST__", host).replace("__ROUTE__", route).replace("__WORKER__", CONTACT["worker"]),
+    }
+    folder = os.path.join(ROOT, "contact-worker")
+    for rel, text in files.items():
+        full = os.path.join(folder, rel)
+        os.makedirs(os.path.dirname(full), exist_ok=True)
+        with open(full, "w", encoding="utf-8") as f:
+            f.write(text)
+    return True
+
+
 def write_episode_function():
     """Write (or remove) the Netlify function behind /api/episode/<date>. Returns True when it is written."""
     target = os.path.join(ROOT, "netlify", "functions", "episode.mjs")
@@ -1072,7 +1288,7 @@ def write_episode_function():
         return False
     os.makedirs(os.path.dirname(target), exist_ok=True)
     src = (EPISODE_FN.replace("__FEED__", json.dumps(POD["rss"]))
-           .replace("__TITLE__", json.dumps(POD.get("episode_title") or "Daily Update for {date}"))
+           .replace("__TITLES__", json.dumps(POD["episode_titles"]))
            .replace("__LETTER__", json.dumps(POD.get("letter_title_prefix") or "Friday Letter"))
            .replace("__SPECIAL__", json.dumps(POD.get("special_title_prefix") or "Special Topic")))
     with open(target, "w", encoding="utf-8") as f:
@@ -1228,8 +1444,7 @@ REF_LINKS = [(p_, l_) for p_, l_, have in (("/law-map/", "AI health law map", LA
 if REF_LINKS:
     body.append('<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">Guides and trackers</h2></div><div class="ref-row">%s</div>'
                 % "".join('<a class="btn ghost small" href="%s">%s</a>' % (p_, esc(l_)) for p_, l_ in REF_LINKS))
-home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": SITE, "description": config["description"], "inLanguage": "en-US", "author": PERSON, "publisher": PUBLISHER},
-           {"@context": "https://schema.org", "@type": "Person", "name": AUTHOR, "url": absurl("/about/"), "jobTitle": "Physician", "sameAs": [SUBSTACK], **({"image": absurl(photo_path)} if photo_path else {})}]
+home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": NAME, "url": SITE, "description": config["description"], "inLanguage": "en-US", "publisher": PUBLISHER}]
 HASH_REDIRECT = ('<script>(function(){var h=location.hash.replace(/^#/,"");if(!h)return;var map=%s;if(map[h]){location.replace(map[h]);return;}'
                  'var m=/^post-(\\d{4}-\\d{2}-\\d{2})-\\d+$/.exec(h);if(m){location.replace("/posts/"+m[1]+"/");return;}'
                  'if(h.indexOf("letter-")===0){location.replace("/letters/"+h.slice(7)+"/");return;}'
@@ -2339,7 +2554,7 @@ if topic_links:
 # ------------------------------------------------------------------ watch list
 order = {"rising": 0, "active": 1, "favorable": 2, "quiet": 3}
 body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Watch list</h1><span class="sub">the signals that would change the picture</span></div>',
-        '<p class="lead">These are the things checked first every morning. A status changes only when something real happens, and the note says what.</p>',
+        '<p class="lead">These are the signals we check first every morning. A status changes only when something real happens, and the note says what.</p>',
         '<div class="legend"><span class="status rising">heating up</span><span class="status active">in motion</span><span class="status quiet">quiet</span><span class="status favorable">in our favor</span></div>',
         '<ul class="watch">']
 for t in sorted(watchlist, key=lambda x: order.get(x.get("status"), 0)):
@@ -2396,7 +2611,7 @@ urls.append(("/where-things-stand/", LAST_UPDATED, "monthly", "0.8"))
 # ------------------------------------------------------------------ podcast
 if POD:
     ld_pod = {"@context": "https://schema.org", "@type": "PodcastSeries", "name": POD["name"], "url": absurl("/podcast/"), "webFeed": POD["rss"],
-              "description": POD_BLURB, "inLanguage": "en-US", "author": PERSON, "publisher": PUBLISHER,
+              "description": POD_BLURB, "inLanguage": "en-US", "author": ORG_AUTHOR, "publisher": PUBLISHER,
               "sameAs": [u for u in (POD.get("apple"), POD.get("spotify"), POD.get("youtube")) if u]}
     body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Podcast</h1><span class="sub">every episode, playable here</span></div>',
             '<p class="lead">%s Play any episode below, or follow the show in Apple Podcasts, Spotify or any app that takes an RSS feed.</p>' % esc(POD_BLURB),
@@ -2407,10 +2622,72 @@ if POD:
          '<section class="panel">' + "".join(body) + "</section>", active="/podcast/", jsonld=ld_pod)
     urls.append(("/podcast/", LAST_UPDATED, "daily", "0.8"))
 
-ld_about = {"@context": "https://schema.org", "@type": "AboutPage", "name": "About " + NAME, "url": absurl("/about/"), "mainEntity": {**PERSON, **({"image": absurl(photo_path)} if photo_path else {})}}
-page("/about/", "About", "%s was created by %s, a family doctor in the mountains of Colorado, to sort what matters in AI in medicine from the noise." % (NAME, AUTHOR),
-     '<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">About</h1></div>' + about_inner + "</section>", active="/about/", jsonld=ld_about)
+_founder = {**FOUNDER, **({"image": absurl(photo_path)} if photo_path else {})}
+ld_about = {"@context": "https://schema.org", "@type": "AboutPage", "name": "About " + NAME, "url": absurl("/about/"),
+            "mainEntity": {"@type": "Organization", "name": NAME, "url": SITE, "logo": PUBLISHER["logo"],
+                           **({"parentOrganization": {"@type": "Organization", "name": PUBLISHED_BY, "founder": _founder}} if PUBLISHED_BY != NAME else {"founder": _founder})}}
+ABOUT_CONTACT = ('<h3 style="margin-top:22px">Contact</h3><p>Questions, corrections, news tips and press requests reach us through the <a href="/contact/">contact form</a>.</p>'
+                 if CONTACT_LIVE else "")
+page("/about/", "About", "%s is published by %s. It sorts what matters in artificial intelligence in medicine from the noise, for patients and the people who practice on the front lines." % (NAME, PUBLISHED_BY),
+     '<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">About</h1></div>' + about_inner + ABOUT_CONTACT + "</section>", active="/about/", jsonld=ld_about)
 urls.append(("/about/", LAST_UPDATED, "monthly", "0.5"))
+
+# ------------------------------------------------------------------ contact (2.15)
+CONTACT_CSS = """<style>
+  .contact-form { display: grid; gap: 16px; margin-top: 18px; max-width: 620px; }
+  .contact-form .field { display: grid; gap: 6px; }
+  .contact-form label { font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+  .contact-form .hint { font-weight: 400; color: var(--muted); font-size: 0.86rem; }
+  .contact-form input, .contact-form select, .contact-form textarea { font: inherit; font-size: 1rem; color: var(--ink); background: var(--surface); border: 1px solid var(--rule-2); border-radius: 10px; padding: 10px 12px; width: 100%; box-sizing: border-box; }
+  .contact-form textarea { min-height: 180px; resize: vertical; line-height: 1.5; }
+  .contact-form input:focus, .contact-form select:focus, .contact-form textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .contact-form .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .contact-form .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .contact-form button.btn { border: 0; cursor: pointer; font: inherit; font-weight: 600; }
+  .contact-form button.btn[disabled] { opacity: 0.6; cursor: progress; }
+  .form-msg { margin: 16px 0 0; padding: 12px 16px; border-radius: 10px; max-width: 620px; }
+  .form-msg.err { background: rgba(178, 59, 59, 0.10); color: var(--bad); }
+  .form-note { font-size: 0.9rem; color: var(--muted); margin: 14px 0 0; max-width: 620px; }
+</style>"""
+CONTACT_TOPICS = ["General question", "Correction", "News tip", "Press or speaking", "Podcast", "Something else"]
+CONTACT_ERRORS = {"fields": "Please fill in your name, a valid email address and a message.",
+                  "check": "The check that you are a person did not go through. Please try again.",
+                  "send": "The message could not be sent just now. Please try again in a few minutes."}
+CONTACT_SCRIPT = ("<script>(function(){var M=%s;var box=document.getElementById('form-msg');function show(k){if(!M[k])return;box.textContent=M[k];box.hidden=false;}"
+                  "try{show(new URLSearchParams(location.search).get('error'));}catch(e){}"
+                  "var f=document.getElementById('contact-form');if(!f||!window.fetch||!window.FormData)return;"
+                  "f.addEventListener('submit',function(ev){ev.preventDefault();var b=f.querySelector('button[type=submit]');b.disabled=true;box.hidden=true;"
+                  "fetch(f.action,{method:'POST',body:new FormData(f),credentials:'same-origin'}).then(function(r){var u=r.url||'';"
+                  "if(r.ok&&u.indexOf('/contact/thanks/')!==-1){location.href='/contact/thanks/';return;}"
+                  "var m=/[?&]error=([a-z]+)/.exec(u);show(m?m[1]:'send');b.disabled=false;try{if(window.turnstile)window.turnstile.reset();}catch(e){}})"
+                  "['catch'](function(){show('send');b.disabled=false;try{if(window.turnstile)window.turnstile.reset();}catch(e){}});});})();</script>"
+                  % json.dumps(CONTACT_ERRORS))
+if CONTACT:
+    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Contact</h1><span class="sub">write to us</span></div>',
+            '<p class="lead">Questions, corrections, news tips and requests from the press all reach us here. We read every message.</p>',
+            '<div class="form-msg err" id="form-msg" role="alert" hidden></div>',
+            '<form class="contact-form" id="contact-form" method="post" action="%s">' % esc(CONTACT.get("path") or "/api/contact"),
+            '<div class="field"><label for="cf-name">Name</label><input id="cf-name" name="name" type="text" autocomplete="name" maxlength="120" required></div>',
+            '<div class="field"><label for="cf-email">Email <span class="hint">(only to reply to you)</span></label><input id="cf-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>',
+            '<div class="field"><label for="cf-topic">Topic</label><select id="cf-topic" name="topic">%s</select></div>' % "".join('<option>%s</option>' % esc(t) for t in CONTACT_TOPICS),
+            '<div class="field"><label for="cf-message">Message</label><textarea id="cf-message" name="message" maxlength="5000" required></textarea></div>',
+            '<div class="hp" aria-hidden="true"><label for="cf-website">Leave this field empty</label><input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>',
+            '<div class="cf-turnstile" data-sitekey="%s" data-theme="auto" data-action="contact"></div>' % esc(CONTACT["turnstile_sitekey"]),
+            '<div class="actions"><button class="btn" type="submit">Send message</button></div>',
+            '</form>',
+            '<p class="form-note">For a correction, tell us the page and what the source says; corrections are made on the page and marked. '
+            'We cannot answer questions about your own health or care, so please leave medical details out of your message. '
+            'This form is protected by Cloudflare Turnstile.</p>']
+    page("/contact/", "Contact", "Write to %s: questions, corrections, news tips and press requests." % NAME, '<section class="panel">' + "".join(body) + "</section>" + CONTACT_SCRIPT,
+         head_extra=CONTACT_CSS + '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>',
+         noindex=not CONTACT_LIVE)
+    page("/contact/thanks/", "Message sent", "Your message to %s is on its way." % NAME,
+         '<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">Thank you</h1><span class="sub">message sent</span></div>'
+         '<p class="lead">Your message is on its way to us. If it needs an answer, we will reply to the email address you gave.</p>'
+         '<div class="more-row"><a class="btn ghost small" href="/">Front page</a><a class="btn ghost small" href="/posts/">Daily posts</a><a class="btn ghost small" href="/letters/">Friday letter</a></div></section>',
+         noindex=True)
+    if CONTACT_LIVE:
+        urls.append(("/contact/", LAST_UPDATED, "yearly", "0.3"))
 
 # ------------------------------------------------------------------ feed, sitemap, robots, extras
 def cdata(s):
@@ -2418,7 +2695,7 @@ def cdata(s):
 
 feed_items = []
 for slug, p in post_pages:
-    feed_items.append((p.get("date") or "", 2, p.get("headline") or "Daily post", absurl(post_url(slug)), describe(p.get("intro") or [p.get("headline")], 300), post_body(p), AUTHOR))
+    feed_items.append((p.get("date") or "", 2, p.get("headline") or "Daily post", absurl(post_url(slug)), describe(p.get("intro") or [p.get("headline")], 300), post_body(p), NAME))
 for slug, w in letter_pages:
     feed_items.append((w.get("weekOf") or "", 3, w.get("headline") or "The Friday letter", absurl(letter_url(slug)), plain(w.get("dek") or ""), (('<p><img src="%s" alt="%s" width="1200" height="630"></p>' % (esc(LETTER_IMG[slug][0] if LETTER_IMG[slug][0].startswith("https://") else absurl(LETTER_IMG[slug][0])), esc(LETTER_IMG[slug][1]))) if slug in LETTER_IMG else "") + paras(w.get("body")) + ('<div class="section-label">SOURCE MATERIAL</div>' + render_items(w["top"]) if w.get("top") else "") + (paras(w["outlook"]) if w.get("outlook") else ""), NAME))
 for slug, sp in special_pages:
@@ -2426,7 +2703,7 @@ for slug, sp in special_pages:
     feed_items.append((sp.get("date") or "", 1, sp.get("title") or "Special topic", absurl(special_url(slug)), plain(sp.get("dek") or ""),
                        sp_img + "".join("<p>%s</p>" % rich((b.get("lead", "") + " " + b.get("text", "")).strip()) for b in sp.get("blocks") or [])
                        + ('<div class="section-label">SOURCE MATERIAL</div>' + render_items(sp["top"]) if sp.get("top") else ""),
-                       NAME if sp.get("unsigned") else AUTHOR))
+                       NAME))
 feed_items.sort(key=lambda x: (x[0], x[1]), reverse=True)
 rss = ['<?xml version="1.0" encoding="UTF-8"?>',
        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">',
@@ -2452,9 +2729,10 @@ for slug, p in recent:
 ns.append("</urlset>")
 write("/sitemap-news.xml", "\n".join(ns) + "\n")
 write("/robots.txt", "User-agent: *\nAllow: /\nSitemap: %s\nSitemap: %s\n" % (absurl("/sitemap.xml"), absurl("/sitemap-news.xml")))
-write("/llms.txt", "# %s\n\n> %s\n\nCreated by %s. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter is an unsigned editorial in the manner of a leader in The Economist, and the special topics are longer pieces on a single question.\n\n## Sections\n\n- [Daily posts](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
-      % (NAME, config["description"], AUTHOR, absurl("/posts/"), absurl("/letters/"), absurl("/specials/"), absurl("/watch/"), absurl("/dates/"), absurl("/where-things-stand/"), absurl("/topics/"), absurl("/about/"), absurl("/feed.xml"))
-      + ("- [Podcast](%s): each morning's post as an audio briefing; podcast feed %s\n" % (absurl("/podcast/"), POD["rss"]) if POD else "") + LLMS_EXTRA)
+write("/llms.txt", "# %s\n\n> %s\n\nPublished by %s. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter is an unsigned editorial in the manner of a leader in The Economist, and the special topics are longer pieces on a single question.\n\n## Sections\n\n- [Daily posts](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
+      % (NAME, config["description"], PUBLISHED_BY, absurl("/posts/"), absurl("/letters/"), absurl("/specials/"), absurl("/watch/"), absurl("/dates/"), absurl("/where-things-stand/"), absurl("/topics/"), absurl("/about/"), absurl("/feed.xml"))
+      + ("- [Podcast](%s): each morning's post as an audio briefing; podcast feed %s\n" % (absurl("/podcast/"), POD["rss"]) if POD else "") + LLMS_EXTRA
+      + ("- [Contact](%s): questions, corrections, news tips and press requests\n" % absurl("/contact/") if CONTACT_LIVE else ""))
 
 write("/favicon.svg", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2F63A8"/>'
       '<path d="M20 14v18a12 12 0 0 0 24 0V14" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="50" r="5" fill="#fff"/></svg>')
@@ -2476,11 +2754,17 @@ try:
 except Exception as ex:  # a Cloudflare problem must never stop the Netlify publish
     HAS_CF_FUNCTIONS = False
     print("warning: the Cloudflare functions were not written: %s" % ex, file=sys.stderr)
+try:
+    HAS_CONTACT_WORKER = write_contact_worker()
+except Exception as ex:  # nor may a contact form problem
+    HAS_CONTACT_WORKER = False
+    print("warning: the contact form Worker was not written: %s" % ex, file=sys.stderr)
 with open(os.path.join(ROOT, "netlify.toml"), "w") as f:
     f.write('[build]\n  publish = "public"\n  command = ""\n' + ('\n[functions]\n  directory = "netlify/functions"\n' if HAS_FUNCTIONS else ""))
 
 n_files = sum(len(fs) for _, _, fs in os.walk(OUT))
 print("ok: built %d pages (%d posts, %d letters, %d specials, %d patient letters, %d explainers, %d laws in %d states, %d federal entries, "
-      "%d states reviewed with none found, %d program rows), %d files in %s; updated %s; analytics %s"
+      "%d states reviewed with none found, %d program rows), %d files in %s; updated %s; analytics %s; contact form %s"
       % (len(urls), len(post_pages), len(letter_pages), len(special_pages), EXP_COUNTS["patients"], EXP_COUNTS["explainers"], EXP_COUNTS["laws"], EXP_COUNTS["states"],
-         EXP_COUNTS["federal"], EXP_COUNTS["reviewed_none"], EXP_COUNTS["rhtp"], n_files, OUT, LAST_UPDATED, (config.get("analytics") or {}).get("provider") or "none"))
+         EXP_COUNTS["federal"], EXP_COUNTS["reviewed_none"], EXP_COUNTS["rhtp"], n_files, OUT, LAST_UPDATED, (config.get("analytics") or {}).get("provider") or "none",
+         ("live" if CONTACT_LIVE else "built, not linked") if CONTACT else "off"))
