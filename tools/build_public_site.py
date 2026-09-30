@@ -110,6 +110,8 @@ Cloudflare's cache for two minutes, so a new episode shows within a few minutes)
 Cloudflare Pages (no build command, build output directory public), where public/_redirects, public/_headers and public/404.html
 work as they do on Netlify. The Netlify function and netlify.toml are still written, so either host can publish the same commit.
 The functions folder and the Netlify files are the only things outside public/ the script writes besides assets/images/.
+Version 2.14.1 (Sept 29, 2026): the Rural Health Transformation Program tracker is retired. /rhtp/, its navigation tab, its
+link on the home page and its llms.txt line are no longer built, and "rhtp" rows in the page JSON are ignored (with a note).
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -284,7 +286,9 @@ LAWS = _keep("law map entries", data.get("laws"), _law_ok, lambda e: e.get("id")
 STATE_LAWS = [e for e in LAWS if e["state"] != "US"]
 FED_LAWS = [e for e in LAWS if e["state"] == "US"]
 LAW_REVIEWS = {r["state"]: r for r in _keep("law map reviews", data.get("law_reviews"), _review_ok, lambda r: r.get("state"))}
-RHTP = _keep("program tracker rows", data.get("rhtp"), lambda r: r.get("state") in STATE_NAME, lambda r: r.get("state"))
+RHTP = []  # the Rural Health Transformation Program tracker was retired on Sept 29, 2026; any "rhtp" rows in the page JSON are ignored
+if data.get("rhtp"):
+    print("note: the page JSON has %d program tracker rows; the tracker is retired and they are not published" % len(data.get("rhtp") or []), file=sys.stderr)
 EXPLAINERS = _keep("explainers", data.get("explainers"),
                    lambda x: x.get("title") and re.match(r"^[a-z0-9][a-z0-9-]{0,79}$", x.get("slug") or ""), lambda x: x.get("slug"))
 PATIENTS = sorted(_keep("patient letters", data.get("patients"), lambda x: _iso(x.get("weekOf")) and x.get("headline"), lambda x: x.get("weekOf")),
