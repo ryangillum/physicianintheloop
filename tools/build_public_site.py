@@ -112,6 +112,9 @@ work as they do on Netlify. The Netlify function and netlify.toml are still writ
 The functions folder and the Netlify files are the only things outside public/ the script writes besides assets/images/.
 Version 2.14.1 (Sept 29, 2026): the Rural Health Transformation Program tracker is retired. /rhtp/, its navigation tab, its
 link on the home page and its llms.txt line are no longer built, and "rhtp" rows in the page JSON are ignored (with a note).
+Version 2.14.2 (Sept 29, 2026): retired pages. Cloudflare Pages can keep serving a deleted page from a data center's cache for
+up to a week after a deploy, so every path in RETIRED_PATHS (/rhtp/ and /specials/rural-health-transformation-program/) gets a
+Pages Function (functions/<path>/index.js and [[path]].js) that answers with the site's not-found page and status 410 (Gone).
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -970,6 +973,41 @@ export const config = { path: ["/api/episode/:date", "/api/letter/:week", "/api/
 '''
 
 CF_ROUTES = (("episode", "[date].js"), ("letter", "[week].js"), ("special", "[slug].js"))
+# Pages taken off the site on purpose. Cloudflare Pages can keep serving a deleted page from a data center's cache for up to a
+# week after a deploy, so each retired path gets a Pages Function that answers with the site's not-found page and status 410.
+RETIRED_PATHS = ("/rhtp", "/specials/rural-health-transformation-program")
+RETIRED_FN = r"""// Retired page on physicianintheloop.org: __PATH__/. Written by tools/build_public_site.py on every site build;
+// edit the generator, not this file.
+//
+// The page that lived here was taken off the site on purpose. This function answers every request for it with the
+// site's "not found" page and status 410 (Gone), so the old page is never served again, even by a data center that
+// still holds a cached copy.
+
+const FALLBACK = '<!doctype html><meta charset="utf-8"><title>Page not found | Physician in the Loop</title>' +
+  '<p>That page is not here. Try the <a href="/">front page</a>.</p>';
+
+async function notFoundPage(context) {
+  const origin = new URL(context.request.url).origin;
+  for (const path of ["/404", "/404.html"]) {
+    try {
+      let res = await context.env.ASSETS.fetch(new Request(origin + path));
+      if (res.status >= 300 && res.status < 400 && res.headers.get("location")) {
+        res = await context.env.ASSETS.fetch(new Request(new URL(res.headers.get("location"), origin).toString()));
+      }
+      const type = res.headers.get("content-type") || "";
+      if ((res.status === 200 || res.status === 404) && type.includes("text/html")) return await res.text();
+    } catch (err) {}
+  }
+  return FALLBACK;
+}
+
+export async function onRequest(context) {
+  return new Response(await notFoundPage(context), {
+    status: 410,
+    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex" },
+  });
+}
+"""
 
 
 def cloudflare_function_source():
@@ -1010,6 +1048,19 @@ def write_cloudflare_functions():
         with open(t, "w", encoding="utf-8") as f:
             f.write(src)
     return True
+
+
+def write_retired_functions():
+    """Write a Pages Function for each retired path (index.js for the path itself, [[path]].js for anything under it)."""
+    written = 0
+    for path in RETIRED_PATHS:
+        folder = os.path.join(ROOT, "functions", *path.strip("/").split("/"))
+        os.makedirs(folder, exist_ok=True)
+        for name in ("index.js", "[[path]].js"):
+            with open(os.path.join(folder, name), "w", encoding="utf-8") as f:
+                f.write(RETIRED_FN.replace("__PATH__", path))
+            written += 1
+    return written
 
 
 def write_episode_function():
@@ -2421,6 +2472,7 @@ page("/404.html", "Page not found", "That page is not here.", '<section class="p
 HAS_FUNCTIONS = write_episode_function()
 try:
     HAS_CF_FUNCTIONS = write_cloudflare_functions()
+    write_retired_functions()
 except Exception as ex:  # a Cloudflare problem must never stop the Netlify publish
     HAS_CF_FUNCTIONS = False
     print("warning: the Cloudflare functions were not written: %s" % ex, file=sys.stderr)
