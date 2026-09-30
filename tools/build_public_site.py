@@ -129,6 +129,7 @@ dashboard and never kept in the repository. The form is linked (footer, About pa
 config contact.live is true; until then /contact/ is built but unlinked and marked noindex, so it can be tested before launch.
 The podcast lookup now accepts every title in podcast.episode_titles ("Daily Briefing for <date>", the new name, and "Daily
 Update for <date>", the old one), so the post pages find episodes under either name.
+Version 2.15.1 (Sept 30, 2026): the contact Worker turns away any request body over 64 KB before reading it.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -1160,6 +1161,7 @@ export default {
       return new Response("This address only accepts the contact form at " + SITE + "/contact/.", {
         status: 405, headers: { Allow: "POST", "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
     }
+    if (Number(request.headers.get("content-length") || "0") > 65536) return back("/contact/?error=fields"); // far more than the form can hold
     let form;
     try {
       form = await request.formData();

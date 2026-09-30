@@ -49,6 +49,7 @@ export default {
       return new Response("This address only accepts the contact form at " + SITE + "/contact/.", {
         status: 405, headers: { Allow: "POST", "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
     }
+    if (Number(request.headers.get("content-length") || "0") > 65536) return back("/contact/?error=fields"); // far more than the form can hold
     let form;
     try {
       form = await request.formData();
