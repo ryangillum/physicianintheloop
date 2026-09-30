@@ -103,6 +103,13 @@ llms.txt lists the federal page. A malformed review is left out with a warning l
 each section, is skipped with a warning if it breaks; nothing then links to it.
 Version 2.13.1 (Sept 29, 2026): on law map pages, an entry's source list is separated by semicolons when any of its labels
 contains a comma (for example "NAIC adoption map, Aug. 31, 2026"), so each source reads as one item; other pages are unchanged.
+Version 2.14 (Sept 29, 2026): Cloudflare Pages. The script also writes <repo root>/functions/api/episode/[date].js,
+functions/api/letter/[week].js and functions/api/special/[slug].js: Cloudflare Pages Functions that answer /api/episode/<date>,
+/api/letter/<weekOf> and /api/special/<slug> with the same lookup as the Netlify function (the podcast feed is fetched through
+Cloudflare's cache for two minutes, so a new episode shows within a few minutes). With them the repository can be served by
+Cloudflare Pages (no build command, build output directory public), where public/_redirects, public/_headers and public/404.html
+work as they do on Netlify. The Netlify function and netlify.toml are still written, so either host can publish the same commit.
+The functions folder and the Netlify files are the only things outside public/ the script writes besides assets/images/.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -957,6 +964,49 @@ export default async (req, context) => {
 
 export const config = { path: ["/api/episode/:date", "/api/letter/:week", "/api/special/:slug"] };
 '''
+
+CF_ROUTES = (("episode", "[date].js"), ("letter", "[week].js"), ("special", "[slug].js"))
+
+
+def cloudflare_function_source():
+    """The Netlify function's lookup, adapted to a Cloudflare Pages Function (onRequest(context)); the same text serves all three routes."""
+    src = (EPISODE_FN.replace("__FEED__", json.dumps(POD["rss"]))
+           .replace("__TITLE__", json.dumps(POD.get("episode_title") or "Daily Update for {date}"))
+           .replace("__LETTER__", json.dumps(POD.get("letter_title_prefix") or "Friday Letter"))
+           .replace("__SPECIAL__", json.dumps(POD.get("special_title_prefix") or "Special Topic")))
+    swaps = [
+        ('"netlify-cdn-cache-control": cdnCache,', '"cdn-cache-control": cdnCache,'),
+        ('export default async (req, context) => {\n  const params = (context && context.params) || {};',
+         'async function handle(req, params) {\n  params = params || {};'),
+        ('{ headers: { "user-agent": "physicianintheloop.org episode lookup" } }',
+         '{ headers: { "user-agent": "physicianintheloop.org episode lookup" }, cf: { cacheTtl: 120, cacheEverything: true } }'),
+        ('\nexport const config = { path: ["/api/episode/:date", "/api/letter/:week", "/api/special/:slug"] };\n', '\n'),
+        ('// Answers are cached on Netlify\'s CDN: a found episode for an hour, a missing one for two minutes, so a\n// new episode appears on its post page within a few minutes of publishing.',
+         '// This is the Cloudflare Pages version of netlify/functions/episode.mjs: the same lookup, with the feed fetched\n// through Cloudflare\'s cache for two minutes, so a new episode appears on its page within a few minutes.'),
+    ]
+    for old, new in swaps:
+        if old not in src:
+            raise ValueError("Cloudflare function template out of step with the Netlify one: %r" % old[:60])
+        src = src.replace(old, new)
+    return src + "\nexport async function onRequest(context) {\n  return handle(context.request, context.params);\n}\n"
+
+
+def write_cloudflare_functions():
+    """Write (or remove) the Cloudflare Pages Functions behind /api/episode, /api/letter and /api/special. True when written."""
+    base = os.path.join(ROOT, "functions", "api")
+    targets = [os.path.join(base, folder, name) for folder, name in CF_ROUTES]
+    if not POD:
+        for t in targets:
+            if os.path.exists(t):
+                os.remove(t)
+        return False
+    src = cloudflare_function_source()
+    for t in targets:
+        os.makedirs(os.path.dirname(t), exist_ok=True)
+        with open(t, "w", encoding="utf-8") as f:
+            f.write(src)
+    return True
+
 
 def write_episode_function():
     """Write (or remove) the Netlify function behind /api/episode/<date>. Returns True when it is written."""
@@ -2365,6 +2415,11 @@ write("/_headers", "/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: st
       "/images/*\n  Cache-Control: public, max-age=604800\n/og-image.png\n  Cache-Control: public, max-age=86400\n/logo.png\n  Cache-Control: public, max-age=604800\n")
 page("/404.html", "Page not found", "That page is not here.", '<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">That page is not here</h1></div><p class="lead">Try the <a href="/">front page</a>, the <a href="/posts/">daily posts</a>, or the <a href="/letters/">Friday letter</a>.</p></section>')
 HAS_FUNCTIONS = write_episode_function()
+try:
+    HAS_CF_FUNCTIONS = write_cloudflare_functions()
+except Exception as ex:  # a Cloudflare problem must never stop the Netlify publish
+    HAS_CF_FUNCTIONS = False
+    print("warning: the Cloudflare functions were not written: %s" % ex, file=sys.stderr)
 with open(os.path.join(ROOT, "netlify.toml"), "w") as f:
     f.write('[build]\n  publish = "public"\n  command = ""\n' + ('\n[functions]\n  directory = "netlify/functions"\n' if HAS_FUNCTIONS else ""))
 
