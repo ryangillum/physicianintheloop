@@ -138,6 +138,8 @@ title and address. /posts/ lists the daily posts the way /letters/ and /specials
 Explainers may carry "image" ({src, alt}, the same form as a letter's): archived under assets/images/explainers/, served from
 /images/explainers/<slug>.<ext>, shown under the share link on the explainer's page, used as its social image, and shown beside
 the entry on /explainers/.
+Version 2.16.1 (Sept 30, 2026): the letters for patients (/patients/<weekOf>/) carry the Share story link too, just under the
+standfirst (they have no picture).
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -2506,6 +2508,7 @@ def build_patients():
         art = ['<article class="post patient"><div class="post-date">For patients · <time datetime="%s">%s</time></div><h1 class="headline">%s</h1>' % (esc(x["weekOf"]), esc(wk), esc(headline))]
         if x.get("dek"):
             art.append('<p class="standfirst">%s</p>' % rich(x["dek"]))
+        art.append(share_html(path, headline))
         art.append('<p class="patient-note">General information for patients and families, not medical advice. Each letter is reviewed by a physician before it is published.</p>')
         art.append('<div class="special-body patient-body">')
         if x.get("intro"):
