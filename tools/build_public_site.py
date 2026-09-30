@@ -140,6 +140,11 @@ Explainers may carry "image" ({src, alt}, the same form as a letter's): archived
 the entry on /explainers/.
 Version 2.16.1 (Sept 30, 2026): the letters for patients (/patients/<weekOf>/) carry the Share story link too, just under the
 standfirst (they have no picture).
+Version 2.17 (Sept 30, 2026): a menu. Every page's header has a menu button (three lines, left of the site name) that opens a
+panel under the header listing every page in four groups: Read (Today, Daily posts, Friday letter, Special topics, Explainers,
+Where things stand, For patients), Track (Law map, Watch list, Dates, Topics), Listen (Podcast, Apple Podcasts, Spotify) and
+About (About, Contact us, RSS feed, Subscribe); the current page is marked. It is a <details> element, so it opens and closes
+without JavaScript; a small script closes it on Escape or a click outside it. The tab bar under the site name is unchanged.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -691,6 +696,18 @@ EXTRA_CSS = """
   .doc .share-row { margin: 0 0 22px; }
   .explainer .letter-art + .short-answer { margin-top: 0; }
   .post-list .t { font-size: 1.12rem; line-height: 1.3; }
+  .brand-left { display: flex; align-items: center; gap: 2px; min-width: 0; }
+  details.menu, details.menu:hover, details.menu[open] { background: none; border: 0; border-radius: 0; margin: 0; box-shadow: none; transition: none; }
+  details.menu > summary, details.menu[open] > summary { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-left: -10px; padding: 0; gap: 0; grid-template-columns: none; border: 0; border-radius: 10px; color: var(--ink); cursor: pointer; }
+  details.menu > summary:hover { background: var(--accent-soft); color: var(--accent-2); }
+  details.menu > summary svg { width: 22px; height: 22px; }
+  details.menu:not([open]) .i-close, details.menu[open] .i-open { display: none; }
+  .menu-panel { position: absolute; left: 0; right: 0; top: 100%; background: var(--surface); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule-2); box-shadow: 0 18px 36px rgba(23, 32, 51, 0.16); padding: 18px 16px 22px; max-height: calc(100vh - 100px); overflow-y: auto; }
+  .menu-grid { max-width: 740px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 22px; }
+  @media (max-width: 640px) { .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 14px; } }
+  .menu-h { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin: 0 0 6px; padding-left: 8px; }
+  .menu-panel a { display: block; padding: 8px; margin: 0 0 2px; border-radius: 8px; font-weight: 600; font-size: 0.98rem; line-height: 1.3; color: var(--ink); text-decoration: none; }
+  .menu-panel a:hover, .menu-panel a[aria-current="page"] { background: var(--accent-soft); color: var(--accent-2); }
 """
 
 def analytics_snippet():
@@ -717,16 +734,46 @@ def analytics_snippet():
 
 ANALYTICS = analytics_snippet()
 
+# 2.17: the menu. Every page in NAV appears once, in its group; a page not listed here goes under Read.
+MENU_GROUP = {"/": "Read", "/posts/": "Read", "/letters/": "Read", "/specials/": "Read", "/explainers/": "Read", "/where-things-stand/": "Read",
+              "/patients/": "Read", "/law-map/": "Track", "/rhtp/": "Track", "/watch/": "Track", "/dates/": "Track", "/podcast/": "Listen", "/about/": "About"}
+MENU_ICONS = ('<svg class="i-open" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+              '<svg class="i-close" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>')
+MENU_SCRIPT = ('<script>(function(){var m=document.querySelector("details.menu");if(!m)return;'
+               'document.addEventListener("click",function(e){if(m.open&&!m.contains(e.target))m.open=false;});'
+               'document.addEventListener("keydown",function(e){if(e.key==="Escape"&&m.open){m.open=false;var s=m.querySelector("summary");if(s)s.focus();}});'
+               '})();</script>')
+
+def menu_html(active):
+    groups = {"Read": [], "Track": [], "Listen": [], "About": []}
+    for path, label in NAV:
+        groups[MENU_GROUP.get(path, "Read")].append((path, label, False))
+    groups["Track"].append(("/topics/", "Topics", False))
+    if POD:
+        groups["Listen"] += [(u, l, True) for u, l in ((POD.get("apple"), "Apple Podcasts"), (POD.get("spotify"), "Spotify")) if u]
+    if CONTACT_LIVE:
+        groups["About"].append(("/contact/", "Contact us", False))
+    groups["About"] += [("/feed.xml", "RSS feed", False), (SUBSCRIBE, "Subscribe", True)]
+    cols = []
+    for name in ("Read", "Track", "Listen", "About"):
+        if not groups[name]:
+            continue
+        links = "".join('<a href="%s"%s%s>%s</a>' % (esc(u), ' aria-current="page"' if u == active else "", ' target="_blank" rel="noopener"' if ext else "", esc(l))
+                        for u, l, ext in groups[name])
+        cols.append('<div class="menu-group"><div class="menu-h">%s</div>%s</div>' % (name, links))
+    return ('<details class="menu"><summary aria-label="Menu" title="Menu">%s</summary>'
+            '<nav class="menu-panel" aria-label="All pages"><div class="menu-grid">%s</div></nav></details>' % (MENU_ICONS, "".join(cols)))
+
 def nav_html(active):
     out = ['<div class="topbar" id="topbar"><div class="topbar-inner"><div class="brand-row">',
-           '<a class="brand" href="/">%s</a>' % esc(NAME),
+           '<div class="brand-left">%s<a class="brand" href="/">%s</a></div>' % (menu_html(active), esc(NAME)),
            '<a class="btn small" href="%s" target="_blank" rel="noopener">Subscribe</a></div>' % esc(SUBSCRIBE),
            '<nav class="tabs" aria-label="Sections">']
     for path, label in NAV:
         cur = ' aria-current="page"' if path == active else ""
         count = '<span class="n">%d</span>' % len(posts) if (path == "/posts/" and posts) else ""
         out.append('<a class="tab" href="%s"%s>%s%s%s</a>' % (path, cur, TAB_ICON if path == "/podcast/" else "", esc(label), count))
-    out.append("</nav></div></div>")
+    out.append("</nav></div></div>" + MENU_SCRIPT)
     return "".join(out)
 
 FOOT = ('<footer class="foot"><div class="tablinks">' + "".join('<a href="%s">%s</a>' % (p, esc(l)) for p, l in NAV) +
