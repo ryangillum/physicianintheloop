@@ -1,7 +1,7 @@
 {
  "name": "AI health law map",
  "url": "https://physicianintheloop.org/law-map/",
- "updated": "2026-09-30",
+ "updated": "2026-10-01",
  "categories": {
   "payer": "Payer and utilization review AI",
   "disclosure": "Patient disclosure of AI use",
@@ -196,41 +196,30 @@
    ],
    "kind": "law",
    "name": "AB 1979, Health Care Services: Artificial Intelligence",
-   "status": "passed",
-   "signed": "",
-   "effective": "",
+   "status": "enacted",
+   "signed": "2026-09-30",
+   "effective": "2027-01-01",
    "applies_to": "Businesses offering health care chatbots to consumers; health facilities, clinics, physician's offices and group practice offices",
-   "summary": "Would deem a business that offers a health care chatbot to consumers, to let them manage their information or for diagnosis, treatment or management of a medical condition, a provider of health care under the Confidentiality of Medical Information Act, and would require health facilities, clinics, physician's offices and group practice offices to take reasonable steps so licensed professionals can exercise independent judgment when a clinical decision support system's output informs care, and bar them from using AI to direct unlicensed staff in, or independently perform, clinical functions that require a license.",
-   "physician_read": "It binds no one yet; if it becomes law, from Jan. 1, 2027 a physician's office or group practice would have to take reasonable steps so that licensed clinicians keep the ability to exercise independent professional judgment whenever a clinical decision support system's output informs a patient's care, and could not use AI to direct unlicensed staff in, or independently perform, clinical functions that require a license. Violations by physicians would fall under the Medical Board of California or the Osteopathic Medical Board of California, and businesses offering health care chatbots to consumers would be treated as providers of health care under the Confidentiality of Medical Information Act.",
+   "summary": "Deems a business that offers a health care chatbot to consumers, to let them manage their information or for diagnosis, treatment or management of a medical condition, a provider of health care under the Confidentiality of Medical Information Act, requires health facilities, clinics, physician's offices and group practice offices to take reasonable steps so licensed professionals can exercise independent judgment when a clinical decision support system's output informs care, and bars them from using AI to direct unlicensed staff in, or independently perform, clinical functions that require a license.",
+   "physician_read": "From Jan. 1, 2027, a physician's office or group practice in California must take reasonable steps so that licensed clinicians can exercise independent professional judgment whenever a clinical decision support system's output informs a patient's care, and cannot use AI to direct unlicensed staff in, or independently perform, clinical functions that require a license; violations by physicians fall under the Medical Board of California or the Osteopathic Medical Board of California.",
    "sources": [
     {
      "label": "LegiScan bill page",
      "url": "https://legiscan.com/CA/bill/AB1979/2025"
     },
     {
-     "label": "Enrolled text (LegiScan)",
-     "url": "https://legiscan.com/CA/text/AB1979/id/3457690"
+     "label": "Office of the Governor (signing release, Sept. 30, 2026)",
+     "url": "https://www.gov.ca.gov/2026/09/30/californias-nation-leading-ai-framework-just-got-stronger-governor-newsom-signs-more-first-in-the-nation-worker-protections-and-more/"
     },
     {
-     "label": "California Constitution, art. IV (Assembly Clerk)",
-     "url": "https://clerk.assembly.ca.gov/sites/clerk.assembly.ca.gov/files/ARTICLE_IV_Session_2017-18.pdf"
-    },
-    {
-     "label": "Senate 2026 legislative calendar",
-     "url": "https://www.senate.ca.gov/system/files/2026-04/2026-proposed-calendar-updated-march-2026.pdf"
-    },
-    {
-     "label": "Governor's legislative update, Sept. 27, 2026",
-     "url": "https://www.gov.ca.gov/2026/09/27/governor-newsom-issues-legislative-update-9-27-2026/"
-    },
-    {
-     "label": "Digital Democracy (secondary)",
-     "url": "https://calmatters.digitaldemocracy.org/bills/ca_202520260ab1979"
+     "label": "National Nurses United (secondary)",
+     "url": "https://www.nationalnursesunited.org/press/nurses-celebrate-historic-victory-as-gov-newsom-signs-landmark-ai-protection-into-law"
     }
    ],
-   "checked": "2026-09-29",
-   "notes": "Passed the Assembly 48-15 on May 21, 2026 and the Senate 29-9 on Aug. 26; the Assembly concurred 66-10 on Aug. 27 and it was presented to the governor Sept. 4, 2026. The governor has until Sept. 30, 2026 to act: under the California Constitution (art. IV, sec. 10(b)(2)), a bill passed before Sept. 1 of the session's second year and in the governor's possession on or after Sept. 1 that is not returned by Sept. 30 becomes a statute without a signature. No signature or veto appeared on LegiScan or in the governor's legislative updates of Sept. 18, 20 and 27 and his bill releases through Sept. 29. Digital Democracy also showed it pending. Status, dates and text are from LegiScan's bill page and enrolled text. Would add Chapter 25.5 (commencing with Section 22758.5) to Division 8 of the Business and Professions Code and amend Civil Code Sections 56.05 and 56.06; the enrolled text has no urgency clause or operative date, so if enacted it would take effect Jan. 1, 2027 (art. IV, sec. 8(c)(1)). A health care chatbot is defined as a generative AI system with a natural language interface that provides adaptive, human-like responses, is marketed as facilitating or supporting health services and uses information about a consumer's physical or mental health or wellness that the consumer provides or that the chatbot collects, generates or infers. Automated systems for documentation and communication that do not involve professional judgment are exempt, as are trainees in supervised programs; the appropriate licensing board may seek an injunction or restraining order to enforce the section.",
-   "added": "2026-09-29"
+   "checked": "2026-10-01",
+   "notes": "Signed by Gov. Gavin Newsom on Sept. 30, 2026, according to his office; the chapter number had not yet been posted on LegiScan as of Oct. 1. Passed the Assembly 48-15 on May 21, 2026 and the Senate 29-9 on Aug. 26; the Assembly concurred 66-10 on Aug. 27. Status, dates and text are from LegiScan's bill page and enrolled text. Adds Chapter 25.5 (commencing with Section 22758.5) to Division 8 of the Business and Professions Code and amends Civil Code Sections 56.05 and 56.06; the enrolled text has no urgency clause or operative date, so it takes effect Jan. 1, 2027 (California Constitution, art. IV, sec. 8(c)(1)). A health care chatbot is a generative AI system with a natural language interface that provides adaptive, human-like responses, is marketed as facilitating or supporting health services and uses information about a consumer's physical or mental health or wellness. Automated systems for documentation and communication that do not involve professional judgment are exempt, as are trainees in supervised programs; the appropriate licensing board may seek an injunction or restraining order.",
+   "added": "2026-09-29",
+   "changed": "2026-10-01"
   },
   {
    "id": "ca-ab2575-2026",
@@ -239,41 +228,34 @@
    "also": [],
    "kind": "law",
    "name": "AB 2575, Health Care Services: Artificial Intelligence",
-   "status": "passed",
+   "status": "failed",
    "signed": "",
    "effective": "",
-   "applies_to": "Employers of direct patient care workers; those who develop, modify, select or deploy AI clinical decision support systems, when sued",
-   "summary": "Would bar an employer from retaliating or discriminating against a worker providing direct patient care based solely on the worker's override of, or reliance on, an AI clinical decision support system's output when making an assessment or decision within the worker's scope of practice, enforced by the Labor Commissioner, and would bar a defendant who developed, modified, selected or deployed such a system from arguing, in a suit alleging the system caused harm, that a clinician's failure to override its output was a superseding cause cutting off liability.",
-   "physician_read": "It binds no one yet; if it becomes law, from Jan. 1, 2027 an employer could not retaliate or discriminate against a clinician or other worker providing direct patient care based solely on the worker's override of, or reliance on, a clinical decision support system's output within scope of practice, and a policy requiring workers to accept, defer to or not override that output would not count among the worker's duties. In a suit alleging such a system caused harm, those who developed, modified, selected or deployed it could not argue that a clinician's failure to override its output was a superseding cause; the worker's duties to meet the standard of care and act within scope of practice would remain.",
+   "applies_to": "Would have applied to employers of direct patient care workers and to those who develop, modify, select or deploy AI clinical decision support systems, when sued",
+   "summary": "Would have barred an employer from retaliating or discriminating against a worker providing direct patient care based solely on the worker's override of, or reliance on, an AI clinical decision support system's output within the worker's scope of practice, and would have barred those who developed, modified, selected or deployed such a system from arguing that a clinician's failure to override its output was a superseding cause of harm.",
+   "physician_read": "It was vetoed and places no duty on anyone. California law gives clinicians no specific protection from retaliation for overriding AI output; AB 1979, signed the same day, requires employers to let licensed professionals exercise independent judgment when clinical decision support informs care.",
    "sources": [
     {
      "label": "LegiScan bill page",
      "url": "https://legiscan.com/CA/bill/AB2575/2025"
     },
     {
-     "label": "Enrolled text (LegiScan)",
-     "url": "https://legiscan.com/CA/text/AB2575/id/3458111"
+     "label": "Governor's legislative update, Sept. 30, 2026",
+     "url": "https://www.gov.ca.gov/2026/09/30/governor-newsom-issues-legislative-update-9-30-2026/"
     },
     {
-     "label": "California Constitution, art. IV (Assembly Clerk)",
-     "url": "https://clerk.assembly.ca.gov/sites/clerk.assembly.ca.gov/files/ARTICLE_IV_Session_2017-18.pdf"
+     "label": "Veto message",
+     "url": "https://www.gov.ca.gov/wp-content/uploads/2026/09/VETO-msg-AB-2575.pdf"
     },
     {
-     "label": "Senate 2026 legislative calendar",
-     "url": "https://www.senate.ca.gov/system/files/2026-04/2026-proposed-calendar-updated-march-2026.pdf"
-    },
-    {
-     "label": "Governor's legislative update, Sept. 27, 2026",
-     "url": "https://www.gov.ca.gov/2026/09/27/governor-newsom-issues-legislative-update-9-27-2026/"
-    },
-    {
-     "label": "Manatt Health AI Policy Tracker (secondary)",
-     "url": "https://www.manatt.com/insights/newsletters/health-highlights/manatt-health-health-ai-policy-tracker"
+     "label": "National Nurses United (secondary)",
+     "url": "https://www.nationalnursesunited.org/press/governor-newsom-fails-californians-by-refusing-to-sign-ai-protection-law"
     }
    ],
-   "checked": "2026-09-29",
-   "notes": "Passed the Assembly 48-15 on May 27, 2026; the Senate refused passage 18-10 on Aug. 28, granted reconsideration the same day and passed it 21-10 on Aug. 31, and the Assembly concurred 51-16 the same day; presented to the governor Sept. 15, 2026. The governor has until Sept. 30, 2026 to act: under the California Constitution (art. IV, sec. 10(b)(2)), a bill passed before Sept. 1 of the session's second year and in the governor's possession on or after Sept. 1 that is not returned by Sept. 30 becomes a statute without a signature. No signature or veto appeared on LegiScan or in the governor's legislative updates of Sept. 18, 20 and 27 and his bill releases through Sept. 29. Status, dates and text are from LegiScan's bill page and enrolled text. Would add Civil Code Section 1714.48 and Article 2.7 (commencing with Section 2820) to Chapter 2 of Division 3 of the Labor Code, enforced by the Labor Commissioner; the enrolled text has no urgency clause or operative date, so if enacted it would take effect Jan. 1, 2027 (art. IV, sec. 8(c)(1)). A Labor Commissioner determination would not decide malpractice or licensing matters. A tracker summary in the project's leads described AB 2575 as a psychotherapy consent bill; the enrolled text concerns clinical decision support, Manatt's tracker itself describes its liability rule, and the psychotherapy bill is SB 903.",
-   "added": "2026-09-29"
+   "checked": "2026-10-01",
+   "notes": "Vetoed by Gov. Gavin Newsom on Sept. 30, 2026; his reasons are set out in the veto message linked above. Passed the Assembly 48-15 on May 27, 2026; the Senate passed it 21-10 on Aug. 31 after first refusing passage, and the Assembly concurred 51-16 the same day. The California Nurses Association criticized the veto.",
+   "added": "2026-09-29",
+   "changed": "2026-10-01"
   },
   {
    "id": "ca-ab489-2025",
@@ -425,41 +407,26 @@
    "also": [],
    "kind": "law",
    "name": "SB 503, Health Care Services: Artificial Intelligence",
-   "status": "passed",
-   "signed": "",
-   "effective": "",
+   "status": "enacted",
+   "signed": "2026-09-30",
+   "effective": "2027-01-01",
    "applies_to": "Developers of AI clinical decision support systems and the health facilities, clinics, physician's offices and group practices that use them",
-   "summary": "Would require developers and deployers of AI clinical decision support systems to make reasonable efforts to identify systems with a known or reasonably foreseeable risk of biased impacts, meaning adverse effects on access to care, quality of care or outcomes based on protected characteristics, and to mitigate that risk, require developers to give deployers documentation on intended uses, training data, performance evaluation, data governance and bias risks, and require deployers to monitor the systems regularly.",
-   "physician_read": "It binds no one yet; if it becomes law, from Jan. 1, 2027 a physician's office or group practice that uses an AI clinical decision support system would have to make reasonable efforts to identify systems with known or reasonably foreseeable risks of biased impacts on patients based on protected characteristics, monitor them regularly and take reasonable, proportionate steps to mitigate those risks. Developers would owe the practice documentation on intended uses, training data, performance evaluation and bias risks, on request or at the initial sale, whichever is earlier.",
+   "summary": "Requires developers and deployers of AI clinical decision support systems to make reasonable efforts to identify systems with a known or reasonably foreseeable risk of biased impacts, meaning adverse effects on access to care, quality of care or outcomes based on protected characteristics, and to mitigate that risk, requires developers to give deployers documentation on intended uses, training data, performance evaluation, data governance and bias risks, and requires deployers to monitor the systems regularly.",
+   "physician_read": "From Jan. 1, 2027, a physician's office or group practice in California that uses an AI clinical decision support system must make reasonable efforts to identify systems with known or reasonably foreseeable risks of biased impacts on patients based on protected characteristics, monitor them regularly and take reasonable, proportionate steps to mitigate those risks. Developers owe the practice documentation on intended uses, training data, performance evaluation and bias risks, on request or at the initial sale, whichever is earlier.",
    "sources": [
     {
      "label": "LegiScan bill page",
      "url": "https://legiscan.com/CA/bill/SB503/2025"
     },
     {
-     "label": "Enrolled text (LegiScan)",
-     "url": "https://legiscan.com/CA/text/SB503/id/3457135"
-    },
-    {
-     "label": "California Constitution, art. IV (Assembly Clerk)",
-     "url": "https://clerk.assembly.ca.gov/sites/clerk.assembly.ca.gov/files/ARTICLE_IV_Session_2017-18.pdf"
-    },
-    {
-     "label": "Senate 2026 legislative calendar",
-     "url": "https://www.senate.ca.gov/system/files/2026-04/2026-proposed-calendar-updated-march-2026.pdf"
-    },
-    {
-     "label": "Governor's legislative update, Sept. 27, 2026",
-     "url": "https://www.gov.ca.gov/2026/09/27/governor-newsom-issues-legislative-update-9-27-2026/"
-    },
-    {
-     "label": "Transparency Coalition (secondary)",
-     "url": "https://www.transparencycoalition.ai/news/ai-legislative-update-september4-2026"
+     "label": "Office of the Governor (signing release, Sept. 30, 2026)",
+     "url": "https://www.gov.ca.gov/2026/09/30/californias-nation-leading-ai-framework-just-got-stronger-governor-newsom-signs-more-first-in-the-nation-worker-protections-and-more/"
     }
    ],
-   "checked": "2026-09-29",
-   "notes": "Introduced in 2025; passed the Senate 38-0 on May 29, 2025, was moved to the Assembly inactive file Sept. 10, 2025 and taken from it Aug. 12, 2026, passed the Assembly 70-1 on Aug. 24, 2026, and won Senate concurrence 39-0 on Aug. 25; presented to the governor Aug. 30, 2026. The governor has until Sept. 30, 2026 to act: under the California Constitution (art. IV, sec. 10(b)(2)), a bill passed before Sept. 1 of the session's second year and in the governor's possession on or after Sept. 1 that is not returned by Sept. 30 becomes a statute without a signature. No signature or veto appeared on LegiScan or in the governor's legislative updates of Sept. 18, 20 and 27 and his bill releases through Sept. 29. Status, dates and text are from LegiScan's bill page and enrolled text. Would add Chapter 25.3 (commencing with Section 22758) to Division 8 of the Business and Professions Code. The enrolled text names no enforcing agency, penalty, urgency clause or operative date, so if enacted it would take effect Jan. 1, 2027 (art. IV, sec. 8(c)(1)); it states that compliance is not a defense to a discrimination claim. Developers may meet some duties by following nationally recognized or widely adopted industry standards for bias testing or by providing algorithmic impact assessments.",
-   "added": "2026-09-29"
+   "checked": "2026-10-01",
+   "notes": "Signed by Gov. Gavin Newsom on Sept. 30, 2026, according to his office; the chapter number had not yet been posted on LegiScan as of Oct. 1. Introduced in 2025; passed the Senate 38-0 on May 29, 2025 and the Assembly 70-1 on Aug. 24, 2026, with Senate concurrence 39-0 on Aug. 25. Adds Chapter 25.3 (commencing with Section 22758) to Division 8 of the Business and Professions Code. The enrolled text names no enforcing agency, penalty, urgency clause or operative date, so it takes effect Jan. 1, 2027 (California Constitution, art. IV, sec. 8(c)(1)); it states that compliance is not a defense to a discrimination claim. Developers may meet some duties by following nationally recognized or widely adopted industry standards for bias testing or by providing algorithmic impact assessments.",
+   "added": "2026-09-29",
+   "changed": "2026-10-01"
   },
   {
    "id": "ca-ab3030-2024",
@@ -502,45 +469,30 @@
    ],
    "kind": "law",
    "name": "SB 903, Mental Health Professionals: Artificial Intelligence (Wellness and Oversight for Psychological Resources Act)",
-   "status": "passed",
+   "status": "failed",
    "signed": "",
    "effective": "",
-   "applies_to": "Anyone who provides or facilitates psychotherapy services, including psychiatrists and other licensed professionals and their employers",
-   "summary": "Would limit AI in psychotherapy to administrative and supplementary support; require telling a patient, verbally or in writing, that AI will be used and its specific purpose, and obtaining consent, before AI records or transcribes psychotherapy sessions, psychotherapeutic communications or triage and screening; bar letting AI make therapeutic decisions, interact directly with patients in psychotherapeutic communication, generate recommendations, assessments, diagnoses or treatment plans, detect emotions or mental states, or perform triage or screening without a licensed professional's review and approval, except that FDA-approved or cleared, HIPAA-compliant tools may interact directly for their approved use; and bar advertising companion chatbot services as psychotherapy.",
-   "physician_read": "It binds no one yet; if it becomes law, from Jan. 1, 2027 a psychiatrist or other licensed professional would have to tell the patient, verbally or in writing, that AI will be used and for what specific purpose, and obtain consent, before AI records or transcribes psychotherapy sessions, psychotherapeutic communications, or triage or screening, and a patient who declines keeps all rights to care. AI could not make therapeutic decisions, generate recommendations, assessments, diagnoses or treatment plans, detect emotions or mental states, or perform triage or screening without the professional's review and approval, and could not interact directly with patients in psychotherapeutic communication without that review unless the tool is approved or cleared by the FDA for that use and HIPAA-compliant.",
+   "applies_to": "Would have applied to anyone who provides or facilitates psychotherapy services, including psychiatrists and other licensed professionals and their employers",
+   "summary": "Would have limited AI in psychotherapy to administrative and supplementary support, required disclosure and consent before AI recorded or transcribed sessions, barred AI from making therapeutic decisions or interacting directly with patients in psychotherapeutic communication without a licensed professional's review, except for FDA-cleared tools in their cleared use, and barred advertising companion chatbots as psychotherapy.",
+   "physician_read": "It was vetoed and places no duty on psychiatrists or other clinicians; California's general rules, including AB 3030's disclosure requirement for AI-generated patient communications, still apply.",
    "sources": [
     {
      "label": "LegiScan bill page",
      "url": "https://legiscan.com/CA/bill/SB903/2025"
     },
     {
-     "label": "Enrolled text (LegiScan)",
-     "url": "https://legiscan.com/CA/text/SB903/id/3458147"
+     "label": "Governor's legislative update, Sept. 30, 2026",
+     "url": "https://www.gov.ca.gov/2026/09/30/governor-newsom-issues-legislative-update-9-30-2026/"
     },
     {
-     "label": "Assembly roll call, Aug. 30, 2026 (LegiScan)",
-     "url": "https://legiscan.com/CA/rollcall/SB903/id/1727290"
-    },
-    {
-     "label": "California Constitution, art. IV (Assembly Clerk)",
-     "url": "https://clerk.assembly.ca.gov/sites/clerk.assembly.ca.gov/files/ARTICLE_IV_Session_2017-18.pdf"
-    },
-    {
-     "label": "Senate 2026 legislative calendar",
-     "url": "https://www.senate.ca.gov/system/files/2026-04/2026-proposed-calendar-updated-march-2026.pdf"
-    },
-    {
-     "label": "Governor's legislative update, Sept. 27, 2026",
-     "url": "https://www.gov.ca.gov/2026/09/27/governor-newsom-issues-legislative-update-9-27-2026/"
-    },
-    {
-     "label": "Sen. Padilla release (secondary)",
-     "url": "https://sd18.senate.ca.gov/news/trump-pushes-ai-therapy-bots-licensed-professionals-urge-newsom-sign-padillas-sb-903"
+     "label": "Veto message",
+     "url": "https://www.gov.ca.gov/wp-content/uploads/2026/09/VETO-msg-SB-903.pdf"
     }
    ],
-   "checked": "2026-09-29",
-   "notes": "Passed the Senate 39-0 on May 19, 2026 and the Assembly 74-1 on Aug. 30, 2026 (LegiScan roll call, four absent; the author's office reported 71-4); the Senate concurred 40-0 on Aug. 31 and it was presented to the governor Sept. 9, 2026. The governor has until Sept. 30, 2026 to act: under the California Constitution (art. IV, sec. 10(b)(2)), a bill passed before Sept. 1 of the session's second year and in the governor's possession on or after Sept. 1 that is not returned by Sept. 30 becomes a statute without a signature. No signature or veto appeared on LegiScan or in the governor's legislative updates of Sept. 18, 20 and 27 and his bill releases through Sept. 29. Status, dates and text are from LegiScan's bill page, roll call and enrolled text. Would add Chapter 13.6 (commencing with Section 4989.80) to Division 2 of the Business and Professions Code; the enrolled text has no urgency clause or operative date, so if enacted it would take effect Jan. 1, 2027 (art. IV, sec. 8(c)(1)). Licensing boards would enforce it and may seek injunctions; no penalty amount or private right of action is set. A licensed professional would not be disciplined for a violation caused solely by a tool feature outside the professional's control when the employer or contracting entity required the tool, and the employer or contracting entity would be responsible for compliant deployment. AI could still suggest that a person discuss psychotherapy with a licensed professional, administer and score standardized screening questionnaires for a professional's review, and handle scheduling that involves no psychotherapeutic communication. Religious counseling, peer support, self-help and educational materials that do not purport to offer psychotherapy, AI used solely for training or simulation, and research by academic or nonprofit institutions under federal human-subject and privacy rules are exempt. Psychotherapy data could not be shared, sold, stored or used to train models inconsistently with applicable law, and records must comply with the Confidentiality of Medical Information Act.",
-   "added": "2026-09-29"
+   "checked": "2026-10-01",
+   "notes": "Vetoed by Gov. Gavin Newsom on Sept. 30, 2026; his reasons are set out in the veto message linked above. Passed the Senate 39-0 on May 19, 2026 and the Assembly 74-1 on Aug. 30 (LegiScan roll call; the author's office reported 71-4); the Senate concurred 40-0 on Aug. 31.",
+   "added": "2026-09-29",
+   "changed": "2026-10-01"
   },
   {
    "id": "ca-cdi-guidance-sb1120-1-2025",
