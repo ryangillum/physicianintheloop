@@ -151,6 +151,13 @@ page's header chooses Dark, Light or System (follow the device's setting); the c
 button, showing the current choice, that opens the three options. A script at the top of <head> applies the stored choice before
 the page draws, so there is no flash; without JavaScript the site is dark and the switch is hidden. The podcast players, the
 contact form's Turnstile widget and the browser's theme color follow the choice, and pages always print in the light theme.
+Version 2.19 (Oct 1, 2026): the logo. Ryan chose a stethoscope mark with the name set as a nameplate. Every page's header shows a
+small stethoscope (in the accent blue, its chest piece amber) before the name, with "Physician" and "Loop" in bold and "in the"
+in smaller italics. On phones the mark is a little smaller; under 390px the name is too; under 360px the mark drops out so the
+name fits. The same stethoscope, white on the brand-blue tile, is the favicon (favicon.svg, plus favicon.ico for browsers that
+need one) and the app icon (tools/logo.png). tools/og-image.png, the social card for pages without a picture of their own, is
+redrawn in the dark theme with the new lockup and the current description, without a byline. The links to the favicon, the app
+icon and the social card carry ?v=<hash of the file>, so browsers and social sites fetch the new ones.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -753,6 +760,19 @@ EXTRA_CSS = """
     .head-right .btn.small { padding: 6px 9px; font-size: 0.78rem; }
     .theme-current { width: 32px; height: 32px; }
   }
+  .brand { display: inline-flex; align-items: center; gap: 9px; }
+  .brand .bn { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .brand-mark { display: block; width: 26px; height: 26px; flex: 0 0 auto; color: var(--accent); }
+  .brand-mark .dot { fill: var(--mark-dot); }
+  :root { --mark-dot: #D08F2C; }
+  :root[data-theme="dark"] { --mark-dot: #E2A94F; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --mark-dot: #E2A94F; } }
+  .bn-b { font-weight: 700; }
+  .bn-i { font-style: italic; font-weight: 400; font-size: 0.8em; color: var(--ink-2); margin: 0 0.04em; }
+  .brand:hover .bn-i { color: var(--accent-2); }
+  @media (max-width: 519px) { .brand { gap: 7px; } .brand-mark { width: 24px; height: 24px; } }
+  @media (max-width: 389px) { .brand { gap: 6px; font-size: 0.93rem; } .brand-mark { width: 22px; height: 22px; } }
+  @media (max-width: 359px) { .brand { font-size: 0.94rem; } .brand-mark { display: none; } }
 """
 
 
@@ -873,9 +893,20 @@ def theme_switch_html():
             '<div class="theme-options" id="theme-options" role="radiogroup" aria-label="Theme">%s</div></div>'
             % ("".join(THEME_ICONS[k] for k, _, _ in THEME_CHOICES), opts))
 
+# 2.19: the logo. A stethoscope drawn on a 32-unit grid (strokes in currentColor, the chest piece's center amber through
+# --mark-dot), and the name as a nameplate: the words around "in the" in bold, "in the" in smaller italics.
+BRAND_MARK = '<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">' + '<g transform="translate(-3 0)"><g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 4.5V10.5c0 3.9 2.9 6.5 6.5 6.5s6.5-2.6 6.5-6.5V4.5"/><path d="M15 17v3.5c0 4.6 2.9 7.6 6.6 7.6c3.3 0 4.9-2.4 4.9-5.6v-0.8"/><circle cx="26.5" cy="18.2" r="3.4"/></g><circle class="dot" cx="26.5" cy="18.2" r="1.5"/><circle cx="8.5" cy="3.6" r="1.7" fill="currentColor"/><circle cx="21.5" cy="3.6" r="1.7" fill="currentColor"/></g>' + '</svg>'
+
+def brand_name_html(name):
+    i = name.find(" in the ")
+    if i > 0:
+        return ('<span class="bn"><span class="bn-b">%s</span> <span class="bn-i">in the</span> <span class="bn-b">%s</span></span>'
+                % (esc(name[:i]), esc(name[i + len(" in the "):])))
+    return '<span class="bn">%s</span>' % esc(name)
+
 def nav_html(active):
     out = ['<div class="topbar" id="topbar"><div class="topbar-inner"><div class="brand-row">',
-           '<div class="brand-left">%s<a class="brand" href="/">%s</a></div>' % (menu_html(active), esc(NAME)),
+           '<div class="brand-left">%s<a class="brand" href="/">%s%s</a></div>' % (menu_html(active), BRAND_MARK, brand_name_html(NAME)),
            '<div class="head-right"><a class="btn small" href="%s" target="_blank" rel="noopener">Subscribe</a>%s</div></div>' % (esc(SUBSCRIBE), theme_switch_html()),
            '<nav class="tabs" aria-label="Sections">']
     for path, label in NAV:
@@ -890,10 +921,29 @@ FOOT = ('<footer class="foot"><div class="tablinks">' + "".join('<a href="%s">%s
         + (' <a href="/contact/">Contact us</a>.' if CONTACT_LIVE else "") + '</p>'
         '<p class="copyright">&copy; %d %s. All rights reserved.</p></footer>' % (datetime.date.today().year, esc(config.get("copyright_holder") or AUTHOR)))
 
+# 2.19: og-image.png and logo.png live in the repository's tools folder (the routine copies them from the artifact); their
+# links carry a hash of the file so a new picture is fetched at once. The favicon is written below from FAVICON_SVG and
+# FAVICON_ICO_B64 (16, 32 and 48 px).
+def _asset_file(name):
+    for cand in (os.path.join(ROOT, "tools", name), os.path.join(os.path.dirname(os.path.abspath(__file__)), name), os.path.join(ROOT, name)):
+        if os.path.exists(cand):
+            return cand
+    return None
+
+def asset_url(name):
+    f = _asset_file(name)
+    return "/%s?v=%s" % (name, hashlib.sha256(open(f, "rb").read()).hexdigest()[:10]) if f else "/" + name
+
+FAVICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2F63A8"/><g transform="translate(32 32) scale(1.48) translate(-16 -16)"><g transform="translate(-3 0)"><g fill="none" stroke="#FFFFFF" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 4.5V10.5c0 3.9 2.9 6.5 6.5 6.5s6.5-2.6 6.5-6.5V4.5"/><path d="M15 17v3.5c0 4.6 2.9 7.6 6.6 7.6c3.3 0 4.9-2.4 4.9-5.6v-0.8"/><circle cx="26.5" cy="18.2" r="3.4"/></g><circle cx="26.5" cy="18.2" r="1.6" fill="#F3C979"/><circle cx="8.5" cy="3.6" r="1.9" fill="#FFFFFF"/><circle cx="21.5" cy="3.6" r="1.9" fill="#FFFFFF"/></g></g></svg>'
+FAVICON_ICO_B64 = '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'
+OG_IMAGE, LOGO_IMAGE = asset_url("og-image.png"), asset_url("logo.png")
+FAVICON_SVG_V = hashlib.sha256(FAVICON_SVG.encode("utf-8")).hexdigest()[:10]
+FAVICON_ICO_V = hashlib.sha256(FAVICON_ICO_B64.encode("ascii")).hexdigest()[:10]
+
 def page(path, title, desc, body, active=None, kind="website", jsonld=None, published=None, modified=None, head_extra="", image=None, image_alt=None, unsigned=True, noindex=False):
     # 2.15: every page is credited to the publication; "unsigned" is kept for callers but no page names a person as author
     url = absurl(path)
-    og_img = (absurl(image) if image.startswith("/") else image) if image else absurl("/og-image.png")
+    og_img = (absurl(image) if image.startswith("/") else image) if image else absurl(OG_IMAGE)
     full_title = title if (title.startswith(NAME) or title.endswith(NAME)) else "%s | %s" % (title, NAME)
     head = ['<!DOCTYPE html>', '<html lang="en" data-theme="dark" data-theme-choice="dark">', '<head>', '<meta charset="utf-8">',
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
@@ -927,8 +977,9 @@ def page(path, title, desc, body, active=None, kind="website", jsonld=None, publ
         head.append('<meta name="google-site-verification" content="%s">' % esc(config["google_site_verification"]))
     if config.get("bing_verification"):
         head.append('<meta name="msvalidate.01" content="%s">' % esc(config["bing_verification"]))
-    head += ['<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
-             '<link rel="apple-touch-icon" href="/logo.png">',
+    head += ['<link rel="icon" href="/favicon.ico?v=%s" sizes="32x32">' % FAVICON_ICO_V,
+             '<link rel="icon" href="/favicon.svg?v=%s" type="image/svg+xml">' % FAVICON_SVG_V,
+             '<link rel="apple-touch-icon" href="%s">' % LOGO_IMAGE,
              '<link rel="alternate" type="application/rss+xml" title="%s" href="%s">' % (esc(NAME), esc(absurl("/feed.xml"))),
              '<link rel="preconnect" href="https://fonts.googleapis.com">',
              '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
@@ -952,7 +1003,7 @@ def write(path, content, binary=False):
     with open(full, "wb" if binary else "w", **({} if binary else {"encoding": "utf-8"})) as f:
         f.write(content)
 
-PUBLISHER = {"@type": "Organization", "name": NAME, "url": SITE, "logo": {"@type": "ImageObject", "url": absurl("/logo.png"), "width": 512, "height": 512},
+PUBLISHER = {"@type": "Organization", "name": NAME, "url": SITE, "logo": {"@type": "ImageObject", "url": absurl(LOGO_IMAGE), "width": 512, "height": 512},
              **({"parentOrganization": {"@type": "Organization", "name": PUBLISHED_BY}} if PUBLISHED_BY != NAME else {})}
 ORG_AUTHOR = {"@type": "Organization", "name": NAME, "url": SITE}
 # 2.15: the founder appears only on the About page, as the founder of the copyright holder
@@ -962,7 +1013,7 @@ def article_ld(kind, url, headline, desc, date, image=None, unsigned=True):
     return {"@context": "https://schema.org", "@type": kind, "headline": headline[:110], "description": desc,
             "datePublished": iso_dt(date), "dateModified": iso_dt(date if date != LAST_UPDATED else LAST_UPDATED),
             "author": ORG_AUTHOR, "publisher": PUBLISHER, "mainEntityOfPage": {"@type": "WebPage", "@id": url},
-            "image": [(absurl(image) if image.startswith("/") else image) if image else absurl("/og-image.png")], "isAccessibleForFree": True, "inLanguage": "en-US"}
+            "image": [(absurl(image) if image.startswith("/") else image) if image else absurl(OG_IMAGE)], "isAccessibleForFree": True, "inLanguage": "en-US"}
 
 def breadcrumbs(items):
     """items: [(label, path)] ending with the current page (path may be None)."""
@@ -2956,8 +3007,8 @@ write("/llms.txt", "# %s\n\n> %s\n\nPublished by %s. Daily posts are third-perso
       + ("- [Podcast](%s): each morning's post as an audio briefing; podcast feed %s\n" % (absurl("/podcast/"), POD["rss"]) if POD else "") + LLMS_EXTRA
       + ("- [Contact](%s): questions, corrections, news tips and press requests\n" % absurl("/contact/") if CONTACT_LIVE else ""))
 
-write("/favicon.svg", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2F63A8"/>'
-      '<path d="M20 14v18a12 12 0 0 0 24 0V14" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="50" r="5" fill="#fff"/></svg>')
+write("/favicon.svg", FAVICON_SVG)
+write("/favicon.ico", base64.b64decode(FAVICON_ICO_B64), binary=True)
 for name in ("og-image.png", "logo.png"):  # made once, kept in the repository's tools folder
     for cand in (os.path.join(ROOT, "tools", name), os.path.join(os.path.dirname(os.path.abspath(__file__)), name), os.path.join(ROOT, name)):
         if os.path.exists(cand):
