@@ -162,6 +162,12 @@ Version 2.19.1 (Sept 30, 2026): the podcast cover. /podcast/cover-3000.jpg is th
 JPEG, RGB, 72 dpi, under Transistor's 512 KB limit), written from PODCAST_COVER_B64 at the end of this file. It is served with
 Access-Control-Allow-Origin: * (so Transistor's dashboard could load it for the upload) and is the image in the /podcast/ page's
 PodcastSeries structured data.
+Version 2.20 (Oct 1, 2026): pictures for the letters for patients, and the daily posts' pictures in the feed. A letter for patients
+may carry image {src, alt} like an explainer: archived under assets/images/patients/, served from /images/patients/<weekOf>.jpg,
+shown under the Share story link, used as the page's social image, shown beside the entry on /patients/ and above the link to
+the newest letter on the home page, and named in letter.json and latest.json ("image", "image_alt"). In feed.xml each daily
+post now opens with its picture, as the Friday letters and special topics already did, so services that import the feed (Substack)
+show it; config "feed_post_images": false turns that off. Nothing else in the feed changes.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -1620,6 +1626,7 @@ LETTER_IMG = collect_images("letters", letter_pages)
 POST_IMG = collect_images("posts", post_pages)
 SPECIAL_IMG = collect_images("specials", special_pages)
 EXPLAINER_IMG = collect_images("explainers", [(x["slug"], x) for x in EXPLAINERS])  # 2.16
+PATIENT_IMG = collect_images("patients", [(x["weekOf"], x) for x in PATIENTS])  # 2.20
 
 def figure_html(img_map, slug, cls, lazy=False):
     if slug not in img_map:
@@ -1702,6 +1709,9 @@ if letters:
 if PATIENTS:
     px = PATIENTS[0]
     body.append('<div class="panel-head" style="margin-top:34px"><h2 style="font-size:1.3rem">For patients</h2><a class="sub" href="/patients/">all letters</a></div>')
+    if px["weekOf"] in PATIENT_IMG:
+        body.append('<a class="letter-card" href="%s"><img src="%s" alt="%s" width="1200" height="630" loading="lazy" decoding="async"></a>'
+                    % (patient_url(px["weekOf"]), esc(PATIENT_IMG[px["weekOf"]][0]), esc(PATIENT_IMG[px["weekOf"]][1])))
     body.append('<ul class="recent"><li><span class="when">%s</span><a href="%s">%s</a></li></ul>' % (esc(fmt(px["weekOf"])), patient_url(px["weekOf"]), esc(px.get("headline") or "")))
 REF_LINKS = [(p_, l_) for p_, l_, have in (("/law-map/", "AI health law map", LAWS), ("/rhtp/", "Rural Health Transformation Program tracker", RHTP), ("/explainers/", "Explainers", EXPLAINERS)) if have]
 if REF_LINKS:
@@ -2702,7 +2712,9 @@ def patient_record(x):
             lines.append(line)
     return {"weekOf": x["weekOf"], "date": x.get("date") or x["weekOf"], "headline": plain(x.get("headline") or ""), "dek": plain(x.get("dek") or ""),
             "url": absurl(patient_url(x["weekOf"])), "intro": spoken(x.get("intro")), "body": lines,
-            "question_heading": "One question for your next appointment", "question": spoken(x.get("question")), "closing": spoken(x.get("closing"))}
+            "question_heading": "One question for your next appointment", "question": spoken(x.get("question")), "closing": spoken(x.get("closing")),
+            **({"image": (PATIENT_IMG[x["weekOf"]][0] if PATIENT_IMG[x["weekOf"]][0].startswith("https://") else absurl(PATIENT_IMG[x["weekOf"]][0])),
+                "image_alt": PATIENT_IMG[x["weekOf"]][1]} if x["weekOf"] in PATIENT_IMG else {})}
 
 
 PATIENT_TAIL = ('<div class="subscribe-box"><p>A weekly letter for patients and families on how AI is showing up in health care, in plain language.</p>'
@@ -2721,6 +2733,7 @@ def build_patients():
         if x.get("dek"):
             art.append('<p class="standfirst">%s</p>' % rich(x["dek"]))
         art.append(share_html(path, headline))
+        art.append(figure_html(PATIENT_IMG, x["weekOf"], "letter-art"))
         art.append('<p class="patient-note">General information for patients and families, not medical advice. Each letter is reviewed by a physician before it is published.</p>')
         art.append('<div class="special-body patient-body">')
         if x.get("intro"):
@@ -2748,16 +2761,19 @@ def build_patients():
         if i == 0:
             write("/patients/latest.json", json.dumps(rec, ensure_ascii=False, indent=1) + "\n")
         desc = describe([x.get("dek") or x.get("intro") or headline])
+        og_i, og_alt = og_for(PATIENT_IMG, x["weekOf"])
         entry_page("Article", path, [(NAME, "/"), ("For patients", "/patients/"), (wk, None)], headline, desc, x.get("date") or x["weekOf"], "".join(art),
-                   older, newer, unsigned=True, tail=PATIENT_TAIL)
+                   older, newer, image=og_i, image_alt=og_alt, unsigned=True, tail=PATIENT_TAIL)
         urls.append((path, x.get("date") or x["weekOf"], "monthly", "0.7"))
     body = ['<div class="panel-head"><h1 style="font-size:1.6rem">For patients</h1><span class="sub">a weekly letter for patients and families</span></div>',
             '<p class="lead">A weekly letter in plain language on how artificial intelligence is showing up in health care: in the exam room, in insurance decisions, '
             'and in the apps and chatbots people use at home. Each letter is reviewed by a physician before it is published. It is general information, not medical '
             'advice: talk with your own doctor about your care.</p><ul class="letter-list">']
-    for x in items:
-        body.append('<li class="no-thumb"><div class="txt"><span class="when">%s</span><a class="t" href="%s">%s</a>%s</div></li>'
-                    % (esc("Week of " + fmt(x["weekOf"])), patient_url(x["weekOf"]), esc(x["headline"]), ('<p class="d">%s</p>' % esc(plain(x["dek"]))) if x.get("dek") else ""))
+    for k, x in enumerate(items):
+        thumb = list_thumb(PATIENT_IMG, x["weekOf"], patient_url(x["weekOf"]), k)
+        body.append('<li%s>%s<div class="txt"><span class="when">%s</span><a class="t" href="%s">%s</a>%s</div></li>'
+                    % ("" if thumb else ' class="no-thumb"', thumb, esc("Week of " + fmt(x["weekOf"])), patient_url(x["weekOf"]), esc(x["headline"]),
+                       ('<p class="d">%s</p>' % esc(plain(x["dek"]))) if x.get("dek") else ""))
     body.append("</ul>")
     page("/patients/", "For patients", "A weekly letter for patients and families on how artificial intelligence is showing up in health care, in plain language, reviewed by a physician.",
          '<section class="panel">' + "".join(body) + "</section>", active="/patients/",
@@ -2974,8 +2990,20 @@ def cdata(s):
     return "<![CDATA[" + s.replace("]]>", "]]]]><![CDATA[>") + "]]>"
 
 feed_items = []
+FEED_POST_IMAGES = config.get("feed_post_images", True) is not False  # 2.20
+
+
+def feed_img(img_map, slug):
+    """The picture at the head of a feed item, as the Friday letters and special topics have had since 2.2 and 2.11."""
+    if slug not in img_map:
+        return ""
+    src, alt = img_map[slug][0], img_map[slug][1]
+    return '<p><img src="%s" alt="%s" width="1200" height="630"></p>' % (esc(src if src.startswith("https://") else absurl(src)), esc(alt))
+
+
 for slug, p in post_pages:
-    feed_items.append((p.get("date") or "", 2, p.get("headline") or "Daily post", absurl(post_url(slug)), describe(p.get("intro") or [p.get("headline")], 300), post_body(p), NAME))
+    feed_items.append((p.get("date") or "", 2, p.get("headline") or "Daily post", absurl(post_url(slug)), describe(p.get("intro") or [p.get("headline")], 300),
+                       (feed_img(POST_IMG, slug) if FEED_POST_IMAGES else "") + post_body(p), NAME))
 for slug, w in letter_pages:
     feed_items.append((w.get("weekOf") or "", 3, w.get("headline") or "The Friday letter", absurl(letter_url(slug)), plain(w.get("dek") or ""), (('<p><img src="%s" alt="%s" width="1200" height="630"></p>' % (esc(LETTER_IMG[slug][0] if LETTER_IMG[slug][0].startswith("https://") else absurl(LETTER_IMG[slug][0])), esc(LETTER_IMG[slug][1]))) if slug in LETTER_IMG else "") + paras(w.get("body")) + ('<div class="section-label">SOURCE MATERIAL</div>' + render_items(w["top"]) if w.get("top") else "") + (paras(w["outlook"]) if w.get("outlook") else ""), NAME))
 for slug, sp in special_pages:
