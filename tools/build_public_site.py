@@ -174,6 +174,9 @@ title, description and structured data, the button rows, the law map's and topic
 llms.txt and the default site description ("A daily briefing, a Friday letter and a podcast."; the live value comes from
 site.config.json). Addresses do not change (/posts/, /posts/<date>/), and a single piece is still a post ("Today's post",
 "Recent posts", "Listen to this post"). feed.xml changes only where it carries the site description.
+Version 2.22 (Oct 2, 2026): the daily post's player (on the post page and on the home page's today's post) says "read by
+AI voices" beside "Listen to this post", before its "all episodes" link, in the muted style of the letters' and special
+topics' "read by an AI voice". Nothing else changes.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -624,6 +627,7 @@ EXTRA_CSS = """
   .post-episode-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 10px; }
   .post-episode-head h2 { font-size: 1.05rem; margin: 0; }
   .post-episode-head .sub { font-size: 0.85rem; }
+  .post-episode-head .ai-note { color: var(--muted); }
   .post-episode + .section-label { margin-top: 24px; }
   .letter-list { list-style: none; margin: 8px 0 0; padding: 0; }
   .letter-list li { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 12px 22px; align-items: start; padding-block: 20px; border-top: 1px solid var(--rule); }
@@ -1072,7 +1076,7 @@ def episode_block(date):
     if not (POD and re.match(r"^\d{4}-\d{2}-\d{2}$", date or "")):
         return ""
     return ('<section class="post-episode" id="post-episode" data-date="%s" hidden aria-label="Listen to this post">'
-            '<div class="post-episode-head"><h2>Listen to this post</h2><a class="sub" href="/podcast/">all episodes</a></div>'
+            '<div class="post-episode-head"><h2>Listen to this post</h2><span class="sub ai-note">read by AI voices · <a href="/podcast/">all episodes</a></span></div>'
             '<div class="pod-player"><iframe title="Podcast episode for this post" height="180" scrolling="no"></iframe></div></section>' % esc(date)
             + EPISODE_SCRIPT)
 
