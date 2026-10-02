@@ -1,7 +1,7 @@
 {
  "name": "AI health law map",
  "url": "https://physicianintheloop.org/law-map/",
- "updated": "2026-10-01",
+ "updated": "2026-10-02",
  "categories": {
   "payer": "Payer and utilization review AI",
   "disclosure": "Patient disclosure of AI use",
@@ -70,12 +70,12 @@
    "also": [],
    "kind": "law",
    "name": "SB 63, Health care plans; to regulate the use of artificial intelligence in determinations of coverage",
-   "status": "enacted",
+   "status": "effective",
    "signed": "2026-04-17",
    "effective": "2026-10-01",
    "applies_to": "Health benefit plan providers: entities that issue, deliver or renew health benefit plans, including insurers, health maintenance organizations, nonprofit health care service plans and nonprofit agricultural organizations offering health benefits, and the internal units, contractors or agents that perform their utilization review",
    "summary": "Requires a health benefit plan provider that uses AI to decide medical necessity on prior authorization requests to base those determinations on the enrollee's medical history, clinical circumstances presented by the requesting provider and other clinical information in the medical record, and to certify to the Department of Insurance each year that the AI does not rely on a group dataset to make determinations, is fairly and equitably applied and does not discriminate against any subscriber group or enrollee in violation of state or federal law; requires plan providers to disclose their AI use in utilization review in their policies and procedures, review that use and its outcomes periodically and keep patient data used by the AI to its intended and stated purpose; and requires a licensed physician or other competent health care professional to make every determination to deny, delay or modify a prior authorization request based on medical necessity.",
-   "physician_read": "From Oct. 1, 2026, a health benefit plan provider's determination to deny, delay or modify a prior authorization request based on medical necessity must be made by a licensed physician or other health care professional competent to evaluate any AI recommendation in light of the enrollee's specific clinical issues, and a plan that uses AI for these determinations must base them on the enrollee's medical history, the clinical circumstances the requesting provider presents and other clinical information in the medical record. It places no duty on treating physicians.",
+   "physician_read": "Since Oct. 1, 2026, a health benefit plan provider's determination to deny, delay or modify a prior authorization request based on medical necessity must be made by a licensed physician or other health care professional competent to evaluate any AI recommendation in light of the enrollee's specific clinical issues, and a plan that uses AI for these determinations must base them on the enrollee's medical history, the clinical circumstances the requesting provider presents and other clinical information in the medical record. It places no duty on treating physicians.",
    "sources": [
     {
      "label": "Enrolled act",
@@ -90,9 +90,10 @@
      "url": "https://www.hklaw.com/en/insights/publications/2026/05/states-continue-efforts-to-regulate-ai-in-healthcare"
     }
    ],
-   "checked": "2026-09-29",
-   "notes": "LegiScan's history records the bill as enacted April 17, 2026, with no separate signing entry, and Holland & Knight (secondary) gives April 17 as the signing date; the act number was not found on LegiScan's bill or text pages. The House Insurance Committee substitute replaced the Senate text; the entry follows the enrolled act. The act says the requirements of subsections (b) and (c) are satisfied by an attestation by an authorized representative of the plan provider based on reasonable reliance on internal policies, procedures and third-party vendors. The Department of Insurance may investigate, hold a hearing and impose a plan to correct procedures; for repeat violations of subsection (b) frequent enough to indicate a general business pattern or practice, it may impose fines of up to $5,000 or suspend or revoke a certificate of authority. The act directs the department to adopt rules; the department's regulations, bulletins and hearing-notice pages showed none on Sept. 29, 2026. Tracker summaries listed this law as HB 272 and SB 271 (or HB 273); those numbers belong to unrelated 2026 bills.",
-   "added": "2026-09-29"
+   "checked": "2026-10-02",
+   "notes": "LegiScan's history records the bill as enacted April 17, 2026, with no separate signing entry, and Holland & Knight (secondary) gives April 17 as the signing date; the act number was not found on LegiScan's bill or text pages. The act's text says it became effective Oct. 1, 2026. The House Insurance Committee substitute replaced the Senate text; the entry follows the enrolled act. The act says the requirements of subsections (b) and (c) are satisfied by an attestation by an authorized representative of the plan provider based on reasonable reliance on internal policies, procedures and third-party vendors. The Department of Insurance may investigate, hold a hearing and impose a plan to correct procedures; for repeat violations of subsection (b) frequent enough to indicate a general business pattern or practice, it may impose fines of up to $5,000 or suspend or revoke a certificate of authority. The act directs the department to adopt rules; the department's regulations, bulletins and hearing-notice pages showed none on Sept. 29, 2026. Tracker summaries listed this law as HB 272 and SB 271 (or HB 273); those numbers belong to unrelated 2026 bills.",
+   "added": "2026-09-29",
+   "changed": "2026-10-02"
   },
   {
    "id": "al-hb351-2026",
@@ -1392,12 +1393,12 @@
    "also": [],
    "kind": "law",
    "name": "SB 4, Public Act 26-64, An Act Concerning Consumer Privacy and Protection",
-   "status": "enacted",
+   "status": "effective",
    "signed": "2026-05-27",
    "effective": "2026-10-01",
    "applies_to": "Controllers and third parties under the Connecticut Data Privacy Act, controllers that use facial recognition on their premises for security or fraud prevention, and data brokers; HIPAA covered entities and business associates remain exempt",
    "summary": "Amends the Connecticut Data Privacy Act to bar controllers and third parties from selling any consumer's precise geolocation data, limits on-premises facial recognition used for security to matching against the business's own database with signage at each entrance and a posted policy, and requires data broker registration and a statewide deletion mechanism.",
-   "physician_read": "It places no duty on HIPAA covered entities or business associates, which remain exempt. From Oct. 1, 2026, controllers and third parties covered by the act cannot sell any Connecticut patient's precise geolocation data; the ban has no consent exception.",
+   "physician_read": "It places no duty on HIPAA covered entities or business associates, which remain exempt. Since Oct. 1, 2026, controllers and third parties covered by the act cannot sell any Connecticut patient's precise geolocation data; the ban has no consent exception.",
    "sources": [
     {
      "label": "LegiScan bill page",
@@ -1416,9 +1417,10 @@
      "url": "https://privacylaw.proskauer.com/2026/06/articles/data-privacy-laws/from-data-brokers-to-dna-connecticut-enacts-sweeping-privacy-amendments/"
     }
    ],
-   "checked": "2026-09-29",
+   "checked": "2026-10-02",
    "notes": "The provisions summarized take effect Oct. 1, 2026; data broker registration begins Jan. 1, 2027 and the deletion mechanism is due by July 1, 2028. The Attorney General's Sept. 16, 2026 release cites Public Act 26-64 and describes the geolocation sale ban, facial recognition signage, genetic testing rules and the data broker registry. The act also sets consent and retention rules for direct-to-consumer genetic testing companies (outside this map's scope) and surveillance pricing rules. The statement that the ban has no consent exception reflects the unconditional new text ('No controller shall sell any consumer's precise geolocation data'; the same for third parties); Proskauer describes limited exceptions for disclosures to processors, services the consumer requests, affiliates and mergers or acquisitions, none of them based on consent. Snell & Wilmer cites the act as Public Act 26-62; LegiScan, the chaptered text, the Attorney General and Proskauer give 26-64. Snell & Wilmer and Proskauer say HB 5222 (Public Act 26-100, signed June 2, 2026 per LegiScan) later amended certain provisions, and Proskauer adds HB 5563 (Public Act 26-130, signed June 4, 2026 per LegiScan, whose title includes surveillance pricing); the copy of Public Act 26-100 read on LegiScan breaks off at section 33, before any privacy section, so whether it changed the provisions described here could not be confirmed.",
-   "added": "2026-09-29"
+   "added": "2026-09-29",
+   "changed": "2026-10-02"
   },
   {
    "id": "ct-sb6-2022",
@@ -3949,20 +3951,33 @@
    "effective": "",
    "applies_to": "Facilities that use AI in clinical decision-making, including health care provider offices and clinics owned by or employing a Pennsylvania-licensed physician, physician assistant or nurse practitioner; health insurers; and Medical Assistance and CHIP managed care plans",
    "summary": "Would require facilities that use AI in clinical decision-making to disclose that use to patients in plain language in related written communications and on their websites, label AI-generated patient communications about clinical information with a disclaimer and instructions for reaching a human provider, keep AI from superseding clinicians' decisions and file annual compliance statements with the Department of Health, and would require insurers and Medical Assistance or CHIP managed care plans that use AI in utilization review to disclose it, keep AI from basing determinations solely on a group data set or superseding the reviewing provider's decisions, and have a health care provider review the individual's clinical records and exercise independent judgment before a denial, reduction or termination of benefits is issued or upheld.",
-   "physician_read": "It binds no one yet. As amended, it would, from one year after enactment, require a physician's office or clinic that uses AI in clinical decision-making to disclose that use to patients in plain language and on its website and to label AI-generated patient communications about clinical information, and would require a health care provider's review of the individual's clinical records and independent judgment before an insurer or Medicaid or CHIP plan using AI in utilization review issues or upholds a denial, reduction or termination of benefits.",
+   "physician_read": "It binds no one yet. As passed by the House, it would, from one year after enactment, require a physician's office or clinic that uses AI in clinical decision-making to disclose that use to patients in plain language and on its website and to label AI-generated patient communications about clinical information, and would require a health care provider's review of the individual's clinical records and independent judgment before an insurer or Medicaid or CHIP plan using AI in utilization review issues or upholds a denial, reduction or termination of benefits.",
    "sources": [
     {
      "label": "LegiScan bill page, HB 1925",
      "url": "https://legiscan.com/PA/bill/HB1925/2025"
     },
     {
+     "label": "Bill text as passed by the House, Printer's No. 3963 (LegiScan copy)",
+     "url": "https://legiscan.com/PA/text/HB1925/id/3460784/Pennsylvania-2025-HB1925-Amended.pdf"
+    },
+    {
      "label": "Bill text as amended, Printer's No. 3349 (LegiScan copy)",
      "url": "https://legiscan.com/PA/text/HB1925/id/3431574/Pennsylvania-2025-HB1925-Amended.pdf"
+    },
+    {
+     "label": "Pennsylvania House Democratic Caucus release, Sept. 30, 2026",
+     "url": "https://www.pahouse.com/InTheNews/NewsRelease/?id=145449"
+    },
+    {
+     "label": "Becker's Hospital Review (secondary)",
+     "url": "https://www.beckershospitalreview.com/healthcare-information-technology/ai/pennsylvania-house-passes-hospital-ai-governance-bill/"
     }
    ],
-   "checked": "2026-09-29",
-   "notes": "Referred to the House Communications and Technology Committee Oct. 6, 2025; reported as amended (Printer's No. 3349) May 5, 2026, given first consideration and laid on the table; removed from the table June 25, 2026. The 2025-2026 session continues. The Senate companion, SB 1113, has not been reported from committee. The text does not say AI may not be the sole basis for a denial; it bars AI from basing a utilization review determination solely on a group data set or superseding the provider's decision-making and requires the provider review described above. As amended, a facility may not penalize a provider solely for exercising independent judgment that differs from an AI recommendation, and an insurer may not penalize a reviewing provider solely for refusing to issue or for overturning a decision. Communications only about administrative matters, such as scheduling or billing, and communications individually read, reviewed and approved by a human health care provider are exempt from the disclaimer. Insurers would also file annual AI compliance statements. Penalties would reach $10,000 per knowing or willful violation and $5,000 per negligent violation ($1,000 for a first negligent violation made in good faith), capped at $250,000 a year per entity; the Departments of Health, Insurance and Human Services enforce in their areas, and the Attorney General has exclusive authority to sue under the Unfair Trade Practices and Consumer Protection Law. The act would take effect in one year. Status and text are from LegiScan because palegis.us could not be reached.",
-   "added": "2026-09-29"
+   "checked": "2026-10-02",
+   "notes": "Referred to the House Communications and Technology Committee Oct. 6, 2025; reported as amended (Printer's No. 3349) May 5, 2026, given first consideration and laid on the table; removed from the table June 25, 2026; amended on second consideration Sept. 29, 2026 (Printer's No. 3963) and passed the House 144-59 on Sept. 30, 2026. It now goes to the Senate; the Senate companion, SB 1113, has not been reported from committee. The 2025-2026 session continues. The text does not say AI may not be the sole basis for a denial; it bars AI from basing a utilization review determination solely on a group data set or superseding the provider's decision-making and requires the provider review described above. A facility may not penalize a provider solely for exercising independent judgment that differs from an AI recommendation, and an insurer may not penalize a reviewing provider solely for refusing to issue or for overturning a decision. Communications only about administrative matters, such as scheduling or billing, and communications individually read, reviewed and approved by a human health care provider are exempt from the disclaimer. Insurers would also file annual AI compliance statements. Penalties would reach $10,000 per knowing or willful violation and $5,000 per negligent violation ($1,000 for a first negligent violation made in good faith); Printer's No. 3963 caps them at $100,000 a year per entity, down from $250,000 in Printer's No. 3349. The Departments of Health, Insurance and Human Services enforce in their areas, and the Attorney General has exclusive authority to sue under the Unfair Trade Practices and Consumer Protection Law. The act would take effect in one year. Status and text are from LegiScan.",
+   "added": "2026-09-29",
+   "changed": "2026-10-02"
   },
   {
    "id": "pa-naic-ai-bulletin-2024",
@@ -5373,12 +5388,12 @@
    "also": [],
    "kind": "rule",
    "name": "Medicare Program; Hospital Inpatient Prospective Payment Systems for Acute Care Hospitals (IPPS) and the Long-Term Care Hospital Prospective Payment System and Policy Changes and Fiscal Year (FY) 2027 Rates, final rule (CMS-1849-F), 91 FR 49570 (Aug. 4, 2026), RIN 0938-AV79; new technology add-on payments under 42 CFR 412.87 and 412.88",
-   "status": "enacted",
+   "status": "effective",
    "signed": "2026-08-04",
    "effective": "2026-10-01",
    "applies_to": "Hospitals paid under the Medicare inpatient prospective payment system",
    "summary": "Approves FY 2027 new technology add-on payments, including for AI tools such as Aidoc's BriefCase-Triage: CARE (Clinical AI Reasoning Engine) Multi-Triage CT Body (up to $137.53 per case) and the Bayesian Health Sepsis Flagging Device, described by its applicant as AI and machine learning-based software (up to $61.84 per case), each capped at 65 percent of the technology's average cost.",
-   "physician_read": "It places no duty on physicians. From Oct. 1, 2026, hospitals can receive add-on payments above the MS-DRG payment for eligible inpatient cases that use approved technologies, including these AI tools.",
+   "physician_read": "It places no duty on physicians. Since Oct. 1, 2026, hospitals can receive add-on payments above the MS-DRG payment for eligible inpatient cases that use approved technologies, including these AI tools.",
    "sources": [
     {
      "label": "Final rule",
@@ -5387,11 +5402,16 @@
     {
      "label": "CMS, New Medical Services and New Technologies",
      "url": "https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/new-medical-services-and-new-technologies"
+    },
+    {
+     "label": "Correction notice, Sept. 29, 2026",
+     "url": "https://www.federalregister.gov/documents/2026/09/29/2026-19946/medicare-program-hospital-inpatient-prospective-payment-systems-for-acute-care-hospitals-ipps-and"
     }
    ],
-   "checked": "2026-09-29",
-   "notes": "Both AI tools were approved under the alternative pathway for FDA Breakthrough Devices. The add-on is the lesser of 65 percent of the technology's average cost or 65 percent of the case's costs above the MS-DRG payment (42 CFR 412.88(a)(2)). Other technologies approved or continued for FY 2027 were not reviewed for AI. CMS's new technology page (modified Sept. 4, 2026) says the alternative pathway for FDA Breakthrough Devices applies to applications for fiscal years 2021 through 2029 for technologies designated as Breakthrough Devices as of Sept. 30, 2026 that receive marketing authorization for the designated indication by May 1, 2028. Applications for FY 2028 are due Oct. 5, 2026.",
-   "added": "2026-09-29"
+   "checked": "2026-10-02",
+   "notes": "Both AI tools were approved under the alternative pathway for FDA Breakthrough Devices. The add-on is the lesser of 65 percent of the technology's average cost or 65 percent of the case's costs above the MS-DRG payment (42 CFR 412.88(a)(2)). Other technologies approved or continued for FY 2027 were not reviewed for AI. CMS's new technology page (modified Sept. 4, 2026) says the alternative pathway for FDA Breakthrough Devices applies to applications for fiscal years 2021 through 2029 for technologies designated as Breakthrough Devices as of Sept. 30, 2026 that receive marketing authorization for the designated indication by May 1, 2028. Applications for FY 2028 are due Oct. 5, 2026. A correction notice published Sept. 29, 2026 and effective Oct. 1, 2026 fixed wage index, relative weight, budget neutrality and other technical errors; its only new technology add-on change concerns procedure codes for the Infuse Bone Graft, and it does not change the AI tools' add-on payments.",
+   "added": "2026-09-29",
+   "changed": "2026-10-02"
   },
   {
    "id": "us-ftc-hbnr-2024",
