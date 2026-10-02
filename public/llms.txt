@@ -1,12 +1,12 @@
 # Physician in the Loop
 
-> How artificial intelligence changes medicine for patients and the people who practice on the front lines. Daily posts, a Friday letter and a podcast.
+> How artificial intelligence changes medicine for patients and the people who practice on the front lines. A daily briefing, a Friday letter and a podcast.
 
-Published by Nomad Medical Group, LLC. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter is an unsigned editorial in the manner of a leader in The Economist, and the special topics are longer pieces on a single question.
+Published by Nomad Medical Group, LLC. The daily briefing is third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter is an unsigned editorial in the manner of a leader in The Economist, and the special topics are longer pieces on a single question.
 
 ## Sections
 
-- [Daily posts](https://physicianintheloop.org/posts/): one post every morning, newest first
+- [Daily briefing](https://physicianintheloop.org/posts/): one post every morning, newest first
 - [Friday letter](https://physicianintheloop.org/letters/): the weekly essay with recommendations
 - [Special topics](https://physicianintheloop.org/specials/): long pieces on one question
 - [Watch list](https://physicianintheloop.org/watch/): the signals that would change the picture

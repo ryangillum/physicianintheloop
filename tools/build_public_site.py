@@ -168,6 +168,12 @@ shown under the Share story link, used as the page's social image, shown beside 
 the newest letter on the home page, and named in letter.json and latest.json ("image", "image_alt"). In feed.xml each daily
 post now opens with its picture, as the Friday letters and special topics already did, so services that import the feed (Substack)
 show it; config "feed_post_images": false turns that off. Nothing else in the feed changes.
+Version 2.21 (Oct 2, 2026): the daily posts section is called "Daily briefing", the name the podcast's daily episodes use
+("Daily Briefing for <date>"): the tab and the menu entry, the breadcrumb on each post page, the /posts/ page's heading,
+title, description and structured data, the button rows, the law map's and topic pages' references to it, the 404 page,
+llms.txt and the default site description ("A daily briefing, a Friday letter and a podcast."; the live value comes from
+site.config.json). Addresses do not change (/posts/, /posts/<date>/), and a single piece is still a post ("Today's post",
+"Recent posts", "Listen to this post"). feed.xml changes only where it carries the site description.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -182,7 +188,7 @@ DEFAULT_CONFIG = {
     "site_url": "https://physicianintheloop.org/",
     "site_name": "Physician in the Loop",
     "tagline": "AI in medicine, for physicians",
-    "description": "How artificial intelligence changes medicine for patients and the people who practice on the front lines. Daily posts, a Friday letter and a podcast.",
+    "description": "How artificial intelligence changes medicine for patients and the people who practice on the front lines. A daily briefing, a Friday letter and a podcast.",
     "author": "Ryan Gillum, MD",
     "substack_url": "https://physicianintheloop.substack.com",
     "subscribe_url": "https://physicianintheloop.substack.com/subscribe",
@@ -538,7 +544,7 @@ def law_state_url(code): return FED_URL if code == "US" else "/law-map/%s/" % sl
 def explainer_url(slug): return "/explainers/%s/" % slug
 def patient_url(week): return "/patients/%s/" % week
 
-NAV = ([("/", "Today")] + ([("/podcast/", "Podcast")] if POD else []) + [("/posts/", "Daily posts"), ("/letters/", "Friday letter")]
+NAV = ([("/", "Today")] + ([("/podcast/", "Podcast")] if POD else []) + [("/posts/", "Daily briefing"), ("/letters/", "Friday letter")]
        + [("/specials/", "Special topics")]
        + ([("/law-map/", "Law map")] if LAWS else []) + ([("/rhtp/", "RHTP tracker")] if RHTP else []) + ([("/explainers/", "Explainers")] if EXPLAINERS else [])
        + [("/watch/", "Watch list"), ("/dates/", "Dates"), ("/where-things-stand/", "Where things stand")]
@@ -1688,7 +1694,7 @@ if posts:
     slug0, p0 = post_pages[0]
     body.append('<div class="eyebrow">Today\'s post</div>')
     body.append('<article class="post"><div class="post-date"><time datetime="%s">%s</time></div><h2 class="headline"><a href="%s" style="color:inherit;text-decoration:none">%s</a></h2>' % (esc(p0.get("date", "")), esc(fmt(p0.get("date"))), post_url(slug0), esc(p0.get("headline", ""))))
-    body.append(share_html(post_url(slug0), p0.get("headline") or "Daily post, " + fmt(p0.get("date"))))
+    body.append(share_html(post_url(slug0), p0.get("headline") or "Daily briefing, " + fmt(p0.get("date"))))
     body.append(post_body(p0, fig=post_figure(slug0), under_fig="" if p0.get("baseline") else episode_block(p0.get("date"))))
     body.append('<div class="more-row"><a class="btn ghost small" href="%s">Link to this post</a><a class="btn ghost small" href="/posts/">All posts</a><a class="btn ghost small" href="/where-things-stand/">Where things stand</a>%s</div></article>'
                 % (post_url(slug0), '<a class="btn ghost small" href="/specials/">Special topics</a>' if specials else ""))
@@ -1734,7 +1740,7 @@ def entry_page(kind, path, crumbs, headline, desc, date, article_html, older, ne
 
 for i, (slug, p) in enumerate(post_pages):
     path = post_url(slug)
-    headline = p.get("headline") or "Daily post, " + fmt(p.get("date"))
+    headline = p.get("headline") or "Daily briefing, " + fmt(p.get("date"))
     desc = describe(p.get("intro") or p.get("summary") or [p.get("dek") or headline])
     art = ['<article class="post"><div class="post-date"><time datetime="%s">%s</time>%s</div><h1 class="headline">%s</h1>' % (esc(p.get("date", "")), esc(fmt(p.get("date"))), " · Pinned" if p.get("baseline") else "", esc(headline))]
     art.append(share_html(path, headline))
@@ -1743,10 +1749,10 @@ for i, (slug, p) in enumerate(post_pages):
     older = (post_pages[i + 1][1].get("headline", ""), post_url(post_pages[i + 1][0])) if i + 1 < len(post_pages) else None
     newer = (post_pages[i - 1][1].get("headline", ""), post_url(post_pages[i - 1][0])) if i > 0 else None
     og_i, og_alt = og_for(POST_IMG, slug)
-    entry_page("NewsArticle", path, [(NAME, "/"), ("Daily posts", "/posts/"), (fmt(p.get("date")), None)], headline, desc, p.get("date"), "".join(art), older, newer, image=og_i, image_alt=og_alt)
+    entry_page("NewsArticle", path, [(NAME, "/"), ("Daily briefing", "/posts/"), (fmt(p.get("date")), None)], headline, desc, p.get("date"), "".join(art), older, newer, image=og_i, image_alt=og_alt)
     urls.append((path, p.get("date") or LAST_UPDATED, "weekly" if i else "daily", "0.8" if i < 7 else "0.6"))
 
-body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Daily posts</h1><span class="sub">newest first</span></div>',
+body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Daily briefing</h1><span class="sub">newest first</span></div>',
         '<p class="lead">One post every morning: what happened in AI and medicine the day before, written as straight news with every source linked.</p>']
 if post_pages:
     body.append('<ul class="letter-list post-list">')
@@ -1758,8 +1764,8 @@ if post_pages:
 else:
     body.append('<p class="empty">No posts yet.</p>')
 body.append('<p class="lead" style="margin-top:22px">The same items sorted by kind: <a href="/topics/regulation/">regulation</a>, <a href="/topics/deployment/">deployment</a>, <a href="/topics/evidence/">evidence</a>, <a href="/topics/money/">money</a>, <a href="/topics/workforce/">workforce</a>, <a href="/topics/incident/">incidents</a>.</p>')
-page("/posts/", "Daily posts", "Every daily post from %s, newest first: AI in medicine as straight news, with the sources linked." % NAME, '<section class="panel">' + "".join(body) + "</section>", active="/posts/",
-     jsonld={"@context": "https://schema.org", "@type": "CollectionPage", "name": "Daily posts", "url": absurl("/posts/"), "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}})
+page("/posts/", "Daily briefing", "Every daily briefing from %s, newest first: AI in medicine as straight news, with the sources linked." % NAME, '<section class="panel">' + "".join(body) + "</section>", active="/posts/",
+     jsonld={"@context": "https://schema.org", "@type": "CollectionPage", "name": "Daily briefing", "url": absurl("/posts/"), "isPartOf": {"@type": "WebSite", "name": NAME, "url": SITE}})
 urls.append(("/posts/", LAST_UPDATED, "daily", "0.9"))
 
 # ------------------------------------------------------------------ Friday letters
@@ -2434,7 +2440,7 @@ def build_law_map():
                 'in five categories: ' + esc(join_and([cat_lower(l) for k, l, _ in LAW_CATS])) + '. '
                 'A bill goes on the map once it has passed at least one committee, and a failed bill keeps its entry, marked failed.'
                 + (' A state with no entries was reviewed and nothing in scope was found; its page says so.' if all_reviewed else '')
-                + ('' if fed else ' Federal rules are covered in the <a href="/posts/">daily posts</a> and on the <a href="/watch/">watch list</a>.') + '</p>'
+                + ('' if fed else ' Federal rules are covered in the <a href="/posts/">daily briefing</a> and on the <a href="/watch/">watch list</a>.') + '</p>'
                 + (('<p>The <a href="%s">federal section</a> records statutes, final and proposed rules, agency guidance, executive orders and CMS programs, '
                     'in %s categories: %s, and lists a bill in Congress once it has passed a committee.</p>'
                     % (FED_URL, NUM_WORD.get(len(FED_CATS), str(len(FED_CATS))), esc(join_and([cat_lower(l) for k, l, _ in FED_CATS])))) if fed else '')
@@ -2818,7 +2824,7 @@ for key, label, blurb in CATEGORIES:
         continue
     path = "/topics/%s/" % key
     topic_links.append((path, label, len(entries)))
-    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">%s</h1><span class="sub">%d items from the daily posts</span></div>' % (esc(label), len(entries)),
+    body = ['<div class="panel-head"><h1 style="font-size:1.6rem">%s</h1><span class="sub">%d items from the daily briefing</span></div>' % (esc(label), len(entries)),
             '<p class="lead">%s Each item links to the day it ran and to its original source.</p>' % esc(blurb), '<ul class="items">']
     for date, slug, n, it in entries:
         title = ext_link(it.get("title") or "", it["url"]) if it.get("url") else esc(it.get("title") or "")
@@ -2834,7 +2840,7 @@ for key, label, blurb in CATEGORIES:
     urls.append((path, LAST_UPDATED, "daily", "0.6"))
 if topic_links:
     body = ['<div class="panel-head"><h1 style="font-size:1.6rem">Topics</h1><span class="sub">the daily items, sorted by kind</span></div>',
-            '<p class="lead">Every item from the daily posts, grouped by what kind of development it is.</p>', '<ul class="archive">']
+            '<p class="lead">Every item from the daily briefing, grouped by what kind of development it is.</p>', '<ul class="archive">']
     for path, label, n in topic_links:
         body.append('<li><span class="when">%d items</span><a href="%s">%s</a></li>' % (n, path, esc(label)))
     body.append("</ul>")
@@ -2980,7 +2986,7 @@ if CONTACT:
     page("/contact/thanks/", "Message sent", "Your message to %s is on its way." % NAME,
          '<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">Thank you</h1><span class="sub">message sent</span></div>'
          '<p class="lead">Your message is on its way to us. If it needs an answer, we will reply to the email address you gave.</p>'
-         '<div class="more-row"><a class="btn ghost small" href="/">Front page</a><a class="btn ghost small" href="/posts/">Daily posts</a><a class="btn ghost small" href="/letters/">Friday letter</a></div></section>',
+         '<div class="more-row"><a class="btn ghost small" href="/">Front page</a><a class="btn ghost small" href="/posts/">Daily briefing</a><a class="btn ghost small" href="/letters/">Friday letter</a></div></section>',
          noindex=True)
     if CONTACT_LIVE:
         urls.append(("/contact/", LAST_UPDATED, "yearly", "0.3"))
@@ -3002,7 +3008,7 @@ def feed_img(img_map, slug):
 
 
 for slug, p in post_pages:
-    feed_items.append((p.get("date") or "", 2, p.get("headline") or "Daily post", absurl(post_url(slug)), describe(p.get("intro") or [p.get("headline")], 300),
+    feed_items.append((p.get("date") or "", 2, p.get("headline") or "Daily briefing", absurl(post_url(slug)), describe(p.get("intro") or [p.get("headline")], 300),
                        (feed_img(POST_IMG, slug) if FEED_POST_IMAGES else "") + post_body(p), NAME))
 for slug, w in letter_pages:
     feed_items.append((w.get("weekOf") or "", 3, w.get("headline") or "The Friday letter", absurl(letter_url(slug)), plain(w.get("dek") or ""), (('<p><img src="%s" alt="%s" width="1200" height="630"></p>' % (esc(LETTER_IMG[slug][0] if LETTER_IMG[slug][0].startswith("https://") else absurl(LETTER_IMG[slug][0])), esc(LETTER_IMG[slug][1]))) if slug in LETTER_IMG else "") + paras(w.get("body")) + ('<div class="section-label">SOURCE MATERIAL</div>' + render_items(w["top"]) if w.get("top") else "") + (paras(w["outlook"]) if w.get("outlook") else ""), NAME))
@@ -3033,11 +3039,11 @@ recent = [(slug, p) for slug, p in post_pages if p.get("date") and (datetime.dat
 ns = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">']
 for slug, p in recent:
     ns.append("<url><loc>%s</loc><news:news><news:publication><news:name>%s</news:name><news:language>en</news:language></news:publication><news:publication_date>%s</news:publication_date><news:title>%s</news:title></news:news></url>"
-              % (esc(absurl(post_url(slug))), esc(NAME), iso_dt(p["date"]), esc(p.get("headline") or "Daily post")))
+              % (esc(absurl(post_url(slug))), esc(NAME), iso_dt(p["date"]), esc(p.get("headline") or "Daily briefing")))
 ns.append("</urlset>")
 write("/sitemap-news.xml", "\n".join(ns) + "\n")
 write("/robots.txt", "User-agent: *\nAllow: /\nSitemap: %s\nSitemap: %s\n" % (absurl("/sitemap.xml"), absurl("/sitemap-news.xml")))
-write("/llms.txt", "# %s\n\n> %s\n\nPublished by %s. Daily posts are third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter is an unsigned editorial in the manner of a leader in The Economist, and the special topics are longer pieces on a single question.\n\n## Sections\n\n- [Daily posts](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
+write("/llms.txt", "# %s\n\n> %s\n\nPublished by %s. The daily briefing is third-person news wire copy about artificial intelligence in medicine, each item linked to its original source; the Friday letter is an unsigned editorial in the manner of a leader in The Economist, and the special topics are longer pieces on a single question.\n\n## Sections\n\n- [Daily briefing](%s): one post every morning, newest first\n- [Friday letter](%s): the weekly essay with recommendations\n- [Special topics](%s): long pieces on one question\n- [Watch list](%s): the signals that would change the picture\n- [Dates](%s): deadlines, effective dates, hearings\n- [Where things stand](%s): the long read\n- [Topics](%s): the daily items grouped by kind\n- [About](%s)\n- [RSS feed](%s)\n"
       % (NAME, config["description"], PUBLISHED_BY, absurl("/posts/"), absurl("/letters/"), absurl("/specials/"), absurl("/watch/"), absurl("/dates/"), absurl("/where-things-stand/"), absurl("/topics/"), absurl("/about/"), absurl("/feed.xml"))
       + ("- [Podcast](%s): each morning's post as an audio briefing; podcast feed %s\n" % (absurl("/podcast/"), POD["rss"]) if POD else "") + LLMS_EXTRA
       + ("- [Contact](%s): questions, corrections, news tips and press requests\n" % absurl("/contact/") if CONTACT_LIVE else ""))
@@ -3055,7 +3061,7 @@ write("/_redirects", "/subscribe  %s  302\n/substack   %s  302\n/newsletter %s  
 write("/_headers", "/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n"
       "/images/*\n  Cache-Control: public, max-age=604800\n/og-image.png\n  Cache-Control: public, max-age=86400\n/logo.png\n  Cache-Control: public, max-age=604800\n"
       "/podcast/cover-3000.jpg\n  Access-Control-Allow-Origin: *\n  Cache-Control: public, max-age=86400\n")
-page("/404.html", "Page not found", "That page is not here.", '<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">That page is not here</h1></div><p class="lead">Try the <a href="/">front page</a>, the <a href="/posts/">daily posts</a>, or the <a href="/letters/">Friday letter</a>.</p></section>')
+page("/404.html", "Page not found", "That page is not here.", '<section class="panel"><div class="panel-head"><h1 style="font-size:1.6rem">That page is not here</h1></div><p class="lead">Try the <a href="/">front page</a>, the <a href="/posts/">daily briefing</a>, or the <a href="/letters/">Friday letter</a>.</p></section>')
 HAS_FUNCTIONS = write_episode_function()
 try:
     HAS_CF_FUNCTIONS = write_cloudflare_functions()
