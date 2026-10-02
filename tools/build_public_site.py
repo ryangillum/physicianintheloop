@@ -177,6 +177,11 @@ site.config.json). Addresses do not change (/posts/, /posts/<date>/), and a sing
 Version 2.22 (Oct 2, 2026): the daily post's player (on the post page and on the home page's today's post) says "read by
 AI voices" beside "Listen to this post", before its "all episodes" link, in the muted style of the letters' and special
 topics' "read by an AI voice". Nothing else changes.
+Version 2.23 (Oct 2, 2026): an overview at the top of each law map page. The page JSON's law_overviews[] holds one record
+per state and one for the federal section, {state, text, as_of}: one or two paragraphs on the lay of the land, in which
+[phrase](law:<entry id>) links to that entry's card (on the same page, or on another state's or the federal page; an unknown
+id is shown as plain text and logged). The overview sits under the page's count line, headed "Overview · as of <date>", on
+the state pages, the pages of states reviewed with nothing found, and /law-map/federal/. Nothing else changes.
 """
 import sys, re, os, io, json, html as H, base64, hashlib, shutil, datetime, urllib.parse
 
@@ -376,6 +381,17 @@ LAWS = _keep("law map entries", data.get("laws"), _law_ok, lambda e: e.get("id")
 STATE_LAWS = [e for e in LAWS if e["state"] != "US"]
 FED_LAWS = [e for e in LAWS if e["state"] == "US"]
 LAW_REVIEWS = {r["state"]: r for r in _keep("law map reviews", data.get("law_reviews"), _review_ok, lambda r: r.get("state"))}
+
+
+def _overview_ok(o):
+    """A usable law_overviews record (2.23): {state (one of the 50, or "US"), text, as_of (YYYY-MM-DD)}."""
+    return ((o.get("state") in STATE_NAME or o.get("state") == "US") and isinstance(o.get("text"), str) and o["text"].strip()
+            and _iso(o.get("as_of")))
+
+
+LAW_OVERVIEWS = {o["state"]: o for o in _keep("law map overviews", data.get("law_overviews"), _overview_ok, lambda o: o.get("state"))}  # 2.23
+LAW_BY_ID = {e.get("id"): e for e in LAWS if e.get("id")}
+LAWLINK_RE = re.compile(r"\[([^\]]+)\]\(law:([a-z0-9][a-z0-9-]*)\)")
 RHTP = []  # the Rural Health Transformation Program tracker was retired on Sept 29, 2026; any "rhtp" rows in the page JSON are ignored
 if data.get("rhtp"):
     print("note: the page JSON has %d program tracker rows; the tracker is retired and they are not published" % len(data.get("rhtp") or []), file=sys.stderr)
@@ -1993,6 +2009,33 @@ def law_anchor(e):
     return "law-" + slugify(e.get("id") or e.get("name"))
 
 
+def law_link_rich(text, here):
+    """rich() plus [phrase](law:<id>) links to an entry's card, on this page or on another state's or the federal page (2.23)."""
+    out, last = [], 0
+    for m in LAWLINK_RE.finditer(text):
+        out.append(rich(text[last:m.start()]))
+        e = LAW_BY_ID.get(m.group(2))
+        if e:
+            href = ("" if e.get("state") == here else law_state_url(e["state"])) + "#" + law_anchor(e)
+            out.append('<a href="%s">%s</a>' % (esc(href), esc(m.group(1))))
+        else:
+            print("warning: the %s overview links %s, which is not on the map; shown as plain text" % (here, m.group(2)), file=sys.stderr)
+            out.append(esc(m.group(1)))
+        last = m.end()
+    out.append(rich(text[last:]))
+    return "".join(out)
+
+
+def law_overview_html(code):
+    """The overview at the top of a state's or the federal page, if the page JSON has one (2.23)."""
+    o = LAW_OVERVIEWS.get(code)
+    if not o:
+        return ""
+    paras = [p.strip() for p in re.split(r"\n\s*\n", o["text"]) if p.strip()]
+    return ('<section class="law-overview" aria-label="Overview"><div class="lo-label">Overview · as of <time datetime="%s">%s</time></div>%s</section>'
+            % (esc(o["as_of"]), esc(fmt(o["as_of"])), "".join("<p>%s</p>" % law_link_rich(p, code) for p in paras)))
+
+
 def law_cats(e):
     labels = cat_labels(e)
     also = e.get("also") if isinstance(e.get("also"), list) else []
@@ -2237,7 +2280,12 @@ LAW_CSS = (("lm-fed", ".lm-fed { margin: 16px 0 0; padding: 10px 14px; backgroun
                       "border-radius: 10px; font-size: 0.95rem; color: var(--ink-2); } .lm-fed a { font-weight: 600; }"),
            ("lm-bulk", ".archive .lm-bulk { font-family: var(--display); font-weight: 600; font-size: 1.08rem; line-height: 1.3; color: var(--ink); }"),
            ("law-intro", ".lawstate .law-intro { margin-top: 12px; }"),
-           ("law-fed", ".lawstate .law-fed { margin-top: 26px; } .lawstate .law-fed + .law-foot { margin-top: 8px; }"))
+           ("law-fed", ".lawstate .law-fed { margin-top: 26px; } .lawstate .law-fed + .law-foot { margin-top: 8px; }"),
+           ("law-overview", ".lawstate .law-overview { margin: 18px 0 6px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--rule); "
+                            "border-radius: 12px; } .lawstate .law-overview p { margin: 0 0 10px; color: var(--ink); } "
+                            ".lawstate .law-overview p:last-child { margin-bottom: 0; } .lawstate .lo-label { font-family: var(--mono); "
+                            "font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; } "
+                            "@media (max-width: 480px) { .lawstate .law-overview { padding: 14px; } }"))
 
 
 def law_css(body):
@@ -2272,7 +2320,7 @@ def build_federal_page(entries, review):
     summary = fed_summary(ents)
     crumb_ld, crumb_html = breadcrumbs([(NAME, "/"), ("Law map", "/law-map/"), ("Federal", None)])
     art = [crumb_html, '<article class="post lawstate"><div class="post-date">AI health law map</div>',
-           '<h1 class="headline">Federal: AI health law and policy</h1>', '<p class="standfirst">%s</p>' % esc(summary),
+           '<h1 class="headline">Federal: AI health law and policy</h1>', '<p class="standfirst">%s</p>' % esc(summary), law_overview_html("US"),
            '<p class="lm-note law-intro">The federal section records statutes, final and proposed rules, agency guidance, executive orders and CMS programs '
            'that govern or directly shape the use of AI in health care, and lists a bill in Congress once it has passed a committee.</p>']
     note = ((review or {}).get("note") or "").strip()
@@ -2299,7 +2347,7 @@ def reviewed_state_page(code, review, fed_line):
     summary = "No state law, rule, insurance bulletin or bill in the map's scope was found in the review of %s." % fmt(review["reviewed"])
     crumb_ld, crumb_html = breadcrumbs([(NAME, "/"), ("Law map", "/law-map/"), (name, None)])
     art = [crumb_html, '<article class="post lawstate"><div class="post-date">AI health law map</div>',
-           '<h1 class="headline">%s: AI health laws</h1>' % esc(name), '<p class="standfirst">%s</p>' % esc(summary)]
+           '<h1 class="headline">%s: AI health laws</h1>' % esc(name), '<p class="standfirst">%s</p>' % esc(summary), law_overview_html(code)]
     note = (review.get("note") or "").strip()
     if note:
         art.append('<p class="lm-note law-intro">%s</p>' % rich(note))
@@ -2489,7 +2537,7 @@ def build_law_map():
         summary = state_summary(ents)
         crumb_ld, crumb_html = breadcrumbs([(NAME, "/"), ("Law map", "/law-map/"), (name, None)])
         art = [crumb_html, '<article class="post lawstate"><div class="post-date">AI health law map</div>',
-               '<h1 class="headline">%s: AI health laws</h1>' % esc(name), '<p class="standfirst">%s</p>' % esc(summary)]
+               '<h1 class="headline">%s: AI health laws</h1>' % esc(name), '<p class="standfirst">%s</p>' % esc(summary), law_overview_html(code)]
         note = ((review or {}).get("note") or "").strip()
         if note:
             art.append('<p class="lm-note law-intro">%s</p>' % rich(note))
